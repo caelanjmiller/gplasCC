@@ -41,7 +41,7 @@ class PriorityPrinting(argparse.Action):
         if option_string == "-h" or option_string == "--help":
             parser.print_help()
         elif option_string == "-v" or option_string == "--version":
-            print(f"gplas version {VERSION}")    
+            print(f"gplas version {VERSION}")
         parser.exit()
 
 #create a function to pass float ranges
@@ -80,9 +80,9 @@ We hope it helps your research, thanks for using gplas version {VERSION}!
 
 Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
-    
+
     sys.exit(0)
-    
+
 def success_message_extract():
     print ('\n')
     print(read_logo)
@@ -97,28 +97,28 @@ We hope it helps your research, thanks for using gplas version {VERSION}!.
 
 Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
-    
+
     sys.exit(0)
-    
+
 
 #Prediction not successful
-def error_message():    
+def error_message():
     print('\n')
     print("""
 Looks like no plasmids could be detected in your assembly graph
 
-Please check the file:   coverage/*_clean_prediction.tab. 
+Please check the file:   coverage/*_clean_prediction.tab.
 If all contigs were predicted as chromosome, gplas probably failed at the step to create random walks starting from plasmid seeds. If that's the case, probably your isolate does not carry any plasmid(s)
 If you don't see any files present at:   gplas_input/  or  coverage/  most likely the installation of gplas failed at some point
 
-          
+
         """)
     sys.exit(0)
 
-def error_message_extract():    
+def error_message_extract():
     print('\n')
     print("""
-Looks like the nodes were not extracted. Please, check above for error messages. 
+Looks like the nodes were not extracted. Please, check above for error messages.
 
         """)
     sys.exit(0)
@@ -144,11 +144,11 @@ def runSnake(command):
 if args.help==True:
     help_message()
     sys.exit(0)
-    
+
 if args.version==True:
     print_version()
     sys.exit(0)
- 
+
 if args.classifier=='mlplasmids':
     print("mlplasmids has been deprecated for use with gplas. Instead, we recommend using plasmidEC (https://github.com/lisavader/plasmidEC) coupled with the extract and predict commands")
     sys.exit(1)
@@ -164,10 +164,10 @@ elif args.classifier=='plasflow':
     #snakeFile=f"{snkdir}/plasflowsnake.smk"
     #if args.threshold_prediction is None:
     #    args.threshold_prediction=0.7
-    
+
 elif args.classifier=='extract' or args.classifier=='predict':
-    snakeFile=f"{snkdir}/otherclassifiers.smk"
-    
+    snakeFile=f"{snkdir}/otherclassifiers_python.smk" #edited python version
+
 if args.threshold_prediction is None:
     args.threshold_prediction=0.5
 
@@ -195,7 +195,7 @@ print("Minimum frequency to consider an edge: ", args.edge_threshold)
 print("Modularity threshold used to partition the network: ", args.modularity_threshold)
 print("Coverage SD for bold mode: ", args.bold_walks)
 print("Minimum sequence length: ", args.length_filter)
-print("##################################################################")    
+print("##################################################################")
 
 #Set up snakemake config files
 
@@ -220,10 +220,22 @@ with open(template_file, 'w+') as template:
     template.write(f'predict_dir: "{str(args.prediction)}"\n')
 
 time.sleep(1)
-   
+
+# make DAG / rulegraph pdf of snakemake workflow
+"""
+print("Making DAG pdf\n")
+command_snakemake_dag=f'snakemake --dag --use-conda --configfile {template_file} -d $PWD -s {snakeFile} results/{args.name}_chromosome_repeats.tab | dot -Tpdf > dag.pdf'
+runSnake(command_snakemake_dag)
+print("Making rulegraph pdf\n")
+command_snakemake_rulegraph=f'snakemake --rulegraph --use-conda --configfile {template_file} -d $PWD -s {snakeFile} results/{args.name}_chromosome_repeats.tab | dot -Tpdf > rulegraph.pdf'
+runSnake(command_snakemake_rulegraph)
+print("Making d3dag json\n")
+command_snakemake_d3dag=f'snakemake --d3dag --use-conda --configfile {template_file} -d $PWD -s {snakeFile} results/{args.name}_chromosome_repeats.tab > D3.js'
+runSnake(command_snakemake_d3dag)
+sys.exit(0)
+"""
+
 #3. Run analysis
-
-
 if args.classifier=='extract':
     ##3.1  If classifier is extract, then unlock folder, perform extraction mode and quit gplas
     print("We need to extract the contigs first from the assembly graph, use later those contigs for your binary prediction.\n")
@@ -231,7 +243,7 @@ if args.classifier=='extract':
     command_snakemake_run=f'snakemake --use-conda --configfile {template_file} -d $PWD -s {snakeFile} gplas_input/{args.name}_raw_nodes.fasta'
     runSnake(command_snakemake_unlock)
     runSnake(command_snakemake_run)
-    
+
 
 else:
     ##3.3 Run snakemake workflows until obtainin the _raw_nodes.fasta file.
@@ -242,9 +254,9 @@ else:
 
     #3.4 Check if the independent prediction file is correctly formatted.
     print("Checking if prediction file is correctly formatted.\n")
-    check_file_output_command=f'Rscript {scriptdir}/check_independent_prediction_format.R {args.name} {args.prediction}'
+    check_file_output_command=f'python3 {scriptdir}/python_check_independent_prediction_format.py {args.name} {args.prediction}' #edited python version
     check_file_run=subprocess.run(check_file_output_command, shell=True, text=True, executable='/bin/bash',capture_output=True)
-    
+
     if check_file_run.returncode == 0: #if file is correctly formated, continue the snakemake pipeline
         print(check_file_run.stdout)
         command_snakemake_unlock=f'snakemake --unlock --use-conda --configfile  {template_file} -d $PWD -s {snakeFile} results/normal_mode/{args.name}_results_no_repeats.tab'
@@ -263,13 +275,13 @@ else:
             command_snakemake_run=f'snakemake --use-conda --configfile {template_file} -d $PWD -s {snakeFile} results/{args.name}_results_no_repeats.tab'
             runSnake(command_snakemake_unlock)
             runSnake(command_snakemake_run)
-        else:            
+        else:
             for file in glob.glob(f"results/normal_mode/{args.name}*"):
                 shutil.copy(file, "results/")
-            
+
 
 ## 3.6 ADD REPEATED ELEMENTS.
-        ##3.6.1 Now add the repeats to the final bins 
+        ##3.6.1 Now add the repeats to the final bins
         repeated_elements_path=f'coverage/{args.name}_repeat_nodes.tab'
         line_content=linecache.getline(repeated_elements_path,2)
         if line_content:
@@ -280,21 +292,21 @@ else:
             command_snakemake_run=f'snakemake --use-conda --configfile {template_file} -d $PWD -s {snakeFile} results/{args.name}_results.tab'
             runSnake(command_snakemake_unlock)
             runSnake(command_snakemake_run)
-        else:##3.6 If there are not repeated elementss, just rename the results files.           
+        else:##3.6 If there are not repeated elementss, just rename the results files.
             shutil.move("results/{args.name}_results_no_repeats.tab", "results/{args.name}_results.tab")
             shutil.move("results/{args.name}_bins_no_repeats.tab", "results/{args.name}_bins.tab")
-        
+
     else:
         print(check_file_run.stderr)
         print("Please modify format on input files and re-run gplas")
-        sys.exit(1)    
-           
+        sys.exit(1)
+
 ##3.7 If the -k flag was not selected, delete intermediary files
 if args.keep==False and args.classifier!='extract':
   print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
   remove_command=f'bash {scriptdir}/remove_intermediate_files.sh -n '+args.name
   subprocess.run(remove_command, shell=True, text=True, executable='/bin/bash')
-      
+
 ##3.8 Check that output has been correctly created
 final_results_path='results/'+args.name+'_results.tab'
 raw_nodes_path='gplas_input/'+args.name+'_contigs.fasta'
