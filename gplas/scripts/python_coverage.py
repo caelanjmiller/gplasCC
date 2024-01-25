@@ -24,7 +24,7 @@ if(manual_mode == True):
     path_prediction = "test_ecoli_plasmid_prediction.tab"
     #Params
     classifier = "predict"
-    threshold = float("0.95")
+    threshold = float("0.5")
     #Outputs
     output_graph_contigs = "coverage\\ecoli_graph_contigs.tab"
     output_clean_links = "coverage\\ecoli_clean_links.tab"

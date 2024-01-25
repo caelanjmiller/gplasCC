@@ -1,0 +1,2 @@
+#!/bin/sh
+mkdir gplas_input; mkdir coverage; mkdir logs; mkdir walks; mkdir walks/normal_mode; mkdir walks/bold_mode; mkdir walks/repeats; mkdir walks/unbinned_nodes; mkdir results; mkdir results/normal_mode
