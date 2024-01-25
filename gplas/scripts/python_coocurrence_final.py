@@ -250,7 +250,6 @@ else:
     results_subgraph.to_csv(output_components, sep="\t", index=False, header=True, mode="w")
 #improve remove this empty png?? or keep for consistency by always producing 'a' plot?
     ig.plot(None, target=output_png, bbox=(700,700))
-    #ASK is sys.exit() the right function to use?
     sys.exit(0)
 
 weight_counting = pd.DataFrame(weight_counting, columns=["Pair","Count"])

@@ -72,7 +72,6 @@ repeats.loc[:,"number"] = [name.replace("-","") for name in repeats["number"]]
 
 initialize_nodes = pd.read_csv(path_init_nodes, sep="\t", header=None)
 
-#ASK not sure if sys.exit() works to exit the whole workflow
 if(initialize_nodes.shape[0] == 0):
     sys.exit("There are no suitable plasmids to initiate a random walk. gplas can't do anything")
 

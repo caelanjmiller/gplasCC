@@ -8,8 +8,6 @@ import pandas as pd
 from pandas.api.types import is_integer_dtype, is_float_dtype, is_object_dtype, is_string_dtype
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
-#ASK use sys.exit() or exit()???????
-
 manual_mode = True
 if(manual_mode == True):
     os.chdir("C:\\Users\\oscar\\Documenten\\UU\\04_BiBc\\6.2_Research_Profile\\gplas\\test_runs\\test_sandbox\\")

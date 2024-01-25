@@ -82,7 +82,6 @@ repeats_export = pd.DataFrame(list(set(repeats.loc[:,"number"])))
 
 initialize_nodes = pd.read_csv(path_init_nodes, sep="\t", header=None)
 
-#ASK not sure if sys.exit() works to exit the whole workflow
 if(initialize_nodes.shape[0] == 0):
     sys.exit("There are no repeats in your genome. Repeat recovery step will not run")
 

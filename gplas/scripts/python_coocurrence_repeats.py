@@ -318,7 +318,7 @@ if((total_pairs.shape[0] > 0) & (total_pairs.shape[1] > 0)):
     total_pairs.loc[:,"Pair"] = ["-".join([total_pairs.loc[row,"Bin"], total_pairs.loc[row,"Starting_node"]]) for row in range(total_pairs.shape[0])]
 else:
     print("gplas couldn't find any walks connecting repeats to plasmid-nodes.")
-    #ASK is sys.exit() the right function to use?; why is it randomly status=1 in the final script?
+    #ASK why is it randomly status=1 in the final script?
     sys.exit(1)
 
 single_edge_counting = []
