@@ -63,11 +63,10 @@ kc_check = sum([name.count("KC") for name in raw_contig_names])
 
 #TODO run with test data that contains KC
 if(kc_check == len(raw_contig_names)):
-  length = [len(entry[1]) for entry in raw_nodes]
-  kc_count = [name.split(":", maxsplit=4)[2] for name in raw_contig_names]
-  kc_count = [int(name.replace("_","")) for name in kc_count]
-  kc_coverage = [name/length for name in kc_count]
-  kc_coverage = [count/length for count, length in zip(kc_count, length)]
+  lengths = [len(entry[1]) for entry in raw_nodes]
+  kc_counts = [name.split(":", maxsplit=4)[2] for name in raw_contig_names]
+  kc_counts = [int(name.replace("_","")) for name in kc_counts]
+  kc_coverage = [kc/length for kc, length in zip(kc_counts, lengths)]
   coverage = [coverage/statistics.median(kc_coverage) for coverage in kc_coverage]
 
 #improve range 1-len(names)? + cast as string
@@ -75,22 +74,22 @@ raw_number = [name.split("_")[0] for name in raw_contig_names]
 number = [name.replace("S","") for name in raw_number]
 
 if(kc_check != len(raw_contig_names)):
-    raw_length = [name.split(":")[2] for name in raw_contig_names]
-    length = [int(name.replace("_dp","")) for name in raw_length]
+    raw_lengths = [name.split(":")[2] for name in raw_contig_names]
+    lengths = [int(name.replace("_dp","")) for name in raw_lengths]
     coverage = [float(name.split(":")[4]) for name in raw_contig_names]
 
 contig_info = pd.DataFrame(data={"number":number,
-                                 "length":length,
+                                 "length":lengths,
                                  "coverage":coverage,
                                  "Contig_name":raw_contig_names})
 
 graph_pos_contigs = pd.DataFrame(data={"number":[digit+"+" for digit in number],
-                                       "length":length,
+                                       "length":lengths,
                                        "coverage":coverage,
                                        "Contig_name":raw_contig_names})
 
 graph_neg_contigs = pd.DataFrame(data={"number":[digit+"-" for digit in number],
-                                       "length":length,
+                                       "length":lengths,
                                        "coverage":coverage,
                                        "Contig_name":raw_contig_names})
 #improve find a way to do this without using concat; just use dicts as intermediary instead of full dataframes?
