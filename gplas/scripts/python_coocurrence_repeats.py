@@ -20,7 +20,7 @@ import sys
 manual_mode = True
 if(manual_mode == True):
     import os
-    os.chdir("C:\\Users\\oscar\\Documenten\\UU\\04_BiBc\\6.2_Research_Profile\\all_gplas_scripts\\test_run_sandbox\\")
+    os.chdir("C:\\Users\\oscar\\Documenten\\UU\\04_BiBc\\6.2_Research_Profile\\gplas\\test_runs\\test_sandbox\\")
     os.getcwd()
     #Inputs
     path_nodes = "gplas_input\\ecoli_raw_nodes.fasta"

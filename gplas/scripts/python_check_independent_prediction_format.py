@@ -12,7 +12,7 @@ from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 manual_mode = True
 if(manual_mode == True):
-    os.chdir("C:\\Users\\oscar\\Documenten\\UU\\04_BiBc\\6.2_Research_Profile\\all_gplas_scripts\\test_run_sandbox\\")
+    os.chdir("C:\\Users\\oscar\\Documenten\\UU\\04_BiBc\\6.2_Research_Profile\\gplas\\test_runs\\test_sandbox\\")
     os.getcwd()
     isolate_name = "ecoli"
     prediction_dir = "test_ecoli_plasmid_prediction.tab"
