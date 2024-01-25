@@ -61,7 +61,6 @@ raw_contig_names = [str(entry[0]) for entry in raw_nodes]
 
 kc_check = sum([name.count("KC") for name in raw_contig_names])
 
-#TODO run with test data that contains KC
 if(kc_check == len(raw_contig_names)):
   lengths = [len(entry[1]) for entry in raw_nodes]
   kc_counts = [name.split(":", maxsplit=4)[2] for name in raw_contig_names]
@@ -160,7 +159,7 @@ if classifier == "mlplasmids":
 if classifier == "predict":
     clean_pred = pred
 
-#TODO test / complete plasflow code: need plasflow data; Rscript lines 154-200
+#improve remove code, we're not using plasflow anymore; plasflow code: Rscript lines 154-200
 '''
 if classifier == "plasflow":
     pred = pred[pred["contig_length"] > 1000]
