@@ -19,8 +19,9 @@ if __name__ == "__main__":
     from m_coverage import coverage
            
     ##arguments
-    #only need sample, .gfa file, prediction file, and -flag parameters; all the rest is hardcoded like "coverage/{sample}_clean_links"
+    #only need sample, .gfa file, prediction file, and -flag parameters; all the rest is hardcoded like f"coverage/{sample}_clean_links"
     sample = "ecoli"
+    path_assembly_graph = "test_ecoli.gfa"
     path_prediction = "test_ecoli_plasmid_prediction.tab"
     #Params
     classifier = "predict"
