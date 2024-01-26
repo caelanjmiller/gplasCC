@@ -18,3 +18,4 @@ gplas.egg-info/
 gplas/__pycache__/
 .snakemake
 templates/final.yaml
+gplas/scripts/module_development/__pycache__/
