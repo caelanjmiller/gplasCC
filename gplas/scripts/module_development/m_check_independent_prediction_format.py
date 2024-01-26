@@ -94,5 +94,5 @@ def check_prediction(sample_name, path_prediction):
     #######################################################################################################################################
     
     #6. All checks are successful
-    print("Congrats! Your prediction file is correctly formatted. Now we are moving on to predicting your plasmids.")
+    print("Congrats! Your prediction file is correctly formatted. Now we are moving on to predicting your plasmids.\n")
     return
