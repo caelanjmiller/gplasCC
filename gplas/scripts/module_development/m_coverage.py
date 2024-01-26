@@ -13,7 +13,27 @@ import statistics
 #import copy
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
-def coverage(path_nodes, path_links, path_prediction, classifier, threshold, output_graph_contigs, output_clean_links, output_graph_repeats, output_clean_prediction, output_isolated_nodes, output_clean_repeats, output_initialize_nodes, output_repeat_nodes, output_cov_estimate):
+def coverage(sample, path_prediction, classifier, threshold):
+    #Inputs    
+    path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
+    path_links = f"gplas_input/{sample}_raw_links.txt"
+    #path_prediction = "test_ecoli_plasmid_prediction.tab"
+        
+    #Params
+    #classifier = "predict"
+    #threshold = float("0.95")
+    
+    #Outputs
+    output_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
+    output_clean_links = f"coverage/{sample}_clean_links.tab"
+    output_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
+    output_clean_prediction = f"coverage/{sample}_clean_prediction.tab"
+    output_isolated_nodes = f"coverage/{sample}_isolated_nodes.tab"
+    output_clean_repeats = f"coverage/{sample}_clean_repeats.tab"
+    output_initialize_nodes = f"coverage/{sample}_initialize_nodes.tab"
+    output_repeat_nodes = f"coverage/{sample}_repeat_nodes.tab"
+    output_cov_estimate = f"coverage/{sample}_estimation.txt"
+    
     print("Calculating base coverage of sample...")
     
     with open(path_nodes) as file:

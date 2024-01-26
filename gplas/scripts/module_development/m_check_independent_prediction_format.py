@@ -6,11 +6,12 @@ import pandas as pd
 from pandas.api.types import is_integer_dtype, is_float_dtype, is_object_dtype, is_string_dtype
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
-def check_prediction(sample_name, path_prediction):
+def check_prediction(sample, path_prediction):
     print("Checking prediction file format...")
     
     #get a path for fasta file.
-    raw_nodes_path = "".join(["gplas_input/", sample_name, "_raw_nodes.fasta"]) 
+    #improve f string
+    raw_nodes_path = "".join(["gplas_input/", sample, "_raw_nodes.fasta"]) 
     
     #Check if prediction file exists
     if(os.path.exists(path_prediction) == False):
