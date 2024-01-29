@@ -149,8 +149,8 @@ if __name__ == "__main__":
     #******************************#
 
     #Print messages
-    logo_file=open(f'{pkgdir}/figures/logo.txt', 'r')
-    read_logo=logo_file.read()
+    with open(f'{pkgdir}/figures/logo.txt', 'r') as file:
+        read_logo = file.read()
     print ('\n')
     print(read_logo)
     print("##################################################################")
