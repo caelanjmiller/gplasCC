@@ -91,15 +91,14 @@ if __name__ == "__main__":
         print(read_logo)
         print ('\n')
         print(f"""
+Congratulations! Prediction succesfully done.
 
-    Congratulations! Prediction succesfully done.
+Your results are in results/
 
-    Your results are in results/
+We hope it helps your research, thanks for using gplas version {VERSION}!
 
-    We hope it helps your research, thanks for using gplas version {VERSION}!
-
-    Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
-    """)
+Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
+""")
 
         sys.exit(0)
 
@@ -108,15 +107,14 @@ if __name__ == "__main__":
         print(read_logo)
         print ('\n')
         print(f"""
+Congratulations! Your nodes have been succesfully extracted.
 
-    Congratulations! Your nodes have been succesfully extracted.
+Your results are in gplas_input/{args.name}_contigs.fasta. Please, use an external tool to classify the nodes in this file, and then bin them into individual plasmids using gplas.
 
-    Your results are in gplas_input/{args.name}_contigs.fasta. Please, use an external tool to classify the nodes in this file, and then bin them into individual plasmids using gplas.
+We hope it helps your research, thanks for using gplas version {VERSION}!.
 
-    We hope it helps your research, thanks for using gplas version {VERSION}!.
-
-    Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
-    """)
+Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
+""")
 
         sys.exit(0)
 
@@ -124,22 +122,19 @@ if __name__ == "__main__":
     def error_message():
         print('\n')
         print(f"""
-    Looks like no plasmids could be detected in your assembly graph
+Looks like no plasmids could be detected in your assembly graph
 
-    Please check the file:   coverage/{args.name}_clean_prediction.tab.
-    If all contigs were predicted as chromosome, gplas probably failed at the step to create random walks starting from plasmid seeds. If that's the case, probably your isolate does not carry any plasmid(s)
-    If you don't see any files present at:   gplas_input/  or  coverage/  most likely the installation of gplas failed at some point
-
-
-            """)
+Please check the file:   coverage/{args.name}_clean_prediction.tab.
+If all contigs were predicted as chromosome, gplas probably failed at the step to create random walks starting from plasmid seeds. If that's the case, probably your isolate does not carry any plasmid(s)
+If you don't see any files present at:  gplas_input/  or  coverage/  most likely the installation of gplas failed at some point
+""")
         sys.exit(0)
 
     def error_message_extract():
         print('\n')
         print("""
-    Looks like the nodes were not extracted. Please, check above for error messages.
-
-            """)
+Looks like the nodes were not extracted. Please, check above for error messages.
+""")
         sys.exit(0)
 
     #******************************#
@@ -169,19 +164,32 @@ if __name__ == "__main__":
     print("Minimum sequence length:..............................", args.length_filter)
     print("##################################################################")
 
-    """
     #3. Run analysis
-    ##3.1  Extract nodes and links from the assembly graph
+    ##3.1  Extract links and nodes from the assembly graph
     print("We first need to extract the contigs from the assembly graph, these contigs are later used for your binary prediction.\n")
-    extract_links_command=f'bash {scriptdir}/1_awk_links.sh {args.name} {args.input}'
+
+    extract_links_command=f"""
+awk -F "\\t" '{{if($1 == "L") print $N}}' {args.input} \
+1>> gplas_input/{args.name}_raw_links.txt \
+2>> logs/{args.name}_log_links.txt
+"""
     subprocess.run(extract_links_command, shell=True, text=True, executable='/bin/bash')
-    #extract_nodes_command=f'bash {scriptdir}/2_awk_nodes_extract_nodes.sh'
-    #subprocess.run(extract_nodes_command, shell=True, text=True, executable='/bin/bash')
-    #filter_nodes_command=f'bash {scriptdir}/3_awk_nodes_filter.sh'
-    #subprocess.run(filter_nodes_command, shell=True, text=True, executable='/bin/bash')
-    #rename_nodes_command=f'bash {scriptdir}/4_awk_nodes_rename.sh'
-    #subprocess.run(rename_nodes_command, shell=True, text=True, executable='/bin/bash')
     
+    extract_nodes_command=f"""
+# extract nodes
+awk '{{if($1 == "S") print ">"$1$2"_"$4"_"$5"\\n"$3}}' {args.input} \
+1>> gplas_input/{args.name}_raw_nodes_unfiltered.fasta \
+2>> logs/{args.name}_log_nodes.txt
+
+# filter nodes based on sequence length
+awk -v min={args.length_filter} 'BEGIN {{RS = ">" ; ORS = ""}} length($2) >= min {{print ">"$0}}' \
+gplas_input/{args.name}_raw_nodes_unfiltered.fasta > gplas_input/{args.name}_contigs.fasta
+
+# change the name to the output file
+mv gplas_input/{args.name}_raw_nodes_unfiltered.fasta gplas_input/{args.name}_raw_nodes.fasta
+"""
+    subprocess.run(extract_nodes_command, shell=True, text=True, executable='/bin/bash')
+
     ##3.2.1 If in extract mode, exit workflow after extraction is complete
     if args.classifier == "extract":
         pass  
@@ -197,7 +205,7 @@ if __name__ == "__main__":
     
         #if file is correctly formated, continue the workflow
         #ddd
-        
+
         #3.5 Check for Unbinned contigs
         unbinned_path=f'results/normal_mode/{args.name}_bin_Unbinned.fasta'
         if os.path.exists(unbinned_path):
@@ -211,20 +219,20 @@ if __name__ == "__main__":
             for file in glob.glob(f"results/normal_mode/{args.name}*"):
                 shutil.copy(file, "results/")
         
-    ## 3.6 ADD REPEATED ELEMENTS.
-    ##3.6.1 Now add the repeats to the final bins
-    repeated_elements_path=f'coverage/{args.name}_repeat_nodes.tab'
-    line_content=linecache.getline(repeated_elements_path,2)
-    if line_content:
-        print('\n')
-        print('Adding repeated elements to the predictions')
-        print('\n')
-        #ddd
-    
-    ##3.6.2 If there are not repeated elementss, just rename the results files.
-    else:
-        shutil.move("results/{args.name}_results_no_repeats.tab", "results/{args.name}_results.tab")
-        shutil.move("results/{args.name}_bins_no_repeats.tab", "results/{args.name}_bins.tab")
+        ## 3.6 ADD REPEATED ELEMENTS.
+        ##3.6.1 Now add the repeats to the final bins
+        repeated_elements_path=f'coverage/{args.name}_repeat_nodes.tab'
+        line_content=linecache.getline(repeated_elements_path,2)
+        if line_content:
+            print('\n')
+            print('Adding repeated elements to the predictions')
+            print('\n')
+            #ddd
+        
+        ##3.6.2 If there are not repeated elementss, just rename the results files.
+        else:
+            shutil.move("results/{args.name}_results_no_repeats.tab", "results/{args.name}_results.tab")
+            shutil.move("results/{args.name}_bins_no_repeats.tab", "results/{args.name}_bins.tab")
 
     ##3.7 If the -k flag was not selected, delete intermediary files
     if args.keep==False and args.classifier!='extract':
@@ -250,7 +258,6 @@ if __name__ == "__main__":
         else:
             error_message_extract()
             sys.exit(1)
-    """
 
     #TODO is this ever used?
     def start():
