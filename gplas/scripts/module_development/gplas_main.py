@@ -19,15 +19,6 @@ VERSION="1.0.0"
 from m_check_independent_prediction_format import check_prediction
 from m_coverage import coverage
 
-##workflow layout
-#0_mkdirs
-#1_awk_links
-#2_awk_nodes_extract_nodes
-#3_awk_nodes_filter
-#4_awk_nodes_rename
-
-#coverage(sample=sample, path_prediction=path_prediction, classifier=classifier, threshold=threshold)
-
 
 #m_paths
 #m_paths_bold
@@ -176,6 +167,7 @@ if os.path.exists("logs") == False:
 
 ##3.1  Extract links and nodes from the assembly graph
 #TODO running gplas multiple times with the same -n name will append to the same/previous links.txt file
+##these double links break the coverage script
 extract_links_command=f"""
 awk -F "\\t" '{{if($1 == "L") print $N}}' {args.input} \
 1>> gplas_input/{args.name}_raw_links.txt \
@@ -203,12 +195,10 @@ if os.path.exists(f"gplas_input/{args.name}_raw_nodes.fasta") == False:
     error_message_extract()
     sys.exit(1)    
 
-##3.2.1 If in extract mode, exit workflow after succesful extraction
+##3.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
 if args.classifier == "extract":
     success_message_extract()
     sys.exit(0)
-
-##3.2.2 If not in extract mode, continue workflow.
 
 ##3.3 Check if the independent prediction file is correctly formatted.
 print("Checking if prediction file is correctly formatted...\n")
@@ -216,6 +206,12 @@ check_prediction(name=args.name, path_prediction=args.prediction)
 
 ##3.4 Run gplas in normal mode
 print("status update coverage")
+#Make output directories if not already present
+if os.path.exists("coverage") == False:
+    mkdir_coverage_command = "mkdir coverage"
+    subprocess.run(mkdir_coverage_command, shell=True, text=True, executable='/bin/bash')
+
+coverage(name=args.name, path_prediction=args.prediction, classifier=args.classifier, threshold=args.threshold_prediction)
 
 print("status update paths")
 

@@ -13,10 +13,10 @@ import statistics
 #import copy
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
-def coverage(sample, path_prediction, classifier, threshold):
+def coverage(name, path_prediction, classifier, threshold):
     #Inputs    
-    path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
-    path_links = f"gplas_input/{sample}_raw_links.txt"
+    path_nodes = f"gplas_input/{name}_raw_nodes.fasta"
+    path_links = f"gplas_input/{name}_raw_links.txt"
     #path_prediction = "test_ecoli_plasmid_prediction.tab"
         
     #Params
@@ -24,18 +24,16 @@ def coverage(sample, path_prediction, classifier, threshold):
     #threshold = float("0.95")
     
     #Outputs
-    output_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
-    output_clean_links = f"coverage/{sample}_clean_links.tab"
-    output_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
-    output_clean_prediction = f"coverage/{sample}_clean_prediction.tab"
-    output_isolated_nodes = f"coverage/{sample}_isolated_nodes.tab"
-    output_clean_repeats = f"coverage/{sample}_clean_repeats.tab"
-    output_initialize_nodes = f"coverage/{sample}_initialize_nodes.tab"
-    output_repeat_nodes = f"coverage/{sample}_repeat_nodes.tab"
-    output_cov_estimate = f"coverage/{sample}_estimation.txt"
-    
-    print("Calculating base coverage of sample...")
-    
+    output_graph_contigs = f"coverage/{name}_graph_contigs.tab"
+    output_clean_links = f"coverage/{name}_clean_links.tab"
+    output_graph_repeats = f"coverage/{name}_repeats_graph.tab"
+    output_clean_prediction = f"coverage/{name}_clean_prediction.tab"
+    output_isolated_nodes = f"coverage/{name}_isolated_nodes.tab"
+    output_clean_repeats = f"coverage/{name}_clean_repeats.tab"
+    output_initialize_nodes = f"coverage/{name}_initialize_nodes.tab"
+    output_repeat_nodes = f"coverage/{name}_repeat_nodes.tab"
+    output_cov_estimate = f"coverage/{name}_estimation.txt"
+        
     with open(path_nodes) as file:
         raw_nodes = [[str(values[0]), str(values[1])] for values in SimpleFastaParser(file)]
     
