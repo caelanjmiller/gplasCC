@@ -7,20 +7,20 @@ while getopts ":n:" opt; do
 done
 
 #remove files
-if [[ -f walks/"$name"_solutions.csv ]]; then
+if [[ -f walks/"$name"_solutions.tab ]]; then
 rm walks/"$name"_solutions*
 fi
 
 rm walks/normal_mode/"$name"_solutions*
 rm walks/normal_mode/"$name"_connections*
 
-if [[ -f walks/bold_mode/"$name"_solutions_bold.csv ]]; then
+if [[ -f walks/bold_mode/"$name"_solutions_bold.tab ]]; then
 rm walks/bold_mode/"$name"_connections*
 rm walks/bold_mode/"$name"_solutions*
 rm walks/unbinned_nodes/"$name"_solutions*
 fi
 
-if [[ -f walks/repeats/"$name"_solutions.csv ]]; then
+if [[ -f walks/repeats/"$name"_solutions.tab ]]; then
 rm walks/repeats/"$name"_connections*
 rm walks/repeats/"$name"_solutions*
 fi
