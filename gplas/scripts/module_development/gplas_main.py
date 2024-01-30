@@ -21,22 +21,6 @@ from m_coverage import coverage
 from m_paths import generate_paths
 from m_coocurrence import calculate_coocurrence
 
-
-#m_paths
-#m_paths_bold
-#m_coocurrence
-
-#5_extract_unbinned_nodes
-#6_combine_solutions
-
-#m_coocurrence_final
-#m_paths_repeats
-#m_coocurrence_repeats
-
-#remove_intermediate_files
-
-
-
 # Directories
 pkgdir = os.path.dirname(__file__)
 #scriptdir = f"{pkgdir}/scripts/module_development"
@@ -167,8 +151,6 @@ make_directory("gplas_input")
 make_directory("logs")
 
 ##3.1  Extract links and nodes from the assembly graph
-#TODO running gplas multiple times with the same -n name will append to the same/previous links.txt file
-##these double links break the coverage script
 output_links = f"gplas_input/{args.name}_raw_links.txt"
 logs_links = f"logs/{args.name}_log_links.txt"
 extract_links_command=f"""
