@@ -170,16 +170,16 @@ if os.path.exists("logs") == False:
 ##these double links break the coverage script
 extract_links_command=f"""
 awk -F "\\t" '{{if($1 == "L") print $N}}' {args.input} \
-1>> gplas_input/{args.name}_raw_links.txt \
-2>> logs/{args.name}_log_links.txt
+1> gplas_input/{args.name}_raw_links.txt \
+2> logs/{args.name}_log_links.txt
 """
 subprocess.run(extract_links_command, shell=True, text=True, executable='/bin/bash')
 
 extract_nodes_command=f"""
 # extract nodes
 awk '{{if($1 == "S") print ">"$1$2"_"$4"_"$5"\\n"$3}}' {args.input} \
-1>> gplas_input/{args.name}_raw_nodes_unfiltered.fasta \
-2>> logs/{args.name}_log_nodes.txt
+1> gplas_input/{args.name}_raw_nodes_unfiltered.fasta \
+2> logs/{args.name}_log_nodes.txt
 
 # filter nodes based on sequence length
 awk -v min={args.length_filter} 'BEGIN {{RS = ">" ; ORS = ""}} length($2) >= min {{print ">"$0}}' \
