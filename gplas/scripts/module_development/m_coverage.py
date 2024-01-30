@@ -17,11 +17,11 @@ def coverage(name, path_prediction, classifier, threshold):
     #Inputs    
     path_nodes = f"gplas_input/{name}_raw_nodes.fasta"
     path_links = f"gplas_input/{name}_raw_links.txt"
-    #path_prediction = "test_ecoli_plasmid_prediction.tab"
+    path_prediction = str(path_prediction)
         
     #Params
-    #classifier = "predict"
-    #threshold = float("0.95")
+    classifier = str(classifier)
+    threshold = float(threshold)
     
     #Outputs
     output_graph_contigs = f"coverage/{name}_graph_contigs.tab"

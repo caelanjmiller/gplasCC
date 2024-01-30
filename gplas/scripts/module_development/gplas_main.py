@@ -18,6 +18,7 @@ VERSION="1.0.0"
 
 from m_check_independent_prediction_format import check_prediction
 from m_coverage import coverage
+from m_paths import generate_paths
 
 
 #m_paths
@@ -205,15 +206,30 @@ print("Checking if prediction file is correctly formatted...\n")
 check_prediction(name=args.name, path_prediction=args.prediction)
 
 ##3.4 Run gplas in normal mode
-print("status update coverage")
-#Make output directories if not already present
+print("Calculating base coverage...")
+#Make output directory if not already present
 if os.path.exists("coverage") == False:
     mkdir_coverage_command = "mkdir coverage"
     subprocess.run(mkdir_coverage_command, shell=True, text=True, executable='/bin/bash')
 
-coverage(name=args.name, path_prediction=args.prediction, classifier=args.classifier, threshold=args.threshold_prediction)
+coverage(name = args.name,
+         path_prediction = args.prediction,
+         classifier = args.classifier,
+         threshold = args.threshold_prediction)
 
-print("status update paths")
+print("Generating random walks in normal mode...")
+#Make output directory if not already present
+if os.path.exists("walks/normal_mode") == False:
+    mkdir_walks_normal_command = "mkdir -p walks/normal_mode"
+    subprocess.run(mkdir_walks_normal_command, shell=True, text=True, executable='/bin/bash')
+
+#TODO this will append paths/connections to previous file if using the same sample name
+##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
+##also needs to use multiprocessing which complicates things
+generate_paths(name = args.name,
+               classifier = args.classifier,
+               number_iterations = args.number_iterations,
+               filtering_threshold = args.filt_gplas)
 
 print("status update coocurrence")
 
