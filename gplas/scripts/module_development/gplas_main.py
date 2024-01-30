@@ -170,13 +170,16 @@ if os.path.exists("logs") == False:
 ##3.1  Extract links and nodes from the assembly graph
 #TODO running gplas multiple times with the same -n name will append to the same/previous links.txt file
 ##these double links break the coverage script
+output_links = f"gplas_input/{args.name}_raw_links.txt"
+logs_links = f"logs/{args.name}_log_links.txt"
 extract_links_command=f"""
 awk -F "\\t" '{{if($1 == "L") print $N}}' {args.input} \
-1> gplas_input/{args.name}_raw_links.txt \
-2> logs/{args.name}_log_links.txt
+1> {output_links} 2> {logs_links}
 """
 subprocess.run(extract_links_command, shell=True, text=True, executable='/bin/bash')
 
+#TODO discuss style preferences if we want nodes= log= contig= nodes_renamed=
+##and/or get rid of rename step and name it right the first time
 extract_nodes_command=f"""
 # extract nodes
 awk '{{if($1 == "S") print ">"$1$2"_"$4"_"$5"\\n"$3}}' {args.input} \
@@ -233,7 +236,9 @@ if os.path.exists("walks/normal_mode") == False:
 generate_paths(sample = args.name,
                classifier = args.classifier,
                number_iterations = args.number_iterations,
-               filt_threshold = args.filt_gplas)
+               filt_threshold = args.filt_gplas,
+               mode = "normal",
+               sd_coverage = 1)
 
 print("Calculating coocurrence of random walks...")
 #Make output directory if not already present
@@ -249,20 +254,55 @@ calculate_coocurrence(sample = args.name,
                       pred_threshold = args.threshold_prediction,
                       mod_threshold = args.modularity_threshold)
 
-"""
+#Check if output has been correctly created
+if os.path.exists(f"results/normal_mode/{args.name}_results_no_repeats.tab") == False:
+    #make this also an error_message() function??
+    sys.exit("Something went wrong running gplas in normal mode")
+
 #3.5 Check for Unbinned contigs
 unbinned_path=f'results/normal_mode/{args.name}_bin_Unbinned.fasta'
 if os.path.exists(unbinned_path):
     ##3.5.1 run bold mode if contigs were left unbinned.
-    print('\n')
-    print('Some contigs were left Unbinned, running gplas in bold mode')
-    print('\n')
-    #ddd
+    print('Some contigs were left Unbinned, running gplas in bold mode...')
+    #Make output directory if not already present
+    if os.path.exists("walks/bold_mode") == False:
+        mkdir_walks_bold_command = "mkdir -p walks/bold_mode"
+        subprocess.run(mkdir_walks_bold_command, shell=True, text=True, executable='/bin/bash')
+
+    generate_paths(sample = args.name,
+                   classifier = args.classifier,
+                   number_iterations = args.number_iterations,
+                   filt_threshold = args.filt_gplas,
+                   mode = "bold",
+                   sd_coverage = args.bold_walks)
     
+    ##3.5.1 extract unbinned solutions
+    #Make output directory if not already present
+    if os.path.exists("walks/unbinned_nodes") == False:
+        mkdir_walks_unbinned_command = "mkdir -p walks/unbinned_nodes"
+        subprocess.run(mkdir_walks_unbinned_command, shell=True, text=True, executable='/bin/bash')
+    
+    normal_results = f"results/normal_mode/{args.name}_results_no_repeats.tab"
+    bold_walks = f"walks/bold_mode/{args.name}_solutions_bold.tab"
+    unbinned_walks = f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab"
+    extract_unbinned_command=f"""
+    for node in $(grep Unbinned {normal_results} | cut -f 5 -d '\t'); do \
+        grep -w "^${{node}}" {bold_walks} >> {unbinned_walks} || continue; \
+        done
+    """
+    subprocess.run(extract_unbinned_command, shell=True, text=True, executable='/bin/bash')
+    
+    normal_walks = f"walks/normal_mode/{args.name}_solutions.tab"
+    combined_walks = f"walks/{args.name}_solutions.tab"
+    combine_walks_command = f"""
+    cat {unbinned_walks} {normal_walks} > {combined_walks}
+    """
+    subprocess.run(combine_walks_command, shell=True, text=True, executable='/bin/bash')
+
 else:
     for file in glob.glob(f"results/normal_mode/{args.name}*"):
         shutil.copy(file, "results/")
-
+"""
 ## 3.6 ADD REPEATED ELEMENTS.
 ##3.6.1 Now add the repeats to the final bins
 repeated_elements_path=f'coverage/{args.name}_repeat_nodes.tab'

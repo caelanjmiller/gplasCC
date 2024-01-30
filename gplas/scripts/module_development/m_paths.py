@@ -14,7 +14,7 @@ import scipy.stats
 #from Bio.SeqIO.FastaIO import SimpleFastaParser
 import sys
 
-def generate_paths(sample, classifier, number_iterations, filt_threshold):
+def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="normal", sd_coverage=1):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"coverage/{sample}_clean_links.tab"
@@ -27,9 +27,16 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold):
     classifier = str(classifier)
     number_iterations = int(number_iterations)
     filtering_threshold = float(filt_threshold)
+    sd_coverage = int(sd_coverage)
     #Outputs
-    output_path = f"walks/normal_mode/{sample}_solutions.tab"
-    output_connections = f"walks/normal_mode/{sample}_connections.tab"
+    if mode == "bold":
+        #Bold Mode Outputs
+        output_path = f"walks/bold_mode/{sample}_solutions_bold.tab"
+        output_connections = f"walks/bold_mode/{sample}_connections_bold.tab"
+    else:
+        #Normal Mode Outputs
+        output_path = f"walks/normal_mode/{sample}_solutions.tab"
+        output_connections = f"walks/normal_mode/{sample}_connections.tab"
     
     links = pd.read_csv(path_links, sep="\t", header=None)
     clean_pred = pd.read_csv(path_prediction, sep="\t", header=0)
@@ -65,7 +72,7 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold):
     initialize_nodes = [str(node) for node in initialize_nodes.iloc[:,0]]
     #improve: just read value from file instead of converting to df and converting to float? speed diff is basically identical
     max_variation = pd.read_csv(path_cov_variation, header=None)
-    max_variation = float(max_variation.iloc[0,0])
+    max_variation = float(max_variation.iloc[0,0]) * sd_coverage
     
     #ASK check default values of 'nodes' & 'prob_small_repeats'; they are not defined in this script?
     # "nodes" is just not defined or even used at all anywhere in the script; I removed it for now
