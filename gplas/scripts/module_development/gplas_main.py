@@ -78,9 +78,9 @@ args = parser.parse_args()
 
 #Success Message
 def success_message():
-    print ('\n')
+    print('\n')
     print(read_logo)
-    print ('\n')
+    print('\n')
     print(f"""
 Congratulations! Prediction succesfully done.
 
@@ -94,9 +94,9 @@ Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
     sys.exit(0)
 
 def success_message_extract():
-    print ('\n')
+    print('\n')
     print(read_logo)
-    print ('\n')
+    print('\n')
     print(f"""
 Congratulations! Your nodes have been succesfully extracted.
 
@@ -128,7 +128,7 @@ Looks like the nodes were not extracted. Please, check above for error messages.
 """)
     sys.exit(0)
 
-#Create an output directory if it does not already exist
+#Creates a directory using the given path if the path does not already exist
 def make_directory(path):
     if os.path.exists(path) == False:
         mkdir_command = f"mkdir -p {path}"
@@ -143,7 +143,7 @@ def make_directory(path):
 #Print messages
 with open(f'{pkgdir}/../../figures/logo.txt', 'r') as file: #TODO fix this path for final version
     read_logo = file.read()
-print ('\n')
+print('\n')
 print(read_logo)
 print("##################################################################")
 
@@ -248,7 +248,7 @@ calculate_coocurrence(sample = args.name,
 #Check if output has been correctly created
 if os.path.exists(f"results/normal_mode/{args.name}_results_no_repeats.tab") == False:
     #make this also an error_message() function??
-    sys.exit("Something went wrong running gplas in normal mode")
+    sys.exit("ERROR: Something went wrong while running gplas in normal mode")
 
 #3.5 Check for Unbinned contigs
 unbinned_path=f'results/normal_mode/{args.name}_bin_Unbinned.fasta'
@@ -285,7 +285,7 @@ if os.path.exists(unbinned_path):
     """
     subprocess.run(combine_walks_command, shell=True, text=True, executable='/bin/bash')
 
-    ##3.6 Recalculate coocurrence of walks using the combined solutions
+    ##3.5.4 Recalculate coocurrence of walks using the combined solutions
     print("Recalculating coocurrence of random walks...")
     calculate_coocurrence(sample = args.name,
                           classifier = args.classifier,
@@ -298,22 +298,33 @@ else:
     for file in glob.glob(f"results/normal_mode/{args.name}*"):
         shutil.copy(file, "results/")
 
-"""
+#Check if output has been correctly created
+if os.path.exists(f"results/{args.name}_results_no_repeats.tab") == False:
+    #make this also an error_message() function??
+    sys.exit("ERROR: Something went wrong while running gplas in bold mode")
+
+
 ## 3.6 ADD REPEATED ELEMENTS.
 ##3.6.1 Now add the repeats to the final bins
-repeated_elements_path=f'coverage/{args.name}_repeat_nodes.tab'
-line_content=linecache.getline(repeated_elements_path,2)
+repeated_elements_path=f"coverage/{args.name}_repeat_nodes.tab"
+line_content=linecache.getline(repeated_elements_path,1)
 if line_content:
-    print('\n')
-    print('Adding repeated elements to the predictions')
-    print('\n')
-    #ddd
-
+    print("Adding repeated elements to the predictions...")
+    ###############################run repeat path
+    ###############################run repeat coocur
+    
 ##3.6.2 If there are not repeated elementss, just rename the results files.
 else:
     shutil.move("results/{args.name}_results_no_repeats.tab", "results/{args.name}_results.tab")
     shutil.move("results/{args.name}_bins_no_repeats.tab", "results/{args.name}_bins.tab")
 
+#Check if output has been correctly created
+if os.path.exists(f"results/{args.name}_results.tab") == False:
+    #make this also an error_message() function??
+    sys.exit("ERROR: Something went wrong while running gplas on the repeated elements")
+
+
+"""
 ##3.7 If the -k flag was not selected, delete intermediary files
 if args.keep==False and args.classifier!='extract':
   print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
