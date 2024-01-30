@@ -14,22 +14,22 @@ import scipy.stats
 #from Bio.SeqIO.FastaIO import SimpleFastaParser
 import sys
 
-def generate_paths(name, classifier, number_iterations, filtering_threshold):
+def generate_paths(sample, classifier, number_iterations, filt_threshold):
     #Inputs
-    path_nodes = f"gplas_input/{name}_raw_nodes.fasta"
-    path_links = f"coverage/{name}_clean_links.tab"
-    path_prediction = f"coverage/{name}_clean_prediction.tab"
-    path_graph_contigs = f"coverage/{name}_graph_contigs.tab"
-    path_graph_repeats = f"coverage/{name}_repeats_graph.tab"
-    path_init_nodes = f"coverage/{name}_initialize_nodes.tab"
-    path_cov_variation = f"coverage/{name}_estimation.txt"
+    path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
+    path_links = f"coverage/{sample}_clean_links.tab"
+    path_prediction = f"coverage/{sample}_clean_prediction.tab"
+    path_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
+    path_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
+    path_init_nodes = f"coverage/{sample}_initialize_nodes.tab"
+    path_cov_variation = f"coverage/{sample}_estimation.txt"
     #Params
     classifier = str(classifier)
     number_iterations = int(number_iterations)
-    filtering_threshold = float(filtering_threshold)
+    filtering_threshold = float(filt_threshold)
     #Outputs
-    output_path = f"walks/normal_mode/{name}_solutions.tab"
-    output_connections = f"walks/normal_mode/{name}_connections.tab"
+    output_path = f"walks/normal_mode/{sample}_solutions.tab"
+    output_connections = f"walks/normal_mode/{sample}_connections.tab"
     
     links = pd.read_csv(path_links, sep="\t", header=None)
     clean_pred = pd.read_csv(path_prediction, sep="\t", header=0)
@@ -281,4 +281,5 @@ def generate_paths(name, classifier, number_iterations, filtering_threshold):
         negative_seed = seed + "-"
         plasmid_graph(output_path=output_path, classifier=classifier, initial_seed=positive_seed, direction="forward", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
         plasmid_graph(output_path=output_path, classifier=classifier, initial_seed=negative_seed, direction="reverse", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
+    print("Completed random walks!\n")
     return

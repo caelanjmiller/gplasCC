@@ -13,26 +13,26 @@ import statistics
 #import copy
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
-def coverage(name, path_prediction, classifier, threshold):
+def coverage(sample, path_prediction, classifier, pred_threshold):
     #Inputs    
-    path_nodes = f"gplas_input/{name}_raw_nodes.fasta"
-    path_links = f"gplas_input/{name}_raw_links.txt"
+    path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
+    path_links = f"gplas_input/{sample}_raw_links.txt"
     path_prediction = str(path_prediction)
         
     #Params
     classifier = str(classifier)
-    threshold = float(threshold)
+    pred_threshold = float(pred_threshold)
     
     #Outputs
-    output_graph_contigs = f"coverage/{name}_graph_contigs.tab"
-    output_clean_links = f"coverage/{name}_clean_links.tab"
-    output_graph_repeats = f"coverage/{name}_repeats_graph.tab"
-    output_clean_prediction = f"coverage/{name}_clean_prediction.tab"
-    output_isolated_nodes = f"coverage/{name}_isolated_nodes.tab"
-    output_clean_repeats = f"coverage/{name}_clean_repeats.tab"
-    output_initialize_nodes = f"coverage/{name}_initialize_nodes.tab"
-    output_repeat_nodes = f"coverage/{name}_repeat_nodes.tab"
-    output_cov_estimate = f"coverage/{name}_estimation.txt"
+    output_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
+    output_clean_links = f"coverage/{sample}_clean_links.tab"
+    output_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
+    output_clean_prediction = f"coverage/{sample}_clean_prediction.tab"
+    output_isolated_nodes = f"coverage/{sample}_isolated_nodes.tab"
+    output_clean_repeats = f"coverage/{sample}_clean_repeats.tab"
+    output_initialize_nodes = f"coverage/{sample}_initialize_nodes.tab"
+    output_repeat_nodes = f"coverage/{sample}_repeat_nodes.tab"
+    output_cov_estimate = f"coverage/{sample}_estimation.txt"
         
     with open(path_nodes) as file:
         raw_nodes = [[str(values[0]), str(values[1])] for values in SimpleFastaParser(file)]
@@ -165,7 +165,7 @@ def coverage(name, path_prediction, classifier, threshold):
     #TODO run with test data that contains isolated nodes
     isolated_nodes = contig_info[[number not in unique_nodes_signless for number in contig_info["number"]]]
     isolated_nodes = pd.merge(clean_pred, isolated_nodes["Contig_name"], on="Contig_name")
-    isolated_nodes = isolated_nodes[isolated_nodes["Prob_Plasmid"] >= threshold]
+    isolated_nodes = isolated_nodes[isolated_nodes["Prob_Plasmid"] >= pred_threshold]
     
     isolated_nodes.to_csv(output_isolated_nodes, sep="\t", index=False)
     
@@ -173,7 +173,7 @@ def coverage(name, path_prediction, classifier, threshold):
     
     repeats_final.to_csv(output_clean_repeats, sep="\t", index=False)
     
-    pl_nodes = final_prediction[final_prediction["Prob_Plasmid"] >= threshold]
+    pl_nodes = final_prediction[final_prediction["Prob_Plasmid"] >= pred_threshold]
     pl_nodes = pl_nodes[pl_nodes["Contig_length"] > 500]
     pl_nodes = pl_nodes[[number not in list(repeats["number"]) for number in pl_nodes["number"]]]
     #improve is sorting nessecary here? it is already sorted on number which is based on length
@@ -201,6 +201,6 @@ def coverage(name, path_prediction, classifier, threshold):
     with open(output_cov_estimate, "w") as file:
         file.write(str(sd_estimation))
     
-    print("Estimated chromosomal coverage:", sd_estimation)
+    print("Estimated chromosomal coverage:", sd_estimation, "\n")
     return
 
