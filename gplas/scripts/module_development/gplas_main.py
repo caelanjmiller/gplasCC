@@ -19,6 +19,7 @@ VERSION="1.0.0"
 from m_check_independent_prediction_format import check_prediction
 from m_coverage import coverage
 from m_paths import generate_paths
+from m_coocurrence import calculate_coocurrence
 
 
 #m_paths
@@ -234,13 +235,17 @@ generate_paths(sample = args.name,
                number_iterations = args.number_iterations,
                filt_threshold = args.filt_gplas)
 
-print("status update coocurrence")
+print("Calculating coocurrence of random walks...")
 #Make output directory if not already present
 if os.path.exists("results/normal_mode") == False:
     mkdir_results_normal_command = "mkdir -p results/normal_mode"
     subprocess.run(mkdir_results_normal_command, shell=True, text=True, executable='/bin/bash')
 
-#calculate_coocurrence()
+calculate_coocurrence(sample = args.name,
+                      classifier = args.classifier,
+                      number_iterations = args.number_iterations,
+                      pred_threshold = args.threshold_prediction,
+                      mod_threshold = args.modularity_threshold)
 
 """
 #3.5 Check for Unbinned contigs

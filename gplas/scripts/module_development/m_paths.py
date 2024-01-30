@@ -33,15 +33,14 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold):
     
     links = pd.read_csv(path_links, sep="\t", header=None)
     clean_pred = pd.read_csv(path_prediction, sep="\t", header=0)
-    #Cast values to correct data type
-    clean_pred.astype({"Prob_Chromosome":float,
-                       "Prob_Plasmid":float,
-                       "Prediction":str,
-                       "Contig_name":str,
-                       "Contig_length":int,
-                       "number":int,
-                       "length":int,
-                       "coverage":float})
+    clean_pred = clean_pred.astype({"Prob_Chromosome":float,
+                                    "Prob_Plasmid":float,
+                                    "Prediction":str,
+                                    "Contig_name":str,
+                                    "Contig_length":int,
+                                    "number":str,
+                                    "length":int,
+                                    "coverage":float})
     
     graph_contigs = pd.read_csv(path_graph_contigs, sep="\t", header=0)
     
