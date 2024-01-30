@@ -337,7 +337,7 @@ def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold,
             index = full_info_components.loc[:,"Node"] == first_node
             info_first_node = full_info_components.loc[index,:]
     
-            partition_info.loc[:,"Original_component"] = info_first_node.loc[0,"Original_component"]
+            partition_info.loc[:,"Original_component"] = info_first_node.loc[:,"Original_component"][0]
             complete_partition_info = pd.concat([complete_partition_info, partition_info], ignore_index=True)
     
         complete_partition_info.loc[:,"Modularity"] = round(complete_partition_info.loc[:,"Modularity"], 2)

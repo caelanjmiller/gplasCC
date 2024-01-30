@@ -241,6 +241,8 @@ if os.path.exists("results/normal_mode") == False:
     mkdir_results_normal_command = "mkdir -p results/normal_mode"
     subprocess.run(mkdir_results_normal_command, shell=True, text=True, executable='/bin/bash')
 
+#TODO coocurrence script breaks if reruning gplas with the same sample name
+##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
 calculate_coocurrence(sample = args.name,
                       classifier = args.classifier,
                       number_iterations = args.number_iterations,
