@@ -128,6 +128,12 @@ Looks like the nodes were not extracted. Please, check above for error messages.
 """)
     sys.exit(0)
 
+#Create an output directory if it does not already exist
+def make_directory(path):
+    if os.path.exists(path) == False:
+        mkdir_command = f"mkdir -p {path}"
+        subprocess.run(mkdir_command, shell=True, text=True, executable='/bin/bash')
+
 #******************************#
 #*                            *#
 #*        Start gplas         *#
@@ -157,15 +163,8 @@ print("##################################################################\n")
 
 #3. Run analysis
 print("Extracting contigs from the assembly graph...")
-
-#Make output directories if not already present
-if os.path.exists("gplas_input") == False:
-    mkdir_gplas_command = "mkdir gplas_input"
-    subprocess.run(mkdir_gplas_command, shell=True, text=True, executable='/bin/bash')
-
-if os.path.exists("logs") == False:
-    mkdir_logs_command = "mkdir logs"
-    subprocess.run(mkdir_logs_command, shell=True, text=True, executable='/bin/bash')
+make_directory("gplas_input")
+make_directory("logs")
 
 ##3.1  Extract links and nodes from the assembly graph
 #TODO running gplas multiple times with the same -n name will append to the same/previous links.txt file
@@ -213,22 +212,17 @@ check_prediction(sample=args.name,
                  path_prediction=args.prediction)
 
 ##3.4 Run gplas in normal mode
+##3.4.1 Extract information from the assembly graph
 print("Calculating base coverage...")
-#Make output directory if not already present
-if os.path.exists("coverage") == False:
-    mkdir_coverage_command = "mkdir coverage"
-    subprocess.run(mkdir_coverage_command, shell=True, text=True, executable='/bin/bash')
+make_directory("coverage")
 
 coverage(sample = args.name,
          path_prediction = args.prediction,
          classifier = args.classifier,
          pred_threshold = args.threshold_prediction)
-
+##3.4.2 Generate random walks
 print("Generating random walks in normal mode...")
-#Make output directory if not already present
-if os.path.exists("walks/normal_mode") == False:
-    mkdir_walks_normal_command = "mkdir -p walks/normal_mode"
-    subprocess.run(mkdir_walks_normal_command, shell=True, text=True, executable='/bin/bash')
+make_directory("walks/normal_mode")
 
 #TODO this will append paths/connections to previous file if using the same sample name
 ##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
@@ -240,11 +234,9 @@ generate_paths(sample = args.name,
                mode = "normal",
                sd_coverage = 1)
 
+##3.4.3 Calculate coocurrence between walks
 print("Calculating coocurrence of random walks...")
-#Make output directory if not already present
-if os.path.exists("results/normal_mode") == False:
-    mkdir_results_normal_command = "mkdir -p results/normal_mode"
-    subprocess.run(mkdir_results_normal_command, shell=True, text=True, executable='/bin/bash')
+make_directory("results/normal_mode")
 
 #TODO coocurrence script breaks if reruning gplas with the same sample name
 ##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
@@ -262,13 +254,10 @@ if os.path.exists(f"results/normal_mode/{args.name}_results_no_repeats.tab") == 
 #3.5 Check for Unbinned contigs
 unbinned_path=f'results/normal_mode/{args.name}_bin_Unbinned.fasta'
 if os.path.exists(unbinned_path):
-    ##3.5.1 run bold mode if contigs were left unbinned.
+    ##3.5.1 Run bold mode if contigs were left unbinned.
     print('Some contigs were left Unbinned, running gplas in bold mode...')
-    #Make output directory if not already present
-    if os.path.exists("walks/bold_mode") == False:
-        mkdir_walks_bold_command = "mkdir -p walks/bold_mode"
-        subprocess.run(mkdir_walks_bold_command, shell=True, text=True, executable='/bin/bash')
-
+    make_directory("walks/bold_mode")
+    
     generate_paths(sample = args.name,
                    classifier = args.classifier,
                    number_iterations = args.number_iterations,
@@ -276,11 +265,8 @@ if os.path.exists(unbinned_path):
                    mode = "bold",
                    sd_coverage = args.bold_walks)
     
-    ##3.5.1 extract unbinned solutions
-    #Make output directory if not already present
-    if os.path.exists("walks/unbinned_nodes") == False:
-        mkdir_walks_unbinned_command = "mkdir -p walks/unbinned_nodes"
-        subprocess.run(mkdir_walks_unbinned_command, shell=True, text=True, executable='/bin/bash')
+    ##3.5.2 Extract unbinned solutions
+    make_directory("walks/unbinned_nodes")
     
     normal_results = f"results/normal_mode/{args.name}_results_no_repeats.tab"
     bold_walks = f"walks/bold_mode/{args.name}_solutions_bold.tab"
@@ -291,7 +277,7 @@ if os.path.exists(unbinned_path):
         done
     """
     subprocess.run(extract_unbinned_command, shell=True, text=True, executable='/bin/bash')
-    
+    ##3.5.3 Combine solutions from bold and normal mode
     normal_walks = f"walks/normal_mode/{args.name}_solutions.tab"
     combined_walks = f"walks/{args.name}_solutions.tab"
     combine_walks_command = f"""
@@ -299,6 +285,7 @@ if os.path.exists(unbinned_path):
     """
     subprocess.run(combine_walks_command, shell=True, text=True, executable='/bin/bash')
 
+    ##3.6 Recalculate coocurrence of walks using the combined solutions
 else:
     for file in glob.glob(f"results/normal_mode/{args.name}*"):
         shutil.copy(file, "results/")
