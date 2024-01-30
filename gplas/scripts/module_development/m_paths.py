@@ -28,16 +28,15 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
     number_iterations = int(number_iterations)
     filtering_threshold = float(filt_threshold)
     sd_coverage = int(sd_coverage)
-    #Outputs
-    if mode == "bold":
-        #Bold Mode Outputs
-        output_path = f"walks/bold_mode/{sample}_solutions_bold.tab"
-        output_connections = f"walks/bold_mode/{sample}_connections_bold.tab"
-    else:
-        #Normal Mode Outputs
+    #Outputs Normal Mode
+    if mode == "normal":
         output_path = f"walks/normal_mode/{sample}_solutions.tab"
         output_connections = f"walks/normal_mode/{sample}_connections.tab"
-    
+    #Outputs Bold Mode
+    elif mode == "bold":
+        output_path = f"walks/bold_mode/{sample}_solutions_bold.tab"
+        output_connections = f"walks/bold_mode/{sample}_connections_bold.tab"
+        
     links = pd.read_csv(path_links, sep="\t", header=None)
     clean_pred = pd.read_csv(path_prediction, sep="\t", header=0)
     clean_pred = clean_pred.astype({"Prob_Chromosome":float,
@@ -287,5 +286,5 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
         negative_seed = seed + "-"
         plasmid_graph(output_path=output_path, classifier=classifier, initial_seed=positive_seed, direction="forward", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
         plasmid_graph(output_path=output_path, classifier=classifier, initial_seed=negative_seed, direction="reverse", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
-    print("Completed random walks!\n")
+
     return

@@ -204,8 +204,6 @@ if args.classifier == "extract":
     success_message_extract()
     sys.exit(0)
 
-print("Completed extraction!\n")
-
 ##3.3 Check if the independent prediction file is correctly formatted.
 print("Checking if prediction file is correctly formatted...")
 check_prediction(sample=args.name,
@@ -244,7 +242,8 @@ calculate_coocurrence(sample = args.name,
                       classifier = args.classifier,
                       number_iterations = args.number_iterations,
                       pred_threshold = args.threshold_prediction,
-                      mod_threshold = args.modularity_threshold)
+                      mod_threshold = args.modularity_threshold,
+                      mode = "normal")
 
 #Check if output has been correctly created
 if os.path.exists(f"results/normal_mode/{args.name}_results_no_repeats.tab") == False:
@@ -255,7 +254,7 @@ if os.path.exists(f"results/normal_mode/{args.name}_results_no_repeats.tab") == 
 unbinned_path=f'results/normal_mode/{args.name}_bin_Unbinned.fasta'
 if os.path.exists(unbinned_path):
     ##3.5.1 Run bold mode if contigs were left unbinned.
-    print('Some contigs were left Unbinned, running gplas in bold mode...')
+    print('Some contigs were left unbinned, running gplas in bold mode...')
     make_directory("walks/bold_mode")
     
     generate_paths(sample = args.name,
@@ -266,6 +265,7 @@ if os.path.exists(unbinned_path):
                    sd_coverage = args.bold_walks)
     
     ##3.5.2 Extract unbinned solutions
+    print("Extracting unbinned contigs from bold walks...")
     make_directory("walks/unbinned_nodes")
     
     normal_results = f"results/normal_mode/{args.name}_results_no_repeats.tab"
@@ -286,9 +286,18 @@ if os.path.exists(unbinned_path):
     subprocess.run(combine_walks_command, shell=True, text=True, executable='/bin/bash')
 
     ##3.6 Recalculate coocurrence of walks using the combined solutions
+    print("Recalculating coocurrence of random walks...")
+    calculate_coocurrence(sample = args.name,
+                          classifier = args.classifier,
+                          number_iterations = args.number_iterations,
+                          pred_threshold = args.threshold_prediction,
+                          mod_threshold = args.modularity_threshold,
+                          mode = "unbinned")
+
 else:
     for file in glob.glob(f"results/normal_mode/{args.name}*"):
         shutil.copy(file, "results/")
+
 """
 ## 3.6 ADD REPEATED ELEMENTS.
 ##3.6.1 Now add the repeats to the final bins

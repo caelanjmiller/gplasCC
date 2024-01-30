@@ -201,6 +201,5 @@ def coverage(sample, path_prediction, classifier, pred_threshold):
     with open(output_cov_estimate, "w") as file:
         file.write(str(sd_estimation))
     
-    print("Estimated chromosomal coverage:", sd_estimation, "\n")
     return
 

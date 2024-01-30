@@ -16,7 +16,11 @@ import sys
 
 #improve we have a lot of loops with "for row in range(solutions.shape[0]):"
 ## can we possibly merge some of them?
-def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold, mod_threshold):
+def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold, mod_threshold, mode="normal"):
+    if mode == "normal":
+        subdir = "normal_mode/"
+    elif mode == "unbinned":
+        subdir = ""
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"coverage/{sample}_clean_links.tab"
@@ -26,7 +30,7 @@ def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold,
     path_init_nodes = f"coverage/{sample}_initialize_nodes.tab"
     path_isolated_nodes = f"coverage/{sample}_isolated_nodes.tab"
     path_cov_variation = f"coverage/{sample}_estimation.txt"
-    input_solutions = f"walks/normal_mode/{sample}_solutions.tab"
+    input_solutions = f"walks/{subdir}{sample}_solutions.tab"
     #Params
     #improve can't we get rid of #Params and just use the function arguments?
     classifier = str(classifier)
@@ -35,10 +39,10 @@ def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold,
     modularity_threshold = float(mod_threshold)
     sample = str(sample)
     #Outputs
-    output_dir = f"results/normal_mode/"
-    output_results = f"results/normal_mode/{sample}_results_no_repeats.tab"
-    output_components = f"results/normal_mode/{sample}_bins_no_repeats.tab"
-    output_png = f"results/normal_mode/{sample}_plasmidome_network.png"
+    output_dir = f"results/{subdir}"
+    output_results = f"results/{subdir}{sample}_results_no_repeats.tab"
+    output_components = f"results/{subdir}{sample}_bins_no_repeats.tab"
+    output_png = f"results/{subdir}{sample}_plasmidome_network.png"
 
     links = pd.read_csv(path_links, sep="\t", header=None)
     clean_pred = pd.read_csv(path_prediction, sep="\t", header=0)
@@ -546,6 +550,7 @@ def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold,
     
     full_info_assigned.to_csv(output_results, sep="\t", index=False, header=True, mode="a")
     results_subgraph.to_csv(output_components, sep="\t", index=False, header=True, mode="a")
+    
     return
 #improve change the column order of ecoli_results_no_repeats to match the output of R?
 ##order node order in 'ecoli_bins_no_repeats' / ecoli_results_no_repeats & co.
