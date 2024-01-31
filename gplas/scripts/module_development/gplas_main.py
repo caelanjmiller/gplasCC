@@ -318,15 +318,48 @@ if os.path.exists(f"results/{args.name}_results.tab") == False:
     #make this also an error_message() function??
     sys.exit("ERROR: Something went wrong while running gplas on the repeated elements")
 
-
-"""
 ##3.7 If the -k flag was not selected, delete intermediary files
 ###https://ioflood.com/blog/python-delete-file-how-to-remove-a-file-or-folder-in-python/#:~:text=listdir()%20function%20can%20be,function%20from%20the%20glob%20module.
 if args.keep==False and args.classifier!='extract':
-  print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
-  remove_command=f'bash {scriptdir}/remove_intermediate_files.sh -n {args.name}'
-  subprocess.run(remove_command, shell=True, text=True, executable='/bin/bash')
-"""
+    print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
+    remove_command=f"""
+    #remove files
+    if [[ -f walks/{args.name}_solutions.tab ]]; then
+    rm walks/{args.name}_solutions*
+    fi
+    
+    rm walks/normal_mode/{args.name}_solutions*
+    rm walks/normal_mode/{args.name}_connections*
+    
+    if [[ -f walks/bold_mode/{args.name}_solutions_bold.tab ]]; then
+    rm walks/bold_mode/{args.name}_connections*
+    rm walks/bold_mode/{args.name}_solutions*
+    rm walks/unbinned_nodes/{args.name}_solutions*
+    fi
+    
+    if [[ -f walks/repeats/{args.name}_solutions.tab ]]; then
+    rm walks/repeats/{args.name}_connections*
+    rm walks/repeats/{args.name}_solutions*
+    fi
+    
+    rm coverage/{args.name}_clean*
+    rm coverage/{args.name}_graph*
+    rm coverage/{args.name}_estimation*
+    rm coverage/{args.name}_repeat*
+    rm coverage/{args.name}_initialize*
+    rm coverage/{args.name}_isolated*
+    
+    if [[ -f results/normal_mode/{args.name}_results.tab ]]; then
+    rm results/normal_mode/{args.name}_bin*
+    rm results/normal_mode/{args.name}_results*
+    rm results/normal_mode/{args.name}*png
+    fi
+    
+    if [[ -f results/{args.name}_results_no_repeats.tab ]]; then
+    rm results/{args.name}_*_no_repeats.tab
+    fi
+    """
+    subprocess.run(remove_command, shell=True, text=True, executable='/bin/bash')
 
 ##3.8 If there were no errors: Show success message and exit workflow
 success_message()
