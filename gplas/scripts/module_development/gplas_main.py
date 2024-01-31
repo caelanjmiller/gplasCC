@@ -20,6 +20,8 @@ from m_check_independent_prediction_format import check_prediction
 from m_coverage import coverage
 from m_paths import generate_paths
 from m_coocurrence import calculate_coocurrence
+from m_paths_repeats import generate_repeat_paths
+from m_coocurrence_repeats import calculate_coocurrence_repeats
 
 # Directories
 pkgdir = os.path.dirname(__file__)
@@ -292,8 +294,19 @@ repeated_elements_path=f"coverage/{args.name}_repeat_nodes.tab"
 line_content=linecache.getline(repeated_elements_path,1)
 if line_content:
     print("Adding repeated elements to the predictions...")
-    ###############################run repeat path
-    ###############################run repeat coocur
+    make_directory("walks/repeats")
+    generate_repeat_paths(sample = args.name,
+                          classifier = args.classifier,
+                          number_iterations = args.number_iterations,
+                          filt_threshold = args.filt_gplas,
+                          sd_coverage = args.repeats_coverage_sd)
+    
+    calculate_coocurrence_repeats(sample = args.name,
+                                  classifier = args.classifier,
+                                  number_iterations = args.number_iterations,
+                                  pred_threshold = args.threshold_prediction,
+                                  mod_threshold = args.modularity_threshold,
+                                  sd_coverage = args.repeats_coverage_sd)
     
 ##3.6.2 If there are not repeated elementss, just rename the results files.
 else:
@@ -308,30 +321,17 @@ if os.path.exists(f"results/{args.name}_results.tab") == False:
 
 """
 ##3.7 If the -k flag was not selected, delete intermediary files
+###https://ioflood.com/blog/python-delete-file-how-to-remove-a-file-or-folder-in-python/#:~:text=listdir()%20function%20can%20be,function%20from%20the%20glob%20module.
 if args.keep==False and args.classifier!='extract':
   print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
   remove_command=f'bash {scriptdir}/remove_intermediate_files.sh -n {args.name}'
   subprocess.run(remove_command, shell=True, text=True, executable='/bin/bash')
-
-##3.8 Check that output has been correctly created
-final_results_path=f'results/{args.name}_results.tab'
-raw_nodes_path=f'gplas_input/{args.name}_contigs.fasta'
-
-if args.classifier!='extract':
-    if os.path.exists(final_results_path):
-        success_message()
-        sys.exit(0)
-    else:
-        error_message()
-        sys.exit(1)
-else:
-    if os.path.exists(raw_nodes_path):
-        success_message_extract()
-        sys.exit(0)
-    else:
-        error_message_extract()
-        sys.exit(1)
 """
+
+##3.8 If there were no errors: Show success message and exit workflow
+success_message()
+sys.exit(0)
+
 #TODO is this ever used?
 def start():
     print("Starting gplas")
