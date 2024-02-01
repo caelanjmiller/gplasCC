@@ -10,7 +10,7 @@ import sys
 import argparse
 #import time
 import subprocess
-#from pathlib import Path
+from pathlib import Path
 #from .version import version as VERSION
 VERSION="1.0.0"
 ##os.chdir("C:/Users/oscar/Documenten/UU/04_BiBc/6.2_Research_Profile/gplas/gplas-2-python/gplas/scripts/module_development")
@@ -114,12 +114,6 @@ Looks like the nodes were not extracted. Please, check above for error messages.
 """)
     sys.exit(0)
 
-#Creates a directory using the given path if the path does not already exist
-def make_directory(path):
-    if os.path.exists(path) == False:
-        mkdir_command = f"mkdir -p {path}"
-        subprocess.run(mkdir_command, shell=True, text=True, executable='/bin/bash')
-
 #******************************#
 #*                            *#
 #*        Start gplas         *#
@@ -149,8 +143,8 @@ print("##################################################################\n")
 
 #3. Run analysis
 print("Extracting contigs from the assembly graph...")
-make_directory("gplas_input")
-make_directory("logs")
+Path("gplas_input").mkdir(parents=True, exist_ok=True)
+Path("logs").mkdir(parents=True, exist_ok=True)
 
 ##3.1  Extract links and nodes from the assembly graph
 output_links = f"gplas_input/{args.name}_raw_links.txt"
@@ -196,7 +190,7 @@ check_prediction(sample=args.name,
 ##3.4 Run gplas in normal mode
 ##3.4.1 Extract information from the assembly graph
 print("Calculating base coverage...")
-make_directory("coverage")
+Path("coverage").mkdir(parents=True, exist_ok=True)
 
 coverage(sample = args.name,
          path_prediction = args.prediction,
@@ -204,7 +198,7 @@ coverage(sample = args.name,
          pred_threshold = args.threshold_prediction)
 ##3.4.2 Generate random walks
 print("Generating random walks in normal mode...")
-make_directory("walks/normal_mode")
+Path("walks/normal_mode").mkdir(parents=True, exist_ok=True)
 
 #TODO this will append paths/connections to previous file if using the same sample name
 ##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
@@ -218,7 +212,7 @@ generate_paths(sample = args.name,
 
 ##3.4.3 Calculate coocurrence between walks
 print("Calculating coocurrence of random walks...")
-make_directory("results/normal_mode")
+Path("results/normal_mode").mkdir(parents=True, exist_ok=True)
 
 #TODO coocurrence script breaks if reruning gplas with the same sample name
 ##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
@@ -239,8 +233,8 @@ unbinned_path=f'results/normal_mode/{args.name}_bin_Unbinned.fasta'
 if os.path.exists(unbinned_path):
     ##3.5.1 Run bold mode if contigs were left unbinned.
     print('Some contigs were left unbinned, running gplas in bold mode...')
-    make_directory("walks/bold_mode")
-    
+    Path("walks/bold_mode").mkdir(parents=True, exist_ok=True)
+
     generate_paths(sample = args.name,
                    classifier = args.classifier,
                    number_iterations = args.number_iterations,
@@ -250,7 +244,7 @@ if os.path.exists(unbinned_path):
     
     ##3.5.2 Extract unbinned solutions
     print("Extracting unbinned contigs from bold walks...")
-    make_directory("walks/unbinned_nodes")
+    Path("walks/unbinned_nodes").mkdir(parents=True, exist_ok=True)
     
     normal_results = f"results/normal_mode/{args.name}_results_no_repeats.tab"
     bold_walks = f"walks/bold_mode/{args.name}_solutions_bold.tab"
@@ -294,20 +288,21 @@ repeated_elements_path=f"coverage/{args.name}_repeat_nodes.tab"
 line_content=linecache.getline(repeated_elements_path,1)
 if line_content:
     print("Adding repeated elements to the predictions...")
-    make_directory("walks/repeats")
+    Path("walks/repeats").mkdir(parents=True, exist_ok=True)
+
     generate_repeat_paths(sample = args.name,
                           classifier = args.classifier,
                           number_iterations = args.number_iterations,
                           filt_threshold = args.filt_gplas,
                           sd_coverage = args.repeats_coverage_sd)
-    
+
     calculate_coocurrence_repeats(sample = args.name,
                                   classifier = args.classifier,
                                   number_iterations = args.number_iterations,
                                   pred_threshold = args.threshold_prediction,
                                   mod_threshold = args.modularity_threshold,
                                   sd_coverage = args.repeats_coverage_sd)
-    
+
 ##3.6.2 If there are not repeated elementss, just rename the results files.
 else:
     shutil.move("results/{args.name}_results_no_repeats.tab", "results/{args.name}_results.tab")
