@@ -341,7 +341,7 @@ def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold,
             index = full_info_components.loc[:,"Node"] == first_node
             info_first_node = full_info_components.loc[index,:]
     
-            partition_info.loc[:,"Original_component"] = info_first_node.loc[:,"Original_component"][0]
+            partition_info.loc[:,"Original_component"] = info_first_node.loc[:,"Original_component"][0] #improve this line causes an error (KeyError: 0) when -n is left empty and there aren't yet any gplas directories created before running the gplas command. But only sometimes, most of the time it just works??????
             complete_partition_info = pd.concat([complete_partition_info, partition_info], ignore_index=True)
     
         complete_partition_info.loc[:,"Modularity"] = round(complete_partition_info.loc[:,"Modularity"], 2)

@@ -25,6 +25,7 @@ from m_coocurrence_repeats import calculate_coocurrence_repeats
 
 # Directories
 pkgdir = os.path.dirname(__file__)
+#pkgdir = Path(__file__).parent.resolve() #improve for if we want to repace os with pathlib?
 #scriptdir = f"{pkgdir}/scripts/module_development"
 scriptdir = pkgdir
 
@@ -173,6 +174,7 @@ mv gplas_input/{args.name}_raw_nodes_unfiltered.fasta gplas_input/{args.name}_ra
 subprocess.run(extract_nodes_command, shell=True, text=True, executable='/bin/bash')
 
 #Check if output has been correctly created
+#Path(f"gplas_input/{args.name}_raw_nodes.fasta").exists() #improve for if we want to replace os with pathlib?
 if os.path.exists(f"gplas_input/{args.name}_raw_nodes.fasta") == False:
     error_message_extract()
     sys.exit(1)    
@@ -314,49 +316,60 @@ if os.path.exists(f"results/{args.name}_results.tab") == False:
     sys.exit("ERROR: Something went wrong while running gplas on the repeated elements")
 
 ##3.7 If the -k flag was not selected, delete intermediary files
-###https://ioflood.com/blog/python-delete-file-how-to-remove-a-file-or-folder-in-python/#:~:text=listdir()%20function%20can%20be,function%20from%20the%20glob%20module.
 if args.keep==False and args.classifier!='extract':
     print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
-    remove_command=f"""
-    #remove files
-    if [[ -f walks/{args.name}_solutions.tab ]]; then
-    rm walks/{args.name}_solutions*
-    fi
+    #improve use Path().unlink(missing_ok=True)?
+    ##Delete files
+    #Coverage files
+    if Path(f"coverage/{args.name}_estimation.txt").exists():
+        Path(f"coverage/{args.name}_clean_links.tab").unlink()
+        Path(f"coverage/{args.name}_clean_prediction.tab").unlink()
+        Path(f"coverage/{args.name}_clean_repeats.tab").unlink()
+        Path(f"coverage/{args.name}_estimation.txt").unlink()
+        Path(f"coverage/{args.name}_graph_contigs.tab").unlink()
+        Path(f"coverage/{args.name}_initialize_nodes.tab").unlink()
+        Path(f"coverage/{args.name}_isolated_nodes.tab").unlink()
+        Path(f"coverage/{args.name}_repeat_nodes.tab").unlink()
+        Path(f"coverage/{args.name}_repeats_graph.tab").unlink()
+    #Walks normal mode
+    if Path(f"walks/normal_mode/{args.name}_solutions.tab").exists():
+        Path(f"walks/normal_mode/{args.name}_solutions.tab").unlink()
+        Path(f"walks/normal_mode/{args.name}_connections.tab").unlink()
+    #Walks bold mode + unbinned solutions
+    if Path(f"walks/bold_mode/{args.name}_solutions_bold.tab").exists():
+        Path(f"walks/bold_mode/{args.name}_solutions_bold.tab").unlink()
+        Path(f"walks/bold_mode/{args.name}_connections_bold.tab").unlink()
+        Path(f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab").unlink()
+        Path(f"walks/{args.name}_solutions.tab").unlink()
+    #Walks repeats
+    if Path(f"walks/repeats/{args.name}_solutions.tab").exists():
+        Path(f"walks/repeats/{args.name}_solutions.tab").unlink()
+        Path(f"walks/repeats/{args.name}_connections.tab").unlink()
+    #Results no_repeats
+    if Path(f"results/{args.name}_results_no_repeats.tab").exists():
+        Path(f"results/{args.name}_results_no_repeats.tab").unlink()
+        Path(f"results/{args.name}_bins_no_repeats.tab").unlink()
     
-    rm walks/normal_mode/{args.name}_solutions*
-    rm walks/normal_mode/{args.name}_connections*
-    
-    if [[ -f walks/bold_mode/{args.name}_solutions_bold.tab ]]; then
-    rm walks/bold_mode/{args.name}_connections*
-    rm walks/bold_mode/{args.name}_solutions*
-    rm walks/unbinned_nodes/{args.name}_solutions*
-    fi
-    
-    if [[ -f walks/repeats/{args.name}_solutions.tab ]]; then
-    rm walks/repeats/{args.name}_connections*
-    rm walks/repeats/{args.name}_solutions*
-    fi
-    
-    rm coverage/{args.name}_clean*
-    rm coverage/{args.name}_graph*
-    rm coverage/{args.name}_estimation*
-    rm coverage/{args.name}_repeat*
-    rm coverage/{args.name}_initialize*
-    rm coverage/{args.name}_isolated*
-    
-    if [[ -f results/normal_mode/{args.name}_results.tab ]]; then
-    rm results/normal_mode/{args.name}_bin*
-    rm results/normal_mode/{args.name}_results*
-    rm results/normal_mode/{args.name}*png
-    fi
-    
-    if [[ -f results/{args.name}_results_no_repeats.tab ]]; then
-    rm results/{args.name}_*_no_repeats.tab
-    fi
-    """
-    subprocess.run(remove_command, shell=True, text=True, executable='/bin/bash')
+    ##Delete directories if they exist and are empty
+    if Path("coverage/").exists() and not any(Path("coverage/").glob("*")):
+        Path("coverage/").rmdir()
 
-##3.8 If there were no errors: Show success message and exit workflow
+    if Path("walks/normal_mode/").exists() and not any(Path("walks/normal_mode/").glob("*")):
+        Path("walks/normal_mode/").rmdir()
+
+    if Path("walks/bold_mode/").exists() and not any(Path("walks/bold_mode/").glob("*")):
+        Path("walks/bold_mode/").rmdir()
+
+    if Path("walks/unbinned_nodes/").exists() and not any(Path("walks/unbinned_nodes/").glob("*")):
+        Path("walks/unbinned_nodes/").rmdir()
+
+    if Path("walks/repeats/").exists() and not any(Path("walks/repeats/").glob("*")):
+        Path("walks/repeats/").rmdir()
+
+    if Path("walks/").exists() and not any(Path("walks/").glob("*")):
+        Path("walks/").rmdir()
+    
+##3.8 If there are no errors: Show success message and exit workflow
 success_message()
 sys.exit(0)
 
