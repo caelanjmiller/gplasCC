@@ -4,7 +4,7 @@
 #from cProfile import run
 import shutil
 import linecache
-import glob
+#import glob
 import os
 import sys
 import argparse
@@ -273,7 +273,7 @@ if os.path.exists(unbinned_path):
                           mode = "unbinned")
 
 else:
-    for file in glob.glob(f"results/normal_mode/{args.name}*"):
+    for file in Path("results/normal_mode/").glob(f"{args.name}*"):
         shutil.copy(file, "results/")
 
 #Check if output has been correctly created
