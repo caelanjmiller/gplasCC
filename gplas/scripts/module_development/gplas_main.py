@@ -145,33 +145,27 @@ print("##################################################################\n")
 #3. Run analysis
 print("Extracting contigs from the assembly graph...")
 Path("gplas_input").mkdir(parents=True, exist_ok=True)
-Path("logs").mkdir(parents=True, exist_ok=True)
 
-##3.1  Extract links and nodes from the assembly graph
+##3.1  Extract nodes and links from the assembly graph
 output_links = f"gplas_input/{args.name}_raw_links.txt"
-logs_links = f"logs/{args.name}_log_links.txt"
-extract_links_command=f"""
-awk -F "\\t" '{{if($1 == "L") print $N}}' {args.input} \
-1> {output_links} 2> {logs_links}
-"""
-subprocess.run(extract_links_command, shell=True, text=True, executable='/bin/bash')
+output_nodes = f"gplas_input/{args.name}_raw_nodes.fasta"
+output_contigs = f"gplas_input/{args.name}_contigs.fasta"
 
-#TODO discuss style preferences if we want nodes= log= contig= nodes_renamed=
-##and/or get rid of rename step and name it right the first time
-extract_nodes_command=f"""
-# extract nodes
-awk '{{if($1 == "S") print ">"$1$2"_"$4"_"$5"\\n"$3}}' {args.input} \
-1> gplas_input/{args.name}_raw_nodes_unfiltered.fasta \
-2> logs/{args.name}_log_nodes.txt
-
-# filter nodes based on sequence length
-awk -v min={args.length_filter} 'BEGIN {{RS = ">" ; ORS = ""}} length($2) >= min {{print ">"$0}}' \
-gplas_input/{args.name}_raw_nodes_unfiltered.fasta > gplas_input/{args.name}_contigs.fasta
-
-# change the name to the output file
-mv gplas_input/{args.name}_raw_nodes_unfiltered.fasta gplas_input/{args.name}_raw_nodes.fasta
-"""
-subprocess.run(extract_nodes_command, shell=True, text=True, executable='/bin/bash')
+with open(args.input,"r") as graph, open(output_links,"w") as links, open(output_nodes,"w") as nodes, open(output_contigs,"w") as contigs:
+    for line in graph:
+        if line[0] == "S":
+            cols = line.split("\t")
+            number = cols[0] + str(cols[1])
+            sequence = cols[2]
+            if len(cols) > 4: #unicycler
+                information = "_".join(cols[3:])
+            else: #spades
+                information = cols[3]
+            nodes.write(f">{number}_{information}{sequence}\n") # "information" already ends with a "\n"
+            if len(sequence) >= args.length_filter:
+                contigs.write(f">{number}_{information}{sequence}\n")
+        elif line[0] == "L":
+            links.write(line)
 
 #Check if output has been correctly created
 #Path(f"gplas_input/{args.name}_raw_nodes.fasta").exists() #improve for if we want to replace os with pathlib?
