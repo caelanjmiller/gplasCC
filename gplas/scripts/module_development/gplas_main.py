@@ -153,6 +153,7 @@ output_contigs = f"gplas_input/{args.name}_contigs.fasta"
 
 with open(args.input,"r") as graph, open(output_links,"w") as links, open(output_nodes,"w") as nodes, open(output_contigs,"w") as contigs:
     for line in graph:
+        line = line.rstrip()
         if line[0] == "S":
             cols = line.split("\t")
             number = cols[0] + str(cols[1])
@@ -161,11 +162,11 @@ with open(args.input,"r") as graph, open(output_links,"w") as links, open(output
                 information = "_".join(cols[3:])
             else: #spades
                 information = cols[3]
-            nodes.write(f">{number}_{information}{sequence}\n") # "information" already ends with a "\n"
+            nodes.write(f">{number}_{information}\n{sequence}\n")
             if len(sequence) >= args.length_filter:
-                contigs.write(f">{number}_{information}{sequence}\n")
+                contigs.write(f">{number}_{information}\n{sequence}\n")
         elif line[0] == "L":
-            links.write(line)
+            links.write(f"{line}\n")
 
 #Check if output has been correctly created
 #Path(f"gplas_input/{args.name}_raw_nodes.fasta").exists() #improve for if we want to replace os with pathlib?
