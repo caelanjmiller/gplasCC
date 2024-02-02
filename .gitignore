@@ -19,3 +19,4 @@ gplas/__pycache__/
 .snakemake
 templates/final.yaml
 gplas/scripts/module_development/__pycache__/
+gplas/scripts/module_development/functions_test.py
