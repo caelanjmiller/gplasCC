@@ -245,20 +245,31 @@ if os.path.exists(unbinned_path):
     
     normal_results = f"results/normal_mode/{args.name}_results_no_repeats.tab"
     bold_walks = f"walks/bold_mode/{args.name}_solutions_bold.tab"
-    unbinned_walks = f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab"
-    extract_unbinned_command=f"""
-    for node in $(grep Unbinned {normal_results} | cut -f 5 -d '\t'); do \
-        grep -w "^${{node}}" {bold_walks} >> {unbinned_walks} || continue; \
-        done
-    """
-    subprocess.run(extract_unbinned_command, shell=True, text=True, executable='/bin/bash')
+    unbinned_walks = f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab"   
+    #Get unbinned nodes
+    unbinned_nodes = []
+    with open(normal_results,"r") as file:
+        for line in file:
+            line = line.rstrip()
+            cols = line.split("\t")
+            number = str(cols[4])
+            component = cols[7]
+            if component == "Unbinned":
+                unbinned_nodes.append(number)
+    #Select bold walks that start with unbinned nodes
+    with open(bold_walks,"r") as infile, open(unbinned_walks,"w") as outfile:
+        for line in infile:
+            first_node = str(line.split("\t", 1)[0])
+            first_node_unsigned = first_node[:-1] #improve find a better way to remove +/- from end of number?
+            if first_node_unsigned in unbinned_nodes:
+                outfile.write(line)
     ##3.5.3 Combine solutions from bold and normal mode
     normal_walks = f"walks/normal_mode/{args.name}_solutions.tab"
     combined_walks = f"walks/{args.name}_solutions.tab"
-    combine_walks_command = f"""
-    cat {unbinned_walks} {normal_walks} > {combined_walks}
-    """
-    subprocess.run(combine_walks_command, shell=True, text=True, executable='/bin/bash')
+    shutil.copyfile(normal_walks, combined_walks)
+    with open(unbinned_walks,"r") as infile, open(combined_walks,"a") as outfile:
+        for line in infile:
+            outfile.write(line)
 
     ##3.5.4 Recalculate coocurrence of walks using the combined solutions
     print("Recalculating coocurrence of random walks...")
