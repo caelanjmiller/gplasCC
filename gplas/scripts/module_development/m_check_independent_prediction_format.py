@@ -86,6 +86,7 @@ def check_prediction(sample, path_prediction):
     prediction_headers = prediction_file["Contig_name"]
     
     ##5.3 See if the predictions are in the fasta headers
+    #improve do we also need to check the other way around? now there can be contigs in the FASTA that are not in the prediction file
     comparison_output = [header in fasta_headers for header in prediction_headers]
     
     if(False in comparison_output):
