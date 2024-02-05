@@ -8,11 +8,11 @@ import linecache
 import os
 import sys
 import argparse
-#import time
 import subprocess
 from pathlib import Path
 #from .version import version as VERSION
 VERSION="1.0.0"
+import time
 ##os.chdir("C:/Users/oscar/Documenten/UU/04_BiBc/6.2_Research_Profile/gplas/gplas-2-python/gplas/scripts/module_development")
 ##os.getcwd()
 
@@ -22,6 +22,8 @@ from m_paths import generate_paths
 from m_coocurrence import calculate_coocurrence
 from m_paths_repeats import generate_repeat_paths
 from m_coocurrence_repeats import calculate_coocurrence_repeats
+
+start_time = time.time()
 
 # Directories
 pkgdir = os.path.dirname(__file__)
@@ -77,6 +79,9 @@ We hope it helps your research, thanks for using gplas version {VERSION}!
 
 Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
+    end_time = time.time()
+    duration = end_time - start_time
+    print(f"gplas took {duration} seconds to run")
 
     sys.exit(0)
 
@@ -252,7 +257,7 @@ if os.path.exists(unbinned_path):
         for line in file:
             line = line.rstrip()
             cols = line.split("\t")
-            number = str(cols[4])
+            number = str(cols[4]) #improve move number= to after the if component== statement; should be (slightly) more efficient
             component = cols[7]
             if component == "Unbinned":
                 unbinned_nodes.append(number)
@@ -340,17 +345,17 @@ if args.keep==False and args.classifier!='extract':
     #Walks normal mode
     if Path(f"walks/normal_mode/{args.name}_solutions.tab").exists():
         Path(f"walks/normal_mode/{args.name}_solutions.tab").unlink()
-        Path(f"walks/normal_mode/{args.name}_connections.tab").unlink()
+        #Path(f"walks/normal_mode/{args.name}_connections.tab").unlink()
     #Walks bold mode + unbinned solutions
     if Path(f"walks/bold_mode/{args.name}_solutions_bold.tab").exists():
         Path(f"walks/bold_mode/{args.name}_solutions_bold.tab").unlink()
-        Path(f"walks/bold_mode/{args.name}_connections_bold.tab").unlink()
+        #Path(f"walks/bold_mode/{args.name}_connections_bold.tab").unlink()
         Path(f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab").unlink()
         Path(f"walks/{args.name}_solutions.tab").unlink()
     #Walks repeats
     if Path(f"walks/repeats/{args.name}_solutions.tab").exists():
         Path(f"walks/repeats/{args.name}_solutions.tab").unlink()
-        Path(f"walks/repeats/{args.name}_connections.tab").unlink()
+        #Path(f"walks/repeats/{args.name}_connections.tab").unlink()
     #Results no_repeats
     if Path(f"results/{args.name}_results_no_repeats.tab").exists():
         Path(f"results/{args.name}_results_no_repeats.tab").unlink()

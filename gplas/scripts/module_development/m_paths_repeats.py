@@ -31,7 +31,7 @@ def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold,
     repeats_sd_coverage = int(sd_coverage)
     #Outputs
     output_path = f"walks/repeats/{sample}_solutions.tab"
-    output_connections = f"walks/repeats/{sample}_connections.tab"
+    #output_connections = f"walks/repeats/{sample}_connections.tab"
     
     links = pd.read_csv(path_links, sep="\t", header=None)
     clean_pred = pd.read_csv(path_prediction, sep="\t", header=0)
@@ -96,7 +96,7 @@ def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold,
                                                     "Probability":1,
                                                     "Probability_freq":1,
                                                     "Verdict":"selected"}, index=[0])
-            record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
+            #record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
             
             #################################### Coverage of the current path #################################
             
@@ -240,7 +240,7 @@ def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold,
                     with open(output_path, mode="a") as file:
                         file.write(output + "\n")
                     
-                    record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
+                    #record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
                     path = [initial_seed] # There are no connections possible from this contig
                     unitig_seed_classification = classification
                     break # Exiting elongation loop
@@ -256,7 +256,7 @@ def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold,
                 index = record_connections.loc[:,"outgoing_node"] == random_connection
                 record_connections.loc[index,"Verdict"] = "selected"
                 
-                record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
+                #record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
     
                 path.append(str(random_connection))
     #ASK why do we check for plasmid here?

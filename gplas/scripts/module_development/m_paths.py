@@ -31,11 +31,11 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
     #Outputs Normal Mode
     if mode == "normal":
         output_path = f"walks/normal_mode/{sample}_solutions.tab"
-        output_connections = f"walks/normal_mode/{sample}_connections.tab"
+        #output_connections = f"walks/normal_mode/{sample}_connections.tab"
     #Outputs Bold Mode
     elif mode == "bold":
         output_path = f"walks/bold_mode/{sample}_solutions_bold.tab"
-        output_connections = f"walks/bold_mode/{sample}_connections_bold.tab"
+        #output_connections = f"walks/bold_mode/{sample}_connections_bold.tab"
         
     links = pd.read_csv(path_links, sep="\t", header=None)
     clean_pred = pd.read_csv(path_prediction, sep="\t", header=0)
@@ -93,7 +93,7 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
                                                     "Probability":1,
                                                     "Probability_freq":1,
                                                     "Verdict":"selected"}, index=[0])
-            record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
+            #record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
             
             #################################### Coverage of the current path #################################
             
@@ -231,7 +231,7 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
                     with open(output_path, mode="a") as file:
                         file.write(output + "\n")
                     
-                    record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
+                    #record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
                     path = [initial_seed] # There are no connections possible from this contig
                     break # Exiting elongation loop
                     
@@ -246,7 +246,7 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
                 index = record_connections.loc[:,"outgoing_node"] == random_connection
                 record_connections.loc[index,"Verdict"] = "selected"
                 
-                record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
+                #record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
                 
                 path.append(str(random_connection))
     
