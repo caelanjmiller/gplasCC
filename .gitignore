@@ -18,5 +18,6 @@ gplas.egg-info/
 gplas/__pycache__/
 .snakemake
 templates/final.yaml
-gplas/scripts/module_development/__pycache__/
-gplas/scripts/module_development/functions_test.py
+gplas/scripts/__pycache__/
+gplas/scripts/test_functions.py
+gplas/scripts/test_multiprocessing.py
