@@ -7,6 +7,8 @@ gplas/walks/
 coverage/
 gplas/coverage/
 gplas.egg-info/
+.eggs/
+gplas/version.py
 gplas/__pycache__/
 gplas/scripts/__pycache__/
 gplas/scripts/test_functions.py
