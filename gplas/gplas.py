@@ -10,8 +10,8 @@ import sys
 import argparse
 #import subprocess
 from pathlib import Path
-#from .version import version as VERSION
-VERSION="1.0.0"
+from .version import version as VERSION
+#VERSION="1.0.0"
 import time
 ##os.chdir("C:/Users/oscar/Documenten/UU/04_BiBc/6.2_Research_Profile/gplas/gplas-2-python/gplas/scripts")
 ##os.getcwd()
