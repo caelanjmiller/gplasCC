@@ -132,24 +132,10 @@ def coverage(sample, path_prediction, classifier, pred_threshold):
     
     pred = pd.read_table(path_prediction, sep="\t", header=0)
     
-    #improve only check for plasflow if all others are the same, which is plasmidCC?
-    if classifier == "mlplasmids":
-        clean_pred = pred
+    #improve change variable names to prevent having to do this redundant assingment
+    clean_pred = pred
     
-    if classifier == "predict":
-        clean_pred = pred
     
-    #improve remove code, we're not using plasflow anymore; plasflow code: Rscript lines 154-200
-    '''
-    if classifier == "plasflow":
-        pred = pred[pred["contig_length"] > 1000]
-        for index, contig in pred.iterrows():
-            val = max(float(contig.iloc[:,5:32]))
-            column = contig[]
-            contig.loc[:,"label"] = 0
-            contig.loc[:,"prob"] = 0
-            contig.loc[:,"Prediction"] = 0
-    '''
     raw_number = [name.split("_", maxsplit=1)[0] for name in clean_pred["Contig_name"]]
     clean_pred.loc[:,"number"] = [number.replace("S","") for number in raw_number]
     clean_pred = pd.merge(clean_pred, contig_info, on=["Contig_name","number"])

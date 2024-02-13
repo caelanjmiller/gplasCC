@@ -16,12 +16,14 @@ import time
 ##os.chdir("C:/Users/oscar/Documenten/UU/04_BiBc/6.2_Research_Profile/gplas/gplas-2-python/gplas/scripts")
 ##os.getcwd()
 
+#TODO change script/function/import names
 from gplas.scripts.m_check_independent_prediction_format import check_prediction
 from gplas.scripts.m_coverage import coverage
 from gplas.scripts.m_paths import generate_paths
 from gplas.scripts.m_coocurrence import calculate_coocurrence
 from gplas.scripts.m_paths_repeats import generate_repeat_paths
 from gplas.scripts.m_coocurrence_repeats import calculate_coocurrence_repeats
+from gplas.scripts.m_run_plasmidcc import run_plasmidCC
 
 start_time = time.time()
 
@@ -49,7 +51,7 @@ class PriorityPrinting(argparse.Action):
 parser = argparse.ArgumentParser(description='gplas: A tool for binning plasmid-predicted contigs into individual predictions.',formatter_class=argparse.ArgumentDefaultsHelpFormatter,add_help=False)
 parser.register('action','printing',PriorityPrinting)
 parser.add_argument('-i', '--input', type=str, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
-parser.add_argument('-c', '--classifier', type=str, required=True, choices=['extract','predict'], help="Select to extract nodes from the assembly graph or to predict individual plasmids.")
+parser.add_argument('-c', '--classifier', type=str, required=True, choices=['extract','predict','plasmidCC'], help="Select to extract nodes from the assembly graph or to predict individual plasmids.")
 parser.add_argument('-n', '--name', type=str, default='unnamed', help="Output name used in the gplas files")
 parser.add_argument('-P', '--prediction', help="Path to the binary classification file")
 parser.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
@@ -147,6 +149,8 @@ print("Coverage SD for repeats:..............................", args.repeats_cov
 print("Minimum sequence length:..............................", args.length_filter)
 print("##################################################################\n")
 
+##TODO add a section for defining parameter variables; prediction = args.predicton, and then later prediction = plasmidCC_output.tsv
+
 #3. Run analysis
 print("Extracting contigs from the assembly graph...")
 Path("gplas_input").mkdir(parents=True, exist_ok=True)
@@ -185,6 +189,16 @@ if os.path.exists(f"gplas_input/{args.name}_raw_nodes.fasta") == False:
 if args.classifier == "extract":
     success_message_extract()
     sys.exit(0)
+
+##3.CC Run plasmidCC
+##TODO fix plasmidCC FASTA input and only give it the sample_contigs.fasta as input to prevent double extracting of nodes
+if args.classifier == "plasmidCC":
+    Path("plasmidCC").mkdir(parents=True, exist_ok=True)
+    run_plasmidCC(infile = args.input,
+                  sample = args.name,
+                  maxlen = args.length_filter)#TODO add species input somewhere
+    #cleanup_centrifuge(sample = args.name)
+    args.prediction = f"plasmidCC/{args.name}/{args.name}_gplas.tsv"
 
 ##3.3 Check if the prediction file is correctly formatted.
 print("Checking if prediction file is correctly formatted...")
