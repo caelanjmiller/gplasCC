@@ -156,6 +156,7 @@ output_links = f"gplas_input/{args.name}_raw_links.txt"
 output_nodes = f"gplas_input/{args.name}_raw_nodes.fasta"
 output_contigs = f"gplas_input/{args.name}_contigs.fasta"
 
+#TODO turn this into an extract() function
 with open(args.input,"r") as graph, open(output_links,"w") as links, open(output_nodes,"w") as nodes, open(output_contigs,"w") as contigs:
     for line in graph:
         line = line.rstrip()
@@ -175,6 +176,7 @@ with open(args.input,"r") as graph, open(output_links,"w") as links, open(output
 
 #Check if output has been correctly created
 #Path(f"gplas_input/{args.name}_raw_nodes.fasta").exists() #improve for if we want to replace os with pathlib?
+#TODO turn this into a check_output() function
 if os.path.exists(f"gplas_input/{args.name}_raw_nodes.fasta") == False:
     error_message_extract()
     sys.exit(1)    
@@ -184,7 +186,7 @@ if args.classifier == "extract":
     success_message_extract()
     sys.exit(0)
 
-##3.3 Check if the independent prediction file is correctly formatted.
+##3.3 Check if the prediction file is correctly formatted.
 print("Checking if prediction file is correctly formatted...")
 check_prediction(sample=args.name,
                  path_prediction=args.prediction)
