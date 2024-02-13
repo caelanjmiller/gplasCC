@@ -56,9 +56,8 @@ parser.register('action','printing',PriorityPrinting)
 parser.add_argument('-i', '--input', type=str, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
 parser.add_argument('-c', '--classifier', type=str, required=True, choices=['extract','predict'], help="Select to extract nodes from the assembly graph or to predict individual plasmids.")
 parser.add_argument('-n', '--name', type=str, default='unnamed', help="Output name used in the gplas files")
-parser.add_argument('-P', '--prediction', help="Path to an independent binary classification file")
 
-parser.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
+#gplas_options
 parser.add_argument('-t', '--threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences")
 parser.add_argument('-b', '--bold_walks', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes")
 parser.add_argument('-r', '--repeats_coverage_sd', type=int, default=2, help="Coverage variance allowed for assigning repeats to bins")
@@ -67,6 +66,16 @@ parser.add_argument('-f', '--filt_gplas', type=float, default=0.1, help="filteri
 parser.add_argument('-e', '--edge_threshold', type=float, default=0.1, help="Edge threshold")
 parser.add_argument('-q', '--modularity_threshold', type=float, default=0.2, help="Modularity threshold to split components in the plasmidome network")
 parser.add_argument('-l', '--length_filter', type=int, default=1000, help="Filtering threshold for sequence length")
+
+#prediction/plasmidCC_input
+parser.add_argument('-P', '--prediction', type=str, help="Path to an independent binary classification file")
+parser.add_argument('-p')
+parser.add_argument('-s')
+parser.add_argument('-d')
+
+#utility
+parser.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
+parser.add_argument('--threads')#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 parser.add_argument('--silent', action='store_true', help="Suppress verbose print statements")
 parser.add_argument('-h', '--help', action='printing', nargs=0, help="Prints this message")
 parser.add_argument('-v', '--version', action='printing', nargs=0, help="Prints gplas version")
@@ -86,7 +95,7 @@ Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
     end_time = time.time()
     duration = end_time - start_time
-    m_utils.verbose_print(f"gplas took {round(duration,1)} seconds to run", args.silent, 'normal')
+    m_utils.verbose_print(f"gplas took {round(duration,1)} seconds to run", args.silent)
 
     sys.exit(0)
 
@@ -154,7 +163,7 @@ print("##################################################################\n")
 ##TODO add a section for defining parameter variables; prediction = args.predicton, and then later prediction = plasmidCC_output.tsv
 
 #3. Run analysis
-m_utils.verbose_print("Extracting contigs from the assembly graph", args.silent, 'start')
+m_utils.verbose_print("Extracting contigs from the assembly graph...", args.silent, '\r')
 Path("gplas_input").mkdir(parents=True, exist_ok=True)
 
 ##3.1  Extract nodes and links from the assembly graph
@@ -187,7 +196,7 @@ if os.path.exists(f"gplas_input/{args.name}_raw_nodes.fasta") == False:
     error_message_extract()
     sys.exit(1)    
 
-m_utils.verbose_print("Extracting contigs from the assembly graph", args.silent, 'end')
+m_utils.verbose_print("Extracting contigs from the assembly graph completed!", args.silent)
 
 ##3.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
 if args.classifier == "extract":
@@ -207,28 +216,28 @@ else:
     path_prediction = args.prediction
 
 ##3.3 Check if the prediction file is correctly formatted.
-m_utils.verbose_print("Checking prediction file format", args.silent, 'start')
+m_utils.verbose_print("Checking prediction file format...", args.silent, '\r')
 try:
     check_prediction(sample = args.name, path_prediction = path_prediction)
 except Exception as e:
-    m_utils.verbose_print(e, False, 'error')
+    print(e)
     sys.exit(0)
     
-m_utils.verbose_print("Checking prediction file format", args.silent, 'end')
+m_utils.verbose_print("Checking prediction file format completed!", args.silent)
 
 ##3.4 Run gplas in normal mode
 ##3.4.1 Extract information from the assembly graph
-m_utils.verbose_print("Calculating base coverage", args.silent, 'start')
+m_utils.verbose_print("Calculating base coverage...", args.silent, '\r')
 Path("coverage").mkdir(parents=True, exist_ok=True)
 
 coverage(sample = args.name,
          path_prediction = path_prediction,
          classifier = args.classifier,
          pred_threshold = args.threshold_prediction)
-m_utils.verbose_print("Calculating base coverage", args.silent, 'end')
+m_utils.verbose_print("Calculating base coverage completed!", args.silent)
 
 ##3.4.2 Generate random walks
-m_utils.verbose_print("Generating random walks in normal mode", args.silent, 'start')
+m_utils.verbose_print("Generating random walks in normal mode...", args.silent, '\r')
 Path("walks/normal_mode").mkdir(parents=True, exist_ok=True)
 
 #TODO this will append paths/connections to previous file if using the same sample name
@@ -240,10 +249,10 @@ generate_paths(sample = args.name,
                filt_threshold = args.filt_gplas,
                mode = "normal",
                sd_coverage = 1)
-m_utils.verbose_print("Generating random walks in normal mode", args.silent, 'end')
+m_utils.verbose_print("Generating random walks in normal mode completed!", args.silent)
 
 ##3.4.3 Calculate coocurrence between walks
-m_utils.verbose_print("Calculating coocurrence of random walks", args.silent, 'start')
+m_utils.verbose_print("Calculating coocurrence of random walks...", args.silent, '\r')
 Path("results/normal_mode").mkdir(parents=True, exist_ok=True)
 
 #TODO coocurrence script breaks if reruning gplas with the same sample name
@@ -260,14 +269,14 @@ if os.path.exists(f"results/normal_mode/{args.name}_results_no_repeats.tab") == 
     #make this also an error_message() function??
     sys.exit("ERROR: Something went wrong while running gplas in normal mode")
 
-m_utils.verbose_print("Calculating coocurrence of random walks", args.silent, 'end')
+m_utils.verbose_print("Calculating coocurrence of random walks completed!", args.silent)
 
 #3.5 Check for Unbinned contigs
 unbinned_path=f'results/normal_mode/{args.name}_bin_Unbinned.fasta'
 if os.path.exists(unbinned_path):
     ##3.5.1 Run bold mode if contigs were left unbinned.
-    m_utils.verbose_print("Some contigs were left unbinned", args.silent, 'normal')#improve tell user how many contigs are unbinned?
-    m_utils.verbose_print("Generating random walks in bold mode", args.silent, 'start')
+    m_utils.verbose_print("Some contigs were left unbinned", args.silent)#improve tell user how many contigs are unbinned?
+    m_utils.verbose_print("Generating random walks in bold mode...", args.silent, '\r')
     Path("walks/bold_mode").mkdir(parents=True, exist_ok=True)
 
     generate_paths(sample = args.name,
@@ -276,10 +285,10 @@ if os.path.exists(unbinned_path):
                    filt_threshold = args.filt_gplas,
                    mode = "bold",
                    sd_coverage = args.bold_walks)
-    m_utils.verbose_print("Generating random walks in bold mode", args.silent, 'end')
+    m_utils.verbose_print("Generating random walks in bold mode completed!", args.silent)
     
     ##3.5.2 Extract unbinned solutions
-    m_utils.verbose_print("Extracting unbinned contigs from bold walks", args.silent, 'start')
+    m_utils.verbose_print("Extracting unbinned contigs from bold walks...", args.silent, '\r')
     Path("walks/unbinned_nodes").mkdir(parents=True, exist_ok=True)
     
     normal_results = f"results/normal_mode/{args.name}_results_no_repeats.tab"
@@ -311,10 +320,10 @@ if os.path.exists(unbinned_path):
         for line in infile:
             outfile.write(line)
     
-    m_utils.verbose_print("Extracting unbinned contigs from bold walks", args.silent, 'end')
+    m_utils.verbose_print("Extracting unbinned contigs from bold walks completed!", args.silent)
 
     ##3.5.4 Recalculate coocurrence of walks using the combined solutions
-    m_utils.verbose_print("Recalculating coocurrence of random walks", args.silent, 'start')
+    m_utils.verbose_print("Recalculating coocurrence of random walks...", args.silent, '\r')
     calculate_coocurrence(sample = args.name,
                           classifier = args.classifier,
                           number_iterations = args.number_iterations,
@@ -331,14 +340,14 @@ if os.path.exists(f"results/{args.name}_results_no_repeats.tab") == False:
     #make this also an error_message() function??
     sys.exit("ERROR: Something went wrong while running gplas in bold mode")
 
-m_utils.verbose_print("Recalculating coocurrence of random walks", args.silent, 'end')
+m_utils.verbose_print("Recalculating coocurrence of random walks completed!", args.silent)
 
 ## 3.6 ADD REPEATED ELEMENTS.
 ##3.6.1 Now add the repeats to the final bins
 repeated_elements_path=f"coverage/{args.name}_repeat_nodes.tab"
 line_content=linecache.getline(repeated_elements_path,1)
 if line_content:
-    m_utils.verbose_print("Adding repeated elements to the predictions", args.silent, 'start')
+    m_utils.verbose_print("Adding repeated elements to the predictions...", args.silent, '\r')
     Path("walks/repeats").mkdir(parents=True, exist_ok=True)
 
     generate_repeat_paths(sample = args.name,
@@ -364,12 +373,12 @@ if os.path.exists(f"results/{args.name}_results.tab") == False:
     #make this also an error_message() function??
     sys.exit("ERROR: Something went wrong while running gplas on the repeated elements")
 
-m_utils.verbose_print("Adding repeated elements to the predictions", args.silent, 'end')
+m_utils.verbose_print("Adding repeated elements to the predictions completed!", args.silent)
 
 
 ##3.7 If the -k flag was not selected, delete intermediary files
 if args.keep==False and args.classifier!='extract':
-    m_utils.verbose_print("Intermediate files will be deleted. If you want to keep these files, use the -k flag", args.silent, 'normal')
+    m_utils.verbose_print("Intermediate files will be deleted. If you want to keep these files, use the -k flag", args.silent)
     #improve use Path().unlink(missing_ok=True)?
     ##Delete files
     #Coverage files
