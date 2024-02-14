@@ -40,11 +40,13 @@ pkgdir = os.path.dirname(__file__)
 #*                            *#
 #******************************#
 
+#TODO this can go into a utils.py because speciesopts will get loaded once we import utils???
+##TODO also add file/dir exists functions/types
 #speciesopts needs to be manually updated if plasmidCC ever changes their species options
 speciesopts = ['General','Escherichia coli','Enterococcus faecium','Enterococcus faecalis','Salmonella enterica','Staphylococcus aureus','Acinetobacter baumannii','Klebsiella pneumoniae']
 def check_species(arg):
     if not arg in speciesopts:
-        raise argparse.ArgumentTypeError(f"\'{arg}\' is not a recognised species" + "\nUse gplas with the --speciesopts flag for a list of all supported species")
+        raise argparse.ArgumentTypeError(f"'{arg}' is not a recognised species" + "\nUse gplas with the --speciesopts flag for a list of all supported species")
     return arg
 
 class PriorityPrinting(argparse.Action):
@@ -55,7 +57,7 @@ class PriorityPrinting(argparse.Action):
             print(f"gplas version {VERSION}")
         elif option_string == "--speciesopts":
             for species in speciesopts:
-                print(f"\'{species}\'")
+                print(f"'{species}'")
         parser.exit()
 
 #create a function to pass float ranges
