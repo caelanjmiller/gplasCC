@@ -175,8 +175,6 @@ print("Coverage SD for repeats:..............................", args.repeats_cov
 print("Minimum sequence length:..............................", args.length_filter)
 print("##################################################################\n")
 
-##TODO add a section for defining parameter variables; prediction = args.predicton, and then later prediction = plasmidCC_output.tsv
-
 if args.prediction:
     classifier = 'external'
 else:
@@ -229,7 +227,8 @@ if classifier == 'plasmidCC':
     Path("plasmidCC").mkdir(parents=True, exist_ok=True)    
     run_plasmidCC(infile = args.input,
                   sample = args.name,
-                  maxlen = args.length_filter)#TODO add species input somewhere
+                  species = args.species,
+                  maxlen = args.length_filter)
     #cleanup_centrifuge(sample = args.name)
     path_prediction = f"plasmidCC/{args.name}/{args.name}_gplas.tsv"
 else:
@@ -241,7 +240,7 @@ try:
     check_prediction(sample = args.name, path_prediction = path_prediction)
 except Exception as e:
     print(e)
-    sys.exit(0)
+    sys.exit(1)
     
 verbose_print("Checking prediction file format completed!")
 
