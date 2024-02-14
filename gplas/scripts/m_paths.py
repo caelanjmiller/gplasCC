@@ -14,7 +14,7 @@ import scipy.stats
 #from Bio.SeqIO.FastaIO import SimpleFastaParser
 import sys
 
-def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="normal", sd_coverage=1):
+def generate_paths(sample, number_iterations, filt_threshold, mode="normal", sd_coverage=1):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"coverage/{sample}_clean_links.tab"
@@ -24,7 +24,6 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
     path_init_nodes = f"coverage/{sample}_initialize_nodes.tab"
     path_cov_variation = f"coverage/{sample}_estimation.txt"
     #Params
-    classifier = str(classifier)
     number_iterations = int(number_iterations)
     filtering_threshold = float(filt_threshold)
     sd_coverage = int(sd_coverage)
@@ -75,7 +74,7 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
     
     #ASK check default values of 'nodes' & 'prob_small_repeats'; they are not defined in this script?
     # "nodes" is just not defined or even used at all anywhere in the script; I removed it for now
-    def plasmid_graph(output_path, classifier, initial_seed, direction, prob_small_repeats, links=links, verbose=True, number_iterations=number_iterations, number_nodes=20, max_variation=max_variation, filtering_threshold=filtering_threshold):
+    def plasmid_graph(output_path, initial_seed, direction, prob_small_repeats, links=links, verbose=True, number_iterations=number_iterations, number_nodes=20, max_variation=max_variation, filtering_threshold=filtering_threshold):
         for iteration in range(number_iterations): # Number of times we repeat this process
             path = [initial_seed] # We add the initial seed to the path, first element in the list
             seed = initial_seed
@@ -284,7 +283,7 @@ def generate_paths(sample, classifier, number_iterations, filt_threshold, mode="
         np.random.seed(123)
         positive_seed = seed + "+"
         negative_seed = seed + "-"
-        plasmid_graph(output_path=output_path, classifier=classifier, initial_seed=positive_seed, direction="forward", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
-        plasmid_graph(output_path=output_path, classifier=classifier, initial_seed=negative_seed, direction="reverse", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
+        plasmid_graph(output_path=output_path, initial_seed=positive_seed, direction="forward", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
+        plasmid_graph(output_path=output_path, initial_seed=negative_seed, direction="reverse", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
 
     return

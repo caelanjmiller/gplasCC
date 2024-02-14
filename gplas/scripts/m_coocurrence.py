@@ -16,7 +16,7 @@ import sys
 
 #improve we have a lot of loops with "for row in range(solutions.shape[0]):"
 ## can we possibly merge some of them?
-def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold, mod_threshold, mode="normal"):
+def calculate_coocurrence(sample, number_iterations, pred_threshold, mod_threshold, mode="normal"):
     if mode == "normal":
         subdir = "normal_mode/"
     elif mode == "unbinned":
@@ -33,7 +33,6 @@ def calculate_coocurrence(sample, classifier, number_iterations, pred_threshold,
     input_solutions = f"walks/{subdir}{sample}_solutions.tab"
     #Params
     #improve can't we get rid of #Params and just use the function arguments?
-    classifier = str(classifier)
     number_iterations = int(number_iterations)
     pred_threshold = float(pred_threshold)
     modularity_threshold = float(mod_threshold)

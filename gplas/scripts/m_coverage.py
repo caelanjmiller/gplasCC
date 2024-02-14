@@ -13,14 +13,13 @@ import statistics
 #import copy
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
-def coverage(sample, path_prediction, classifier, pred_threshold):
+def coverage(sample, path_prediction, pred_threshold):
     #Inputs    
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"gplas_input/{sample}_raw_links.txt"
     path_prediction = str(path_prediction)
         
     #Params
-    classifier = str(classifier)
     pred_threshold = float(pred_threshold)
     
     #Outputs

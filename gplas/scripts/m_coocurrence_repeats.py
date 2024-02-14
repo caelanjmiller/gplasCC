@@ -17,7 +17,7 @@ import sys
 #improve we have a lot of loops with "for row in range(solutions.shape[0]):"
 ## can we possibly merge some of them?
 
-def calculate_coocurrence_repeats(sample, classifier, number_iterations, pred_threshold, mod_threshold, sd_coverage=2):
+def calculate_coocurrence_repeats(sample, number_iterations, pred_threshold, mod_threshold, sd_coverage=2):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"coverage/{sample}_clean_links.tab"
@@ -30,7 +30,6 @@ def calculate_coocurrence_repeats(sample, classifier, number_iterations, pred_th
     path_bins = f"results/{sample}_results_no_repeats.tab"
     clean_repeats_path = f"coverage/{sample}_clean_repeats.tab"
     #Params
-    classifier = str(classifier)
     number_iterations = int(number_iterations)
     pred_threshold = float(pred_threshold)
     modularity_threshold = float(mod_threshold)

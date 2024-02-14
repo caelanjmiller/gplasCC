@@ -53,7 +53,7 @@ parser.register('action','printing',PriorityPrinting)
 
 #inputgroup = parser.add_argument_group("General")
 parser.add_argument('-i', '--input', type=str, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
-parser.add_argument('-c', '--classifier', type=str, required=True, choices=['extract','predict'], help="Select to extract nodes from the assembly graph or to predict individual plasmids.")
+parser.add_argument('-m', '--mode', type=str, required=True, choices=['extract','predict'], help="Select to extract nodes from the assembly graph or to predict individual plasmids.")
 parser.add_argument('-n', '--name', type=str, default='unnamed', help="Output name used in the gplas files")
 
 #gplas_options
@@ -68,7 +68,7 @@ parser.add_argument('-l', '--length_filter', type=int, default=1000, help="Filte
 
 #prediction/plasmidCC_input
 parser.add_argument('-P', '--prediction', type=str, help="Path to an independent binary classification file")
-parser.add_argument('-p')
+parser.add_argument('-p', '--centrifuge_db_path')
 parser.add_argument('-s')
 parser.add_argument('-d')
 
@@ -137,6 +137,9 @@ def verbose_print(message, end='\n'):
     else:
         return print(message, end=end)
 
+def validate_plasmidCC_args():#prediction, species, db_path, db_name
+    return True
+
 #******************************#
 #*                            *#
 #*        Start gplas         *#
@@ -154,7 +157,7 @@ print("##################################################################")
 #Print chosen parameters
 print("Your results will be named:...........................", args.name)
 print("Input graph:..........................................", args.input)
-print("Classifier:...........................................", args.classifier)
+print("Mode:.................................................", args.mode)#improve remove this line
 print("Threshold for predicting plasmid-derived contigs:.....", args.threshold_prediction)
 print("Number of plasmid walks created per node:.............", args.number_iterations)
 print("Threshold of gplas scores:............................", args.filt_gplas)
@@ -166,6 +169,13 @@ print("Minimum sequence length:..............................", args.length_filt
 print("##################################################################\n")
 
 ##TODO add a section for defining parameter variables; prediction = args.predicton, and then later prediction = plasmidCC_output.tsv
+
+if args.prediction:
+    classifier = 'external'
+else:
+    if validate_plasmidCC_args():
+        classifier = 'plasmidCC'
+##if not both then error
 
 #3. Run analysis
 verbose_print("Extracting contigs from the assembly graph...", end='\r')
@@ -204,14 +214,14 @@ if os.path.exists(f"gplas_input/{args.name}_raw_nodes.fasta") == False:
 verbose_print("Extracting contigs from the assembly graph completed!")
 
 ##3.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
-if args.classifier == "extract":
+if args.mode == "extract":
     success_message_extract()
     sys.exit(0)
 
 ##3.CC Run plasmidCC if no independent prediction file was given
 ##TODO fix plasmidCC FASTA input and only give it the sample_contigs.fasta as input to prevent double extracting of nodes
-if not args.prediction:
-    Path("plasmidCC").mkdir(parents=True, exist_ok=True)
+if classifier == 'plasmidCC':
+    Path("plasmidCC").mkdir(parents=True, exist_ok=True)    
     run_plasmidCC(infile = args.input,
                   sample = args.name,
                   maxlen = args.length_filter)#TODO add species input somewhere
@@ -237,7 +247,6 @@ Path("coverage").mkdir(parents=True, exist_ok=True)
 
 coverage(sample = args.name,
          path_prediction = path_prediction,
-         classifier = args.classifier,
          pred_threshold = args.threshold_prediction)
 verbose_print("Calculating base coverage completed!")
 
@@ -249,7 +258,6 @@ Path("walks/normal_mode").mkdir(parents=True, exist_ok=True)
 ##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
 ##also needs to use multiprocessing which complicates things
 generate_paths(sample = args.name,
-               classifier = args.classifier,
                number_iterations = args.number_iterations,
                filt_threshold = args.filt_gplas,
                mode = "normal",
@@ -263,7 +271,6 @@ Path("results/normal_mode").mkdir(parents=True, exist_ok=True)
 #TODO coocurrence script breaks if reruning gplas with the same sample name
 ##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
 calculate_coocurrence(sample = args.name,
-                      classifier = args.classifier,
                       number_iterations = args.number_iterations,
                       pred_threshold = args.threshold_prediction,
                       mod_threshold = args.modularity_threshold,
@@ -285,7 +292,6 @@ if os.path.exists(unbinned_path):
     Path("walks/bold_mode").mkdir(parents=True, exist_ok=True)
 
     generate_paths(sample = args.name,
-                   classifier = args.classifier,
                    number_iterations = args.number_iterations,
                    filt_threshold = args.filt_gplas,
                    mode = "bold",
@@ -330,7 +336,6 @@ if os.path.exists(unbinned_path):
     ##3.5.4 Recalculate coocurrence of walks using the combined solutions
     verbose_print("Recalculating coocurrence of random walks...", end='\r')
     calculate_coocurrence(sample = args.name,
-                          classifier = args.classifier,
                           number_iterations = args.number_iterations,
                           pred_threshold = args.threshold_prediction,
                           mod_threshold = args.modularity_threshold,
@@ -356,13 +361,11 @@ if line_content:
     Path("walks/repeats").mkdir(parents=True, exist_ok=True)
 
     generate_repeat_paths(sample = args.name,
-                          classifier = args.classifier,
                           number_iterations = args.number_iterations,
                           filt_threshold = args.filt_gplas,
                           sd_coverage = args.repeats_coverage_sd)
 
     calculate_coocurrence_repeats(sample = args.name,
-                                  classifier = args.classifier,
                                   number_iterations = args.number_iterations,
                                   pred_threshold = args.threshold_prediction,
                                   mod_threshold = args.modularity_threshold,
@@ -382,7 +385,7 @@ verbose_print("Adding repeated elements to the predictions completed!")
 
 
 ##3.7 If the -k flag was not selected, delete intermediary files
-if args.keep==False and args.classifier!='extract':
+if args.keep==False and args.mode!='extract':
     verbose_print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
     #improve use Path().unlink(missing_ok=True)?
     ##Delete files
