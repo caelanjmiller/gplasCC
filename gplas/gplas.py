@@ -24,6 +24,7 @@ from gplas.scripts.m_coocurrence import calculate_coocurrence
 from gplas.scripts.m_paths_repeats import generate_repeat_paths
 from gplas.scripts.m_coocurrence_repeats import calculate_coocurrence_repeats
 from gplas.scripts.m_run_plasmidcc import run_plasmidCC
+#from plasmidCC.scripts import utils as utilsCC
 
 start_time = time.time()
 
@@ -39,45 +40,55 @@ pkgdir = os.path.dirname(__file__)
 #*                            *#
 #******************************#
 
+#speciesopts needs to be manually updated if plasmidCC ever changes their species options
+speciesopts = ['General','Escherichia coli','Enterococcus faecium','Enterococcus faecalis','Salmonella enterica','Staphylococcus aureus','Acinetobacter baumannii','Klebsiella pneumoniae']
+def check_species(arg):
+    if not arg in speciesopts:
+        raise argparse.ArgumentTypeError(f"\'{arg}\' is not a recognised species" + "\nUse gplas with the --speciesopts flag for a list of all supported species")
+    return arg
+
 class PriorityPrinting(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if option_string == "-h" or option_string == "--help":
             parser.print_help()
         elif option_string == "-v" or option_string == "--version":
             print(f"gplas version {VERSION}")
+        elif option_string == "--speciesopts":
+            for species in speciesopts:
+                print(f"\'{species}\'")
         parser.exit()
 
 #create a function to pass float ranges
 parser = argparse.ArgumentParser(description='gplas: A tool for binning plasmid-predicted contigs into individual predictions.',formatter_class=argparse.ArgumentDefaultsHelpFormatter,add_help=False)
 parser.register('action','printing',PriorityPrinting)
 
-#inputgroup = parser.add_argument_group("General")
-parser.add_argument('-i', '--input', type=str, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
-parser.add_argument('-m', '--mode', type=str, required=True, choices=['extract','predict'], help="Select to extract nodes from the assembly graph or to predict individual plasmids.")
-parser.add_argument('-n', '--name', type=str, default='unnamed', help="Output name used in the gplas files")
+inputgroup = parser.add_argument_group("General")
+inputgroup.add_argument('-i', '--input', type=str, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
+inputgroup.add_argument('-m', '--mode', type=str, required=True, choices=['extract','predict'], help="extract: extract FASTA sequences from the assembly graph to use with an external classifier | predict: run the full gplas workflow to predict individual plasmids from the assembly graph")
+inputgroup.add_argument('-n', '--name', type=str, default='unnamed', help="Output name used in the gplas files")
 
-#gplas_options
-parser.add_argument('-t', '--threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences")
-parser.add_argument('-b', '--bold_walks', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes")
-parser.add_argument('-r', '--repeats_coverage_sd', type=int, default=2, help="Coverage variance allowed for assigning repeats to bins")
-parser.add_argument('-x', '--number_iterations', type=int, default=20,help="Number of walk iterations per starting node")
-parser.add_argument('-f', '--filt_gplas', type=float, default=0.1, help="filtering threshold to reject outgoing edges")
-parser.add_argument('-e', '--edge_threshold', type=float, default=0.1, help="Edge threshold")
-parser.add_argument('-q', '--modularity_threshold', type=float, default=0.2, help="Modularity threshold to split components in the plasmidome network")
-parser.add_argument('-l', '--length_filter', type=int, default=1000, help="Filtering threshold for sequence length")
+classifiergroup = inputgroup.add_mutually_exclusive_group(required=True)
+classifiergroup.add_argument('-s', '--species', type=check_species, help="Choose a species database for plasmidCC classification. Use --speciesopts for a list of all supported species")
+classifiergroup.add_argument('-P', '--prediction', type=str, help="If not using plasmidCC. Provide a path to an independent binary classification file")
+#TODO for now we are missing the option to supply a custom centrifuge database directly via gplas
 
-#prediction/plasmidCC_input
-parser.add_argument('-P', '--prediction', type=str, help="Path to an independent binary classification file")
-parser.add_argument('-p', '--centrifuge_db_path')
-parser.add_argument('-s')
-parser.add_argument('-d')
+paramgroup = parser.add_argument_group("Parameters")
+paramgroup.add_argument('-t', '--threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences")
+paramgroup.add_argument('-b', '--bold_walks', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes")
+paramgroup.add_argument('-r', '--repeats_coverage_sd', type=int, default=2, help="Coverage variance allowed for assigning repeats to bins")
+paramgroup.add_argument('-x', '--number_iterations', type=int, default=20,help="Number of walk iterations per starting node")
+paramgroup.add_argument('-f', '--filt_gplas', type=float, default=0.1, help="filtering threshold to reject outgoing edges")
+paramgroup.add_argument('-e', '--edge_threshold', type=float, default=0.1, help="Edge threshold")
+paramgroup.add_argument('-q', '--modularity_threshold', type=float, default=0.2, help="Modularity threshold to split components in the plasmidome network")
+paramgroup.add_argument('-l', '--length_filter', type=int, default=1000, help="Filtering threshold for sequence length")
 
-#utility
-parser.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
-parser.add_argument('--threads')#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-parser.add_argument('--silent', action='store_true', help="Suppress verbose print statements")
-parser.add_argument('-h', '--help', action='printing', nargs=0, help="Prints this message")
-parser.add_argument('-v', '--version', action='printing', nargs=0, help="Prints gplas version")
+utilgroup = parser.add_argument_group("Utility")
+utilgroup.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
+#utilgroup.add_argument('--threads', type=int, default=1, help="Max number of threads to ")#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+utilgroup.add_argument('--silent', action='store_true', help="Suppress verbose print statements")
+utilgroup.add_argument('--speciesopts', action='printing', nargs=0, help="Prints a list of all supported species for the -s flag")
+utilgroup.add_argument('-h', '--help', action='printing', nargs=0, help="Prints this message")
+utilgroup.add_argument('-v', '--version', action='printing', nargs=0, help="Prints gplas version")
 args = parser.parse_args()
 
 #Success Message
@@ -137,9 +148,6 @@ def verbose_print(message, end='\n'):
     else:
         return print(message, end=end)
 
-def validate_plasmidCC_args():#prediction, species, db_path, db_name
-    return True
-
 #******************************#
 #*                            *#
 #*        Start gplas         *#
@@ -157,7 +165,6 @@ print("##################################################################")
 #Print chosen parameters
 print("Your results will be named:...........................", args.name)
 print("Input graph:..........................................", args.input)
-print("Mode:.................................................", args.mode)#improve remove this line
 print("Threshold for predicting plasmid-derived contigs:.....", args.threshold_prediction)
 print("Number of plasmid walks created per node:.............", args.number_iterations)
 print("Threshold of gplas scores:............................", args.filt_gplas)
@@ -173,9 +180,7 @@ print("##################################################################\n")
 if args.prediction:
     classifier = 'external'
 else:
-    if validate_plasmidCC_args():
-        classifier = 'plasmidCC'
-##if not both then error
+    classifier = 'plasmidCC'
 
 #3. Run analysis
 verbose_print("Extracting contigs from the assembly graph...", end='\r')
