@@ -3,12 +3,10 @@ import os
 import sys
 
 #def quit_tool(exitcode):
-#    if exitcode != 0:
-#        print("This run of gplas has ended unexpectedly")
-#        sys.exit(1)
-#    else:
-#        print("gplas has succesfully completed running, thanks for using gplas")
-#        sys.exit(0)
+#    print("\n")
+#    print("gplas has run into a problem:")
+#    print(exitcode)
+#    sys.exit(1)
 
 #def is_valid_dir(arg):
 #    if not os.path.isdir(arg):
@@ -37,5 +35,7 @@ def check_species(arg):
 
 def check_output(path):
     if not os.path.exists(path):
-        print(f"Something went wrong while running gplas. Failed to create the following output: {path}")
+        print("\n")
+        print("Something went wrong while running gplas")
+        print(f"Failed to create the following output: {path}")
         sys.exit(1)

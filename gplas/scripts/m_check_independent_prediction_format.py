@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-#import sys
+import sys
 import pandas as pd
 from pandas.api.types import is_integer_dtype, is_float_dtype, is_object_dtype, is_string_dtype
 from Bio.SeqIO.FastaIO import SimpleFastaParser
@@ -9,16 +9,15 @@ from Bio.SeqIO.FastaIO import SimpleFastaParser
 def check_prediction(sample, path_prediction):
     
     #get a path for fasta file.
-    #improve f string
     raw_nodes_path = f"gplas_input/{sample}_raw_nodes.fasta" 
     
     #Check if prediction file exists
     if(os.path.exists(path_prediction) == False):
-        raise Exception("Prediction file does not exist or name is incorrect. Please, check your input for the -P argument.")
+        sys.exit("Prediction file does not exist or name is incorrect. Please, check your input for the -P argument.")
     
     #Check if fasta file exists
     if(os.path.exists(raw_nodes_path) == False):
-        raise Exception("Nodes file does not exist or name is incorrect. The nodes file is produced by running the 'extract' command in gplas. Results will be located on the directory gplas_input/ and will be named as follows: $name_raw_nodes.fasta.")
+        sys.exit(f"Nodes file does not exist or name is incorrect. The nodes file is produced by running the 'extract' command in gplas. Results will be located on the directory gplas_input/ and will be named as follows: {sample}_raw_nodes.fasta.")
     
     #load prediction file.
     prediction_file = pd.read_csv(path_prediction, sep="\t", header=0)
@@ -27,53 +26,57 @@ def check_prediction(sample, path_prediction):
     
     #1. Check the number of columns
     if(prediction_file.shape[1] != 5):
-        raise Exception("Error in prediction file format. The file should contain 5 columns, and they should be tab separated.")
+        sys.exit("Error in prediction file format. The file should contain 5 columns, and they should be tab separated.")
     
     #######################################################################################################################################
     
     #2. Check the column names
     if(prediction_file.columns[0] != "Prob_Chromosome"):
-        raise Exception("Error in prediction file format. First column should be named Prob_Chromosome (case sensitive).")
+        sys.exit("Error in prediction file format. First column should be named Prob_Chromosome (case sensitive).")
     
     if(prediction_file.columns[1] != "Prob_Plasmid"):
-        raise Exception("Error in prediction file format. Second column should be named Prob_Plasmid (case sensitive).")
+        sys.exit("Error in prediction file format. Second column should be named Prob_Plasmid (case sensitive).")
     
     if(prediction_file.columns[2] != "Prediction"):
-        raise Exception("Error in prediction file format. Third column should be named Prediction (case sensitive).")
+        sys.exit("Error in prediction file format. Third column should be named Prediction (case sensitive).")
     
     if(prediction_file.columns[3] != "Contig_name"):
-        raise Exception("Error in prediction file format. Fourth column should be named Contig_name (case sensitive).")
+        sys.exit("Error in prediction file format. Fourth column should be named Contig_name (case sensitive).")
     
     if(prediction_file.columns[4] != "Contig_length"):
-        raise Exception("Error in prediction file format. Fifth column should be named Contig_length (case sensitive).")
+        sys.exit("Error in prediction file format. Fifth column should be named Contig_length (case sensitive).")
     
     #######################################################################################################################################
     
     #3. Check the data type of every column
     if((is_float_dtype(prediction_file.dtypes["Prob_Chromosome"]) == False) &
        (is_integer_dtype(prediction_file.dtypes["Prob_Chromosome"]) == False)):
-        raise Exception("Error in prediction file format. First column should contain numeric values between 0 and 1.")
+        sys.exit("Error in prediction file format. First column should contain numeric values between 0 and 1.")
     
     if((is_float_dtype(prediction_file.dtypes["Prob_Plasmid"]) == False) &
        (is_integer_dtype(prediction_file.dtypes["Prob_Plasmid"]) == False)):
-        raise Exception("Error in prediction file format. Second column should contain numeric values between 0 and 1.")
+        sys.exit("Error in prediction file format. Second column should contain numeric values between 0 and 1.")
     
     if((is_object_dtype(prediction_file.dtypes["Prediction"]) == False) &
        (is_string_dtype(prediction_file.dtypes["Prediction"]) == False)):
-        raise Exception("Error in prediction file format. Third column should contain data formatted as character indicating the type of prediciton (Plasmid or Chromosome). This is a case sensitive input.")
+        sys.exit("Error in prediction file format. Third column should contain data formatted as character indicating the classified prediciton ")
+    
+    valid_predictions = ["Plasmid", "Chromosome"]
+    if(any([pred not in valid_predictions for pred in prediction_file["Prediction"]])):
+        sys.exit("Error in prediction file format. Third column values should be either (Plasmid or Chromosome). This is a case sensitive input.")
     
     if((is_object_dtype(prediction_file.dtypes["Contig_name"]) == False) &
        (is_string_dtype(prediction_file.dtypes["Contig_name"]) == False)):
-        raise Exception("Error in prediction file format. Fourth column should contain data formatted as character indicating the contig names. Contig names should match exactly those provided in the FASTA file provided by the extract command.")
+        sys.exit("Error in prediction file format. Fourth column should contain data formatted as character indicating the contig names. Contig names should match exactly those provided in the FASTA file provided by the extract command.")
         
     if(is_integer_dtype(prediction_file.dtypes["Contig_length"]) == False):
-        raise Exception("Error in prediction file format. Fifth column should contain integer values with lenght of contigs.")
+        sys.exit("Error in prediction file format. Fifth column should contain integer values with lenght of contigs.")
         
     #######################################################################################################################################
     
     #4. check if plasmids exist in the prediction
     if("Plasmid" not in prediction_file["Prediction"].values):
-        raise Exception("There are no plasmids in the prediction file, gplas can't do anything")
+        sys.exit("There are no plasmids in the prediction file, gplas can't do anything")
     
     #######################################################################################################################################
     
@@ -90,7 +93,7 @@ def check_prediction(sample, path_prediction):
     comparison_output = [header in fasta_headers for header in prediction_headers]
     
     if(False in comparison_output):
-        raise Exception("Error in contig names. Contig names in plasmid prediction file should match exactly with those in FASTA file obtained after runnning the 'extract' command")
+        sys.exit("Error in contig names. Contig names in plasmid prediction file should match exactly with those in FASTA file obtained after runnning the '--extract' flag")
     
     #######################################################################################################################################
     

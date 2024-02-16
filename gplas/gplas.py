@@ -38,17 +38,6 @@ pkgdir = os.path.dirname(__file__)
 #*                            *#
 #******************************#
 
-#####   T   O   D   O:   #####
-#####   T   O   D   O:   #####
-#####   T   O   D   O:   #####
-
-#copy utils.py as m_utils.py; add arg type functions; go over all sys.exits with quit_tool()
-
-#####   T   O   D   O:   #####
-#####   T   O   D   O:   #####
-#####   T   O   D   O:   #####
-
-
 class PriorityPrinting(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if option_string == "-h" or option_string == "--help":
@@ -211,8 +200,7 @@ verbose_print("Extracting contigs from the assembly graph completed!")
 
 ##3.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
 if args.extract:
-    success_message_extract()
-    sys.exit(0)
+    success_message_extract() #Exits the workflow
 
 ##3.CC Run plasmidCC if no independent prediction file was given
 ##TODO fix plasmidCC FASTA input and only give it the sample_contigs.fasta as input to prevent double extracting of nodes
@@ -229,19 +217,14 @@ else:
 
 ##3.3 Check if the prediction file is correctly formatted.
 verbose_print("Checking prediction file format...", end='\r')
-try:
-    check_prediction(sample = args.name, path_prediction = path_prediction)
-except Exception as e:
-    print(e)
-    sys.exit(1)
-    
+check_prediction(sample = args.name,
+                 path_prediction = path_prediction)
 verbose_print("Checking prediction file format completed!")
 
 ##3.4 Run gplas in normal mode
 ##3.4.1 Extract information from the assembly graph
 verbose_print("Calculating base coverage...", end='\r')
 Path("coverage").mkdir(parents=True, exist_ok=True)
-
 coverage(sample = args.name,
          path_prediction = path_prediction,
          pred_threshold = args.threshold_prediction)
@@ -250,7 +233,6 @@ verbose_print("Calculating base coverage completed!")
 ##3.4.2 Generate random walks
 verbose_print("Generating random walks in normal mode...", end='\r')
 Path("walks/normal_mode").mkdir(parents=True, exist_ok=True)
-
 #TODO this will append paths/connections to previous file if using the same sample name
 ##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
 ##also needs to use multiprocessing which complicates things
@@ -264,7 +246,6 @@ verbose_print("Generating random walks in normal mode completed!")
 ##3.4.3 Calculate coocurrence between walks
 verbose_print("Calculating coocurrence of random walks...", end='\r')
 Path("results/normal_mode").mkdir(parents=True, exist_ok=True)
-
 #TODO coocurrence script breaks if reruning gplas with the same sample name
 ##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
 calculate_coocurrence(sample = args.name,
