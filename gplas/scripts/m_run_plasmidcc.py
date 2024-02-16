@@ -1,6 +1,5 @@
 import subprocess
 import shutil
-import sys
 
 #TODO does not yet support the -d(-p) options for a custom database (path) or -t for nr of threads
 def run_plasmidCC(infile, sample, species, maxlen):
@@ -11,8 +10,7 @@ def run_plasmidCC(infile, sample, species, maxlen):
         except subprocess.CalledProcessError as e: #TODO improve this error handling
             print("\n")
             print("plasmidCC has run into an unexpected error!")
-            print(e.returncode)
-            sys.exit(1)
+            raise Exception(e.returncode)
     else:
         raise Exception("plasmidCC is not installed, please verify your installation.")
 
