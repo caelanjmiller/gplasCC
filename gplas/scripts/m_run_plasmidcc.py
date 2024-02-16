@@ -2,6 +2,7 @@ import subprocess
 import shutil
 
 #TODO does not yet support the -d(-p) options for a custom database (path) or -t for nr of threads
+#TODO change -o to be less annoying with nested directories; prob needs to change in plasmidCC sourcecode; or move files and delete directories
 def run_plasmidCC(infile, sample, species, maxlen):
     if shutil.which("plasmidCC"):
         cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -s \'{species}\' -l {maxlen} -D -g"
@@ -13,6 +14,3 @@ def run_plasmidCC(infile, sample, species, maxlen):
             raise Exception(e.returncode)
     else:
         raise Exception("plasmidCC is not installed, please verify your installation.")
-
-def cleanup_centrifuge(): #function to remove all unused centrifuge output
-    return

@@ -328,13 +328,20 @@ if args.keep==False and args.extract==False:
     utils.delete_file(f"results/{args.name}_results_no_repeats.tab")
     utils.delete_file(f"results/{args.name}_bins_no_repeats.tab")
     
-    ##Delete directories if they exist and are empty
+    #Delete directories if they exist and are empty
     utils.delete_empty_dir("coverage/")
     utils.delete_empty_dir("walks/normal_mode/")
     utils.delete_empty_dir("walks/bold_mode/")
     utils.delete_empty_dir("walks/unbinned_nodes/")
     utils.delete_empty_dir("walks/repeats/")
     utils.delete_empty_dir("walks/")
+
+    #Centrifuge cleanup
+    utils.delete_file(f"plasmidCC/{args.name}/{args.name}.fasta")
+    utils.delete_file(f"plasmidCC/{args.name}/{args.name}_centrifuge_classified.txt")
+    utils.delete_file(f"plasmidCC/{args.name}/{args.name}_centrifuge_results.txt")
+    utils.delete_file(f"plasmidCC/{args.name}/{args.name}_summary.txt")
+    utils.delete_empty_dir("plasmidCC/{args.name}/logs/")#TODO logs does not get deleted even when empty??
     
 ##_7.0 Show success message and exit workflow
 success_message()
