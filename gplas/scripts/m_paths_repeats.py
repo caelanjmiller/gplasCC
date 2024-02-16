@@ -64,7 +64,7 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
     
     initialize_nodes = pd.read_csv(path_init_nodes, sep="\t", header=None)
     
-    if(initialize_nodes.shape[0] == 0):#improve move this check to the main script?
+    if(initialize_nodes.shape[0] == 0):#improve this check is already present in the main script
         print("There are no repeats in your genome. Repeat recovery step will not run")
         return
     
