@@ -1,10 +1,7 @@
-import plasmidCC
 import subprocess
 import shutil
-import os
 
-#TODO does not yet support the -d option for custom databases or -t for nr of threads
-#TODO fix -o outdir and -p db_path
+#TODO does not yet support the -d(-p) options for a custom database (path) or -t for nr of threads
 def run_plasmidCC(infile, sample, species, maxlen):
     if shutil.which("plasmidCC"):
         cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -s \'{species}\' -l {maxlen} -D -g"
