@@ -24,15 +24,13 @@ from gplas.scripts.m_coocurrence import calculate_coocurrence
 from gplas.scripts.m_paths_repeats import generate_repeat_paths
 from gplas.scripts.m_coocurrence_repeats import calculate_coocurrence_repeats
 from gplas.scripts.m_run_plasmidcc import run_plasmidCC
-#from plasmidCC.scripts import utils as utilsCC
+from gplas.scripts import m_utils as utils
 
 start_time = time.time()
 
 # Directories
 pkgdir = os.path.dirname(__file__)
 #pkgdir = Path(__file__).parent.resolve() #improve for if we want to repace os with pathlib?
-#scriptdir = f"{pkgdir}/scripts/module_development"
-#scriptdir = f"{pkgdir}/scripts"
 
 #******************************#
 #*                            *#
@@ -40,14 +38,16 @@ pkgdir = os.path.dirname(__file__)
 #*                            *#
 #******************************#
 
-#TODO this can go into a utils.py because speciesopts will get loaded once we import utils???
-##TODO also add file/dir exists functions/types
-#speciesopts needs to be manually updated if plasmidCC ever changes their species options
-speciesopts = ['General','Escherichia coli','Enterococcus faecium','Enterococcus faecalis','Salmonella enterica','Staphylococcus aureus','Acinetobacter baumannii','Klebsiella pneumoniae']
-def check_species(arg):
-    if not arg in speciesopts:
-        raise argparse.ArgumentTypeError(f"'{arg}' is not a recognised species" + "\nUse gplas with the --speciesopts flag for a list of all supported species")
-    return arg
+#####   T   O   D   O:   #####
+#####   T   O   D   O:   #####
+#####   T   O   D   O:   #####
+
+#copy utils.py as m_utils.py; add arg type functions; go over all sys.exits with quit_tool()
+
+#####   T   O   D   O:   #####
+#####   T   O   D   O:   #####
+#####   T   O   D   O:   #####
+
 
 class PriorityPrinting(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -56,7 +56,7 @@ class PriorityPrinting(argparse.Action):
         elif option_string == "-v" or option_string == "--version":
             print(f"gplas version {VERSION}")
         elif option_string == "--speciesopts":
-            for species in speciesopts:
+            for species in utils.speciesopts:
                 print(f"'{species}'")
         parser.exit()
 
@@ -65,13 +65,13 @@ parser = argparse.ArgumentParser(description='gplas: A tool for binning plasmid-
 parser.register('action','printing',PriorityPrinting)
 
 inputgroup = parser.add_argument_group("General")
-inputgroup.add_argument('-i', '--input', type=str, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
-inputgroup.add_argument('-m', '--mode', type=str, required=True, choices=['extract','predict'], help="extract: extract FASTA sequences from the assembly graph to use with an external classifier | predict: run the full gplas workflow to predict individual plasmids from the assembly graph")
+inputgroup.add_argument('-i', '--input', type=utils.is_valid_file, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
 inputgroup.add_argument('-n', '--name', type=str, default='unnamed', help="Output name used in the gplas files")
 
 classifiergroup = inputgroup.add_mutually_exclusive_group(required=True)
-classifiergroup.add_argument('-s', '--species', type=check_species, help="Choose a species database for plasmidCC classification. Use --speciesopts for a list of all supported species")
-classifiergroup.add_argument('-P', '--prediction', type=str, help="If not using plasmidCC. Provide a path to an independent binary classification file")
+classifiergroup.add_argument('-s', '--species', type=utils.check_species, help="Choose a species database for plasmidCC classification. Use --speciesopts for a list of all supported species")
+classifiergroup.add_argument('-P', '--prediction', type=utils.file_exists, help="If not using plasmidCC. Provide a path to an independent binary classification file")
+classifiergroup.add_argument('--extract', action='store_true', help="extract FASTA sequences from the assembly graph to use with an external classifier")
 #TODO for now we are missing the option to supply a custom centrifuge database directly via gplas
 
 paramgroup = parser.add_argument_group("Parameters")
@@ -97,7 +97,6 @@ args = parser.parse_args()
 def success_message():
     print('\n')
     print(read_logo)
-    #print('\n')
     print(f"""
 Congratulations! Prediction succesfully done.
 Your results are in results/
@@ -108,13 +107,11 @@ Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
     end_time = time.time()
     duration = end_time - start_time
     verbose_print(f"gplas took {round(duration,1)} seconds to run")
-
     sys.exit(0)
 
 def success_message_extract():
     print('\n')
     print(read_logo)
-    #print('\n')
     print(f"""
 Congratulations! Your nodes have been succesfully extracted.
 Your results are in gplas_input/{args.name}_contigs.fasta. Please, use an external tool to classify the nodes in this file, and then bin them into individual plasmids using gplas.
@@ -122,7 +119,6 @@ We hope it helps your research, thank you for using gplas version {VERSION}
 
 Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
-
     sys.exit(0)
 
 #Prediction not successful
@@ -137,7 +133,7 @@ If you don't see any files present at:  gplas_input/  or  coverage/  most likely
 """)
     sys.exit(0)
 
-def error_message_extract():
+def error_message_extract():#remove this function; replaced with utils.check_output()
     print('\n')
     print("""
 Looks like the nodes were not extracted. Please, check above for error messages.
@@ -209,17 +205,12 @@ with open(args.input,"r") as graph, open(output_links,"w") as links, open(output
         elif line[0] == "L":
             links.write(f"{line}\n")
 
-#Check if output has been correctly created
-#Path(f"gplas_input/{args.name}_raw_nodes.fasta").exists() #improve for if we want to replace os with pathlib?
-#TODO turn this into a check_output() function
-if os.path.exists(f"gplas_input/{args.name}_raw_nodes.fasta") == False:
-    error_message_extract()
-    sys.exit(1)    
+utils.check_output(f"gplas_input/{args.name}_raw_nodes.fasta")
 
 verbose_print("Extracting contigs from the assembly graph completed!")
 
 ##3.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
-if args.mode == "extract":
+if args.extract:
     success_message_extract()
     sys.exit(0)
 
@@ -391,7 +382,7 @@ verbose_print("Adding repeated elements to the predictions completed!")
 
 
 ##3.7 If the -k flag was not selected, delete intermediary files
-if args.keep==False and args.mode!='extract':
+if args.keep==False and args.extract==False:
     verbose_print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
     #improve use Path().unlink(missing_ok=True)?
     ##Delete files
