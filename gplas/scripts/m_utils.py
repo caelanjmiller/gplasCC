@@ -2,17 +2,6 @@ import argparse
 import os
 import sys
 
-#def quit_tool(exitcode):
-#    print("\n")
-#    print("gplas has run into a problem:")
-#    print(exitcode)
-#    sys.exit(1)
-
-#def is_valid_dir(arg):
-#    if not os.path.isdir(arg):
-#        raise argparse.ArgumentTypeError(f"'{arg}' is not an existing directory" + "\nPlease make sure the directory exists and is spelled correctly")
-#    return(arg)
-
 def file_exists(arg):
     if not os.path.isfile(arg):
         raise argparse.ArgumentTypeError(f"'{arg}' is not an existing file" + "\nPlease make sure the file exists and is spelled correctly")
@@ -48,4 +37,3 @@ def delete_empty_dir(dir_path):
     if os.path.exists(dir_path):
         if not any(os.listdir(dir_path)):
             os.rmdir(dir_path)
-    
