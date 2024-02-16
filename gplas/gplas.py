@@ -10,6 +10,7 @@ import sys
 import argparse
 #import subprocess
 from pathlib import Path
+import glob
 from .version import version as VERSION
 #VERSION="1.0.0"
 import time
@@ -30,7 +31,6 @@ start_time = time.time()
 
 # Directories
 pkgdir = os.path.dirname(__file__)
-#pkgdir = Path(__file__).parent.resolve() #improve for if we want to repace os with pathlib?
 
 #******************************#
 #*                            *#
@@ -169,7 +169,7 @@ else:
 
 #3. Run analysis
 verbose_print("Extracting contigs from the assembly graph...", end='\r')
-Path("gplas_input").mkdir(parents=True, exist_ok=True)
+os.makedirs("gplas_input", exist_ok=True)
 
 ##3.1  Extract nodes and links from the assembly graph
 output_links = f"gplas_input/{args.name}_raw_links.txt"
@@ -205,7 +205,7 @@ if args.extract:
 ##3.CC Run plasmidCC if no independent prediction file was given
 ##TODO fix plasmidCC FASTA input and only give it the sample_contigs.fasta as input to prevent double extracting of nodes
 if classifier == 'plasmidCC':
-    Path("plasmidCC").mkdir(parents=True, exist_ok=True)    
+    os.makedirs("plasmidCC", exist_ok=True)
     run_plasmidCC(infile = args.input,
                   sample = args.name,
                   species = args.species,
@@ -224,7 +224,7 @@ verbose_print("Checking prediction file format completed!")
 ##3.4 Run gplas in normal mode
 ##3.4.1 Extract information from the assembly graph
 verbose_print("Calculating base coverage...", end='\r')
-Path("coverage").mkdir(parents=True, exist_ok=True)
+os.makedirs("coverage", exist_ok=True)
 coverage(sample = args.name,
          path_prediction = path_prediction,
          pred_threshold = args.threshold_prediction)
@@ -232,7 +232,7 @@ verbose_print("Calculating base coverage completed!")
 
 ##3.4.2 Generate random walks
 verbose_print("Generating random walks in normal mode...", end='\r')
-Path("walks/normal_mode").mkdir(parents=True, exist_ok=True)
+os.makedirs("walks/normal_mode", exist_ok=True)
 #TODO this will append paths/connections to previous file if using the same sample name
 ##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
 ##also needs to use multiprocessing which complicates things
@@ -245,7 +245,7 @@ verbose_print("Generating random walks in normal mode completed!")
 
 ##3.4.3 Calculate coocurrence between walks
 verbose_print("Calculating coocurrence of random walks...", end='\r')
-Path("results/normal_mode").mkdir(parents=True, exist_ok=True)
+os.makedirs("results/normal_mode", exist_ok=True)
 #TODO coocurrence script breaks if reruning gplas with the same sample name
 ##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
 calculate_coocurrence(sample = args.name,
@@ -267,7 +267,7 @@ if os.path.exists(unbinned_path):
     ##3.5.1 Run bold mode if contigs were left unbinned.
     verbose_print("Some contigs were left unbinned")#improve tell user how many contigs are unbinned?
     verbose_print("Generating random walks in bold mode...", end='\r')
-    Path("walks/bold_mode").mkdir(parents=True, exist_ok=True)
+    os.makedirs("walks/bold_mode", exist_ok=True)
 
     generate_paths(sample = args.name,
                    number_iterations = args.number_iterations,
@@ -278,8 +278,8 @@ if os.path.exists(unbinned_path):
     
     ##3.5.2 Extract unbinned solutions
     verbose_print("Extracting unbinned contigs from bold walks...", end='\r')
-    Path("walks/unbinned_nodes").mkdir(parents=True, exist_ok=True)
-    
+    os.makedirs("walks/unbinned_nodes", exist_ok=True)
+
     normal_results = f"results/normal_mode/{args.name}_results_no_repeats.tab"
     bold_walks = f"walks/bold_mode/{args.name}_solutions_bold.tab"
     unbinned_walks = f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab"   
@@ -320,14 +320,14 @@ if os.path.exists(unbinned_path):
                           mode = "unbinned")
 
 else:
-    for file in Path("results/normal_mode/").glob(f"{args.name}*"):
+    for file in glob.glob(f"results/normal_mode/{args.name}*"):
         shutil.copy(file, "results/")
 
 #Check if output has been correctly created
 if os.path.exists(f"results/{args.name}_results_no_repeats.tab") == False:
     #make this also an error_message() function??
     sys.exit("ERROR: Something went wrong while running gplas in bold mode")
-
+#improve this print message does not make sense if bold mode is skipped; else statement above
 verbose_print("Recalculating coocurrence of random walks completed!")
 
 ## 3.6 ADD REPEATED ELEMENTS.
@@ -336,7 +336,8 @@ repeated_elements_path=f"coverage/{args.name}_repeat_nodes.tab"
 line_content=linecache.getline(repeated_elements_path,1)
 if line_content:
     verbose_print("Adding repeated elements to the predictions...", end='\r')
-    Path("walks/repeats").mkdir(parents=True, exist_ok=True)
+    os.makedirs("walks/repeats", exist_ok=True)
+    
 
     generate_repeat_paths(sample = args.name,
                           number_iterations = args.number_iterations,
@@ -365,61 +366,36 @@ verbose_print("Adding repeated elements to the predictions completed!")
 ##3.7 If the -k flag was not selected, delete intermediary files
 if args.keep==False and args.extract==False:
     verbose_print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
-    #improve use Path().unlink(missing_ok=True)?
     ##Delete files
     #Coverage files
-    if Path(f"coverage/{args.name}_estimation.txt").exists():
-        Path(f"coverage/{args.name}_clean_links.tab").unlink()
-        Path(f"coverage/{args.name}_clean_prediction.tab").unlink()
-        Path(f"coverage/{args.name}_clean_repeats.tab").unlink()
-        Path(f"coverage/{args.name}_estimation.txt").unlink()
-        Path(f"coverage/{args.name}_graph_contigs.tab").unlink()
-        Path(f"coverage/{args.name}_initialize_nodes.tab").unlink()
-        Path(f"coverage/{args.name}_isolated_nodes.tab").unlink()
-        Path(f"coverage/{args.name}_repeat_nodes.tab").unlink()
-        Path(f"coverage/{args.name}_repeats_graph.tab").unlink()
+    utils.delete_file(f"coverage/{args.name}_clean_links.tab")
+    utils.delete_file(f"coverage/{args.name}_clean_prediction.tab")
+    utils.delete_file(f"coverage/{args.name}_clean_repeats.tab")
+    utils.delete_file(f"coverage/{args.name}_estimation.txt")
+    utils.delete_file(f"coverage/{args.name}_graph_contigs.tab")
+    utils.delete_file(f"coverage/{args.name}_initialize_nodes.tab")
+    utils.delete_file(f"coverage/{args.name}_isolated_nodes.tab")
+    utils.delete_file(f"coverage/{args.name}_repeat_nodes.tab")
+    utils.delete_file(f"coverage/{args.name}_repeats_graph.tab")
     #Walks normal mode
-    if Path(f"walks/normal_mode/{args.name}_solutions.tab").exists():
-        Path(f"walks/normal_mode/{args.name}_solutions.tab").unlink()
-        #Path(f"walks/normal_mode/{args.name}_connections.tab").unlink()
+    utils.delete_file(f"walks/normal_mode/{args.name}_solutions.tab")
     #Walks bold mode + unbinned solutions
-    if Path(f"walks/bold_mode/{args.name}_solutions_bold.tab").exists():
-        Path(f"walks/bold_mode/{args.name}_solutions_bold.tab").unlink()
-        #Path(f"walks/bold_mode/{args.name}_connections_bold.tab").unlink()
-        Path(f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab").unlink()
-        Path(f"walks/{args.name}_solutions.tab").unlink()
+    utils.delete_file(f"walks/bold_mode/{args.name}_solutions_bold.tab")
+    utils.delete_file(f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab")
+    utils.delete_file(f"walks/{args.name}_solutions.tab")
     #Walks repeats
-    if Path(f"walks/repeats/{args.name}_solutions.tab").exists():
-        Path(f"walks/repeats/{args.name}_solutions.tab").unlink()
-        #Path(f"walks/repeats/{args.name}_connections.tab").unlink()
+    utils.delete_file(f"walks/repeats/{args.name}_solutions.tab")
     #Results no_repeats
-    if Path(f"results/{args.name}_results_no_repeats.tab").exists():
-        Path(f"results/{args.name}_results_no_repeats.tab").unlink()
-        Path(f"results/{args.name}_bins_no_repeats.tab").unlink()
+    utils.delete_file(f"results/{args.name}_results_no_repeats.tab")
+    utils.delete_file(f"results/{args.name}_bins_no_repeats.tab")
     
     ##Delete directories if they exist and are empty
-    if Path("coverage/").exists() and not any(Path("coverage/").glob("*")):
-        Path("coverage/").rmdir()
-
-    if Path("walks/normal_mode/").exists() and not any(Path("walks/normal_mode/").glob("*")):
-        Path("walks/normal_mode/").rmdir()
-
-    if Path("walks/bold_mode/").exists() and not any(Path("walks/bold_mode/").glob("*")):
-        Path("walks/bold_mode/").rmdir()
-
-    if Path("walks/unbinned_nodes/").exists() and not any(Path("walks/unbinned_nodes/").glob("*")):
-        Path("walks/unbinned_nodes/").rmdir()
-
-    if Path("walks/repeats/").exists() and not any(Path("walks/repeats/").glob("*")):
-        Path("walks/repeats/").rmdir()
-
-    if Path("walks/").exists() and not any(Path("walks/").glob("*")):
-        Path("walks/").rmdir()
+    utils.delete_empty_dir("coverage/")
+    utils.delete_empty_dir("walks/normal_mode/")
+    utils.delete_empty_dir("walks/bold_mode/")
+    utils.delete_empty_dir("walks/unbinned_nodes/")
+    utils.delete_empty_dir("walks/repeats/")
+    utils.delete_empty_dir("walks/")
     
 ##3.8 If there are no errors: Show success message and exit workflow
 success_message()
-sys.exit(0)
-
-#TODO is this ever used?
-def start():
-    print("Starting gplas")

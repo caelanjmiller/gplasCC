@@ -39,3 +39,13 @@ def check_output(path):
         print("Something went wrong while running gplas")
         print(f"Failed to create the following output: {path}")
         sys.exit(1)
+
+def delete_file(file_path):
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+def delete_empty_dir(dir_path):
+    if os.path.exists(dir_path):
+        if not any(os.listdir(dir_path)):
+            os.rmdir(dir_path)
+    
