@@ -48,7 +48,7 @@ class PriorityPrinting(argparse.Action):
             print(f"gplas version {VERSION}")
         elif option_string == "--speciesopts":
             for species in utils.speciesopts:
-                print(f"'{species}'")
+                print(species)
         parser.exit()
 
 #create a function to pass float ranges

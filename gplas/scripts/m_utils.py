@@ -16,7 +16,15 @@ def is_valid_file(arg, extensions=['gfa']):
     return arg
 
 #speciesopts needs to be manually updated if plasmidCC ever changes their species options
-speciesopts = ['General','Escherichia coli','Enterococcus faecium','Enterococcus faecalis','Salmonella enterica','Staphylococcus aureus','Acinetobacter baumannii','Klebsiella pneumoniae']
+# can we do something like import plasmidCC.speciesopts (with a try except?)?
+speciesopts = ['General',
+               'Escherichia_coli',
+               'Enterococcus_faecium',
+               'Enterococcus_faecalis',
+               'Salmonella_enterica',
+               'Staphylococcus_aureus',
+               'Acinetobacter_baumannii',
+               'Klebsiella_pneumoniae']
 def check_species(arg):
     if not arg in speciesopts:
         raise argparse.ArgumentTypeError(f"'{arg}' is not a recognised species" + "\nUse gplas with the --speciesopts flag for a list of all supported species")
