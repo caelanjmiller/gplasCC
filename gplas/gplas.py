@@ -174,7 +174,7 @@ if args.species:
     
     #cleanup_centrifuge(sample = args.name)
     
-    path_prediction = f"plasmidCC/{args.name}/{args.name}_gplas.tsv"
+    path_prediction = f"plasmidCC/{args.name}/{args.name}_gplas.tab"
 else:
     path_prediction = args.prediction
 
