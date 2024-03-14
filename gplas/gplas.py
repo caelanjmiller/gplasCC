@@ -52,36 +52,38 @@ class PriorityPrinting(argparse.Action):
         parser.exit()
 
 #create a function to pass float ranges
-parser = argparse.ArgumentParser(description='gplas: A tool for binning plasmid-predicted contigs into individual predictions.',formatter_class=argparse.ArgumentDefaultsHelpFormatter,add_help=False)
-parser.register('action','printing',PriorityPrinting)
+parser = argparse.ArgumentParser(description="gplas: A tool for binning plasmid-predicted contigs into individual predictions", add_help=False)
+parser.register('action', 'printing', PriorityPrinting)
 
 inputgroup = parser.add_argument_group("General")
-inputgroup.add_argument('-i', '--input', type=utils.is_valid_file, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
-inputgroup.add_argument('-n', '--name', type=str, default='unnamed', help="Output name used in the gplas files")
+inputgroup.add_argument('-i', dest='input', type=utils.is_valid_file, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
+inputgroup.add_argument('-n', dest='name', type=str, default='unnamed', help="Output name used in the gplas files")
 
 classifiergroup = inputgroup.add_mutually_exclusive_group(required=True)
-classifiergroup.add_argument('-s', '--species', type=utils.check_species, help="Choose a species database for plasmidCC classification. Use --speciesopts for a list of all supported species")
-classifiergroup.add_argument('-P', '--prediction', type=utils.file_exists, help="If not using plasmidCC. Provide a path to an independent binary classification file")
+classifiergroup.add_argument('-s', dest='species', type=str, help="Choose a species database for plasmidCC classification. Use --speciesopts for a list of all supported species")
+classifiergroup.add_argument('-P', dest='prediction', type=utils.file_exists, help="If not using plasmidCC. Provide a path to an independent binary classification file")
 classifiergroup.add_argument('--extract', action='store_true', help="extract FASTA sequences from the assembly graph to use with an external classifier")
 #TODO for now we are missing the option to supply a custom centrifuge database directly via gplas
 
 paramgroup = parser.add_argument_group("Parameters")
-paramgroup.add_argument('-t', '--threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences")
-paramgroup.add_argument('-b', '--bold_walks', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes")
-paramgroup.add_argument('-r', '--repeats_coverage_sd', type=int, default=2, help="Coverage variance allowed for assigning repeats to bins")
-paramgroup.add_argument('-x', '--number_iterations', type=int, default=20,help="Number of walk iterations per starting node")
-paramgroup.add_argument('-f', '--filt_gplas', type=float, default=0.1, help="filtering threshold to reject outgoing edges")
-paramgroup.add_argument('-e', '--edge_threshold', type=float, default=0.1, help="Edge threshold")
-paramgroup.add_argument('-q', '--modularity_threshold', type=float, default=0.2, help="Modularity threshold to split components in the plasmidome network")
-paramgroup.add_argument('-l', '--length_filter', type=int, default=1000, help="Filtering threshold for sequence length")
+paramgroup.add_argument('-t', dest='threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences (default: %(default)s)")
+paramgroup.add_argument('-b', dest='bold_walks', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes (default: %(default)s)")
+paramgroup.add_argument('-r', dest='repeats_coverage_sd', type=int, default=2, help="Coverage variance allowed for assigning repeats to bins (default: %(default)s)")
+paramgroup.add_argument('-x', dest='number_iterations', type=int, default=20,help="Number of walk iterations per starting node (default: %(default)s)")
+paramgroup.add_argument('-f', dest='filt_gplas', type=float, default=0.1, help="filtering threshold to reject outgoing edges (default: %(default)s)")
+paramgroup.add_argument('-e', dest='edge_threshold', type=float, default=0.1, help="Edge threshold (default: %(default)s)")
+paramgroup.add_argument('-q', dest='modularity_threshold', type=float, default=0.2, help="Modularity threshold to split components in the plasmidome network (default: %(default)s)")
+paramgroup.add_argument('-l', dest='length_filter', type=int, default=1000, help="Filtering threshold for sequence length (default: %(default)s)")
 
-utilgroup = parser.add_argument_group("Utility")
-utilgroup.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
-#utilgroup.add_argument('--threads', type=int, default=1, help="Max number of threads to ")#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-utilgroup.add_argument('--silent', action='store_true', help="Suppress verbose print statements")
-utilgroup.add_argument('--speciesopts', action='printing', nargs=0, help="Prints a list of all supported species for the -s flag")
-utilgroup.add_argument('-h', '--help', action='printing', nargs=0, help="Prints this message")
-utilgroup.add_argument('-v', '--version', action='printing', nargs=0, help="Prints gplas version")
+othergroup = parser.add_argument_group("Other")
+othergroup.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
+#othergroup.add_argument('--threads', type=int, default=1, help="Max number of threads to ")#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+othergroup.add_argument('--silent', action='store_true', help="Suppress verbose print statements")
+
+infogroup = parser.add_argument_group("Info")
+infogroup.add_argument('--speciesopts', action='printing', nargs=0, help="Prints a list of all supported species for the -s flag")
+infogroup.add_argument('-v', '--version', action='printing', nargs=0, help="Prints gplas version")
+infogroup.add_argument('-h', '--help', action='printing', nargs=0, help="Prints this message")
 args = parser.parse_args()
 
 #Success Messages
