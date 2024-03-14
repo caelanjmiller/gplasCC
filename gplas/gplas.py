@@ -16,6 +16,7 @@ from .version import version as VERSION
 import time
 ##os.chdir("C:/Users/oscar/Documenten/UU/04_BiBc/6.2_Research_Profile/gplas/gplas-2-python/gplas/scripts")
 ##os.getcwd()
+from plasmidCC.scripts import utils as utilsCC
 
 #TODO change script/function/import names
 from gplas.scripts.m_node_extraction import extract_nodes
@@ -60,10 +61,10 @@ inputgroup.add_argument('-i', dest='input', type=utils.is_valid_file, required=T
 inputgroup.add_argument('-n', dest='name', type=str, default='unnamed', help="Output name used in the gplas files")
 
 classifiergroup = inputgroup.add_mutually_exclusive_group(required=True)
-classifiergroup.add_argument('-s', dest='species', type=str, help="Choose a species database for plasmidCC classification. Use --speciesopts for a list of all supported species")
+classifiergroup.add_argument('-s', dest='species', type=utils.check_species, help="Choose a species database for plasmidCC classification. Use --speciesopts for a list of all supported species")
+classifiergroup.add_argument('-p', dest='custom_db_path', type=utilsCC.verify_user_db, help="Path to a custom Centrifuge database (name without file extensions)")
 classifiergroup.add_argument('-P', dest='prediction', type=utils.file_exists, help="If not using plasmidCC. Provide a path to an independent binary classification file")
 classifiergroup.add_argument('--extract', action='store_true', help="extract FASTA sequences from the assembly graph to use with an external classifier")
-#TODO for now we are missing the option to supply a custom centrifuge database directly via gplas
 
 paramgroup = parser.add_argument_group("Parameters")
 paramgroup.add_argument('-t', dest='threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences (default: %(default)s)")

@@ -5,10 +5,10 @@ import shutil
 #TODO change -o to be less annoying with nested directories; prob needs to change in plasmidCC sourcecode; or move files and delete directories
 def run_plasmidCC(infile, sample, species, maxlen):
     if shutil.which("plasmidCC"):
-        cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -s \'{species}\' -l {maxlen} -D -g"
+        cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -s {species} -l {maxlen} -D -g -f"
         try:
-            subprocess.call(cmd, shell=True)
-        except subprocess.CalledProcessError as e: #TODO improve this error handling
+            subprocess.run(cmd, shell=True, check=True)
+        except subprocess.CalledProcessError as e: #TODO improve this error handling; it does not catch an error in argument parsing (wrong -s name)
             print("\n")
             print("plasmidCC has run into an unexpected error!")
             raise Exception(e.returncode)
@@ -19,7 +19,7 @@ def print_speciesopts():
     if shutil.which("plasmidCC"):
         cmd = "plasmidCC --speciesopts"
         try:
-            subprocess.call(cmd, shell=True)
+            subprocess.run(cmd, shell=True, check=True)
         except subprocess.CalledProcessError as e: #TODO improve this error handling
             print("\n")
             print("plasmidCC has run into an unexpected error!")
