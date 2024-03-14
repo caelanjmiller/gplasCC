@@ -27,6 +27,7 @@ from gplas.scripts.m_coocurrence import calculate_coocurrence
 from gplas.scripts.m_paths_repeats import generate_repeat_paths
 from gplas.scripts.m_coocurrence_repeats import calculate_coocurrence_repeats
 from gplas.scripts.m_run_plasmidcc import run_plasmidCC
+from gplas.scripts.m_run_plasmidcc import print_speciesopts
 from gplas.scripts import m_utils as utils
 
 start_time = time.time()
@@ -47,8 +48,7 @@ class PriorityPrinting(argparse.Action):
         elif option_string == "-v" or option_string == "--version":
             print(f"gplas version {VERSION}")
         elif option_string == "--speciesopts":
-            for species in utils.speciesopts:
-                print(species)
+            print_speciesopts()
         parser.exit()
 
 #create a function to pass float ranges
