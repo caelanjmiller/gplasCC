@@ -14,7 +14,7 @@ import scipy.stats
 #from Bio.SeqIO.FastaIO import SimpleFastaParser
 import sys
 
-def generate_paths(sample, number_iterations, filt_threshold, mode="normal", sd_coverage=1):
+def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mode="normal"):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"coverage/{sample}_clean_links.tab"

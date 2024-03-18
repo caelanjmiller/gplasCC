@@ -63,6 +63,7 @@ parser.register('action', 'printing', PriorityPrinting)
 
 inputgroup = parser.add_argument_group("General")
 inputgroup.add_argument('-i', dest='input', type=utils.is_valid_file, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
+#inputgroup.add_argument('-o', dest='outdir', type=utils.is_valid_dir, default=".", help="Output directory")  # TODO go through all code and append outdir where needed
 inputgroup.add_argument('-n', dest='name', type=str, help="Name prefix for output files (default: input file name)")
 
 classifiergroup = inputgroup.add_mutually_exclusive_group(required=True)
@@ -73,7 +74,7 @@ classifiergroup.add_argument('--extract', action='store_true', help="extract FAS
 
 paramgroup = parser.add_argument_group("Parameters")
 paramgroup.add_argument('-t', dest='threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences (default: %(default)s)")
-paramgroup.add_argument('-b', dest='bold_walks', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes (default: %(default)s)")
+paramgroup.add_argument('-b', dest='bold_coverage_sd', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes (default: %(default)s)")
 paramgroup.add_argument('-r', dest='repeats_coverage_sd', type=int, default=2, help="Coverage variance allowed for assigning repeats to bins (default: %(default)s)")
 paramgroup.add_argument('-x', dest='number_iterations', type=int, default=20,help="Number of walk iterations per starting node (default: %(default)s)")
 paramgroup.add_argument('-f', dest='filt_gplas', type=float, default=0.1, help="filtering threshold to reject outgoing edges (default: %(default)s)")
@@ -155,7 +156,7 @@ print("Number of plasmid walks created per node:.............", args.number_iter
 print("Threshold of gplas scores:............................", args.filt_gplas)
 print("Minimum frequency to consider an edge:................", args.edge_threshold)
 print("Modularity threshold used to partition the network:...", args.modularity_threshold)
-print("Coverage SD for bold mode:............................", args.bold_walks)
+print("Coverage SD for bold mode:............................", args.bold_coverage_sd)
 print("Coverage SD for repeats:..............................", args.repeats_coverage_sd)
 print("Minimum sequence length:..............................", args.length_filter)
 print("##################################################################\n")
@@ -165,9 +166,7 @@ print("##################################################################\n")
 verbose_print("Extracting contigs from the assembly graph...", end='\r')
 os.makedirs("gplas_input", exist_ok=True)
 
-extract_nodes(sample = sample,
-              infile = args.input,
-              maxlen = args.length_filter)
+extract_nodes(sample, infile, args.length_filter)
 
 utils.check_output(f"gplas_input/{sample}_raw_nodes.fasta")
 verbose_print("Extracting contigs from the assembly graph completed!")
@@ -179,21 +178,25 @@ if args.extract:
 ##_2.0 Obtain correct prediction file
 #_2.1 Run plasmidCC if no independent prediction file was given
 ##TODO fix plasmidCC FASTA input and only give it the sample_contigs.fasta as input to prevent double extracting of nodes
-if args.species:
+if args.species or args.custom_db_path:
+    verbose_print("Running plasmidCC to generate prediction file..." + '\n')
     os.makedirs("plasmidCC", exist_ok=True)
+    inputFASTA = f"gplas_input/{sample}_contigs.fasta"
     
-    run_plasmidCC(args.input, sample, args.species, args.length_filter)
-    utils.cleanup_centrifuge(sample = sample)
+    run_plasmidCC(inputFASTA, sample, args.species, args.length_filter)
+    utils.cleanup_centrifuge(sample)
     
+    print() # Adds a newline for cosmetic purposes
     path_prediction = f"plasmidCC/{sample}/{sample}_gplas.tab"
+    plasmidCC = True
 else:
     path_prediction = args.prediction
+    plasmidCC = False
 
 #_2.2 Check if the prediction file is correctly formatted.
 verbose_print("Checking prediction file format...", end='\r')
 
-check_prediction(sample = sample,
-                 path_prediction = path_prediction)
+check_prediction(sample, path_prediction) # Add 'plasmidCC' argument to alter error messages
 
 verbose_print("Checking prediction file format completed!")
 
@@ -202,9 +205,7 @@ verbose_print("Checking prediction file format completed!")
 verbose_print("Calculating base coverage...", end='\r')
 os.makedirs("coverage", exist_ok=True)
 
-coverage(sample = sample,
-         path_prediction = path_prediction,
-         pred_threshold = args.threshold_prediction)
+coverage(sample, path_prediction, args.threshold_prediction)
 
 verbose_print("Calculating base coverage completed!")
 
@@ -215,11 +216,7 @@ os.makedirs("walks/normal_mode", exist_ok=True)
 #TODO this will append paths/connections to previous file if using the same sample name
 ##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
 ##also needs to use multiprocessing which complicates things
-generate_paths(sample = sample,
-               number_iterations = args.number_iterations,
-               filt_threshold = args.filt_gplas,
-               mode = "normal",
-               sd_coverage = 1)
+generate_paths(sample, args.number_iterations, args.filt_gplas, mode="normal")
 
 verbose_print("Generating random walks in normal mode completed!")
 
@@ -229,11 +226,7 @@ os.makedirs("results/normal_mode", exist_ok=True)
 
 #TODO coocurrence script breaks if reruning gplas with the same sample name
 ##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
-calculate_coocurrence(sample = sample,
-                      number_iterations = args.number_iterations,
-                      pred_threshold = args.threshold_prediction,
-                      mod_threshold = args.modularity_threshold,
-                      mode = "normal")
+calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode="normal")
 
 utils.check_output(f"results/normal_mode/{sample}_results_no_repeats.tab")
 verbose_print("Calculating coocurrence of random walks completed!")
@@ -248,11 +241,7 @@ if os.path.exists(unbinned_path):
     verbose_print("Generating random walks in bold mode...", end='\r')
     os.makedirs("walks/bold_mode", exist_ok=True)
 
-    generate_paths(sample = sample,
-                   number_iterations = args.number_iterations,
-                   filt_threshold = args.filt_gplas,
-                   mode = "bold",
-                   sd_coverage = args.bold_walks)
+    generate_paths(sample, args.number_iterations, args.filt_gplas, args.bold_coverage_sd, mode="bold")
     
     verbose_print("Generating random walks in bold mode completed!")
     
@@ -260,18 +249,14 @@ if os.path.exists(unbinned_path):
     verbose_print("Extracting unbinned contigs from bold walks...", end='\r')
     os.makedirs("walks/unbinned_nodes", exist_ok=True)
 
-    extract_unbinned_solutions(sample = sample)
+    extract_unbinned_solutions(sample)
     
     verbose_print("Extracting unbinned contigs from bold walks completed!")
 
     #_4.1.1.3 Recalculate coocurrence of walks using the combined solutions
     verbose_print("Recalculating coocurrence of random walks...", end='\r')
     
-    calculate_coocurrence(sample = sample,
-                          number_iterations = args.number_iterations,
-                          pred_threshold = args.threshold_prediction,
-                          mod_threshold = args.modularity_threshold,
-                          mode = "unbinned")
+    calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode="unbinned")
 
     verbose_print("Recalculating coocurrence of random walks completed!")
     
@@ -292,17 +277,10 @@ if line_content:
     os.makedirs("walks/repeats", exist_ok=True)
     
     #_5.1.1.1 Generate random walks
-    generate_repeat_paths(sample = sample,
-                          number_iterations = args.number_iterations,
-                          filt_threshold = args.filt_gplas,
-                          sd_coverage = args.repeats_coverage_sd)
+    generate_repeat_paths(sample, args.number_iterations, args.filt_gplas, args.repeats_coverage_sd)
 
     #_5.1.1.2 Calculate coocurrence between walks
-    calculate_coocurrence_repeats(sample = sample,
-                                  number_iterations = args.number_iterations,
-                                  pred_threshold = args.threshold_prediction,
-                                  mod_threshold = args.modularity_threshold,
-                                  sd_coverage = args.repeats_coverage_sd)
+    calculate_coocurrence_repeats(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, args.repeats_coverage_sd)
     
     verbose_print("Adding repeated elements to the predictions completed!")
 
@@ -315,8 +293,7 @@ else:
 utils.check_output(f"results/{sample}_results.tab")
 
 ##_6.0 If the -k flag was not selected, delete intermediary files
-if args.keep==False and args.extract==False:
-    verbose_print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
+if not args.keep:
     utils.cleanup_intermediary_files(sample)
 
 ##_7.0 Show success message and exit workflow

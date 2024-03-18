@@ -18,6 +18,11 @@ def is_valid_file(arg, extensions=['gfa']):
         raise argparse.ArgumentTypeError(f"'{arg}' is not a file of type {' or '.join(extensions)}")
     return arg
 
+def is_valid_dir(arg):
+    if not os.path.isdir(arg):
+        raise argparse.ArgumentTypeError(f"'{arg}' is not an existing directory, and I am afraid to create it")
+    return arg
+
 
 def check_species(arg):
     if not arg in speciesopts:

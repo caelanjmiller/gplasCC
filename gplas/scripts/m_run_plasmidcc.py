@@ -8,7 +8,7 @@ def run_plasmidCC(infile, sample, species, maxlen):
         cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -s {species} -l {maxlen} -D -g -f"
         try:
             subprocess.run(cmd, shell=True, check=True)
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError as e: #TODO improve this error handling; plasmidCC has its own error message already with quit_tool()
             print("\n")
             print("plasmidCC has run into an unexpected error!")
             raise Exception(e.returncode)
