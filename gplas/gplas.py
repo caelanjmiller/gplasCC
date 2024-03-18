@@ -36,6 +36,10 @@ start_time = time.time()
 # Directories
 pkgdir = os.path.dirname(__file__)
 
+# Load ASCII logo
+with open(f'{pkgdir}/../figures/logo.txt', 'r') as file: #TODO fix this path for final version
+    read_logo = file.read()
+
 #******************************#
 #*                            *#
 #* Command line parsing       *#
@@ -45,6 +49,7 @@ pkgdir = os.path.dirname(__file__)
 class PriorityPrinting(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         if option_string == "-h" or option_string == "--help":
+            print(read_logo + '\n')
             parser.print_help()
         elif option_string == "-v" or option_string == "--version":
             print(f"gplas version {VERSION}")
@@ -137,8 +142,6 @@ else:
     sample, _ = os.path.splitext(infilename)
 
 #Print messages
-with open(f'{pkgdir}/../figures/logo.txt', 'r') as file: #TODO fix this path for final version
-    read_logo = file.read()
 print('\n')
 print(read_logo)
 print('\n')
