@@ -58,7 +58,7 @@ parser.register('action', 'printing', PriorityPrinting)
 
 inputgroup = parser.add_argument_group("General")
 inputgroup.add_argument('-i', dest='input', type=utils.is_valid_file, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
-inputgroup.add_argument('-n', dest='name', type=str, default='unnamed', help="Output name used in the gplas files")
+inputgroup.add_argument('-n', dest='name', type=str, help="Name prefix for output files (default: input file name)")
 
 classifiergroup = inputgroup.add_mutually_exclusive_group(required=True)
 classifiergroup.add_argument('-s', dest='species', type=utils.check_species, help="Choose a species database for plasmidCC classification. Use --speciesopts for a list of all supported species")
@@ -108,7 +108,7 @@ def success_message_extract():
     print(read_logo)
     print(f"""
 Congratulations! Your nodes have been succesfully extracted.
-Your results are in gplas_input/{args.name}_contigs.fasta. Please, use an external tool to classify the nodes in this file, and then bin them into individual plasmids using gplas.
+Your results are in gplas_input/{sample}_contigs.fasta. Please, use an external tool to classify the nodes in this file, and then bin them into individual plasmids using gplas.
 We hope it helps your research, thank you for using gplas version {VERSION}
 
 Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
@@ -127,6 +127,15 @@ def verbose_print(message, end='\n'):
 #*                            *#
 #******************************#
 
+# Check if the user specified a run name or to use file name data
+infile = os.path.abspath(args.input)
+infilename = os.path.basename(args.input)
+
+if args.name:
+    sample = args.name
+else:
+    sample, _ = os.path.splitext(infilename)
+
 #Print messages
 with open(f'{pkgdir}/../figures/logo.txt', 'r') as file: #TODO fix this path for final version
     read_logo = file.read()
@@ -136,8 +145,8 @@ print('\n')
 print("##################################################################")
 
 #Print chosen parameters
-print("Your results will be named:...........................", args.name)
-print("Input graph:..........................................", args.input)
+print("Your results will be named:...........................", sample)
+print("Input graph:..........................................", infilename)
 print("Threshold for predicting plasmid-derived contigs:.....", args.threshold_prediction)
 print("Number of plasmid walks created per node:.............", args.number_iterations)
 print("Threshold of gplas scores:............................", args.filt_gplas)
@@ -153,11 +162,11 @@ print("##################################################################\n")
 verbose_print("Extracting contigs from the assembly graph...", end='\r')
 os.makedirs("gplas_input", exist_ok=True)
 
-extract_nodes(sample = args.name,
+extract_nodes(sample = sample,
               infile = args.input,
               maxlen = args.length_filter)
 
-utils.check_output(f"gplas_input/{args.name}_raw_nodes.fasta")
+utils.check_output(f"gplas_input/{sample}_raw_nodes.fasta")
 verbose_print("Extracting contigs from the assembly graph completed!")
 
 #_1.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
@@ -170,21 +179,17 @@ if args.extract:
 if args.species:
     os.makedirs("plasmidCC", exist_ok=True)
     
-    run_plasmidCC(infile = args.input,
-                  sample = args.name,
-                  species = args.species,
-                  maxlen = args.length_filter)
+    run_plasmidCC(args.input, sample, args.species, args.length_filter)
+    utils.cleanup_centrifuge(sample = sample)
     
-    #cleanup_centrifuge(sample = args.name)
-    
-    path_prediction = f"plasmidCC/{args.name}/{args.name}_gplas.tab"
+    path_prediction = f"plasmidCC/{sample}/{sample}_gplas.tab"
 else:
     path_prediction = args.prediction
 
 #_2.2 Check if the prediction file is correctly formatted.
 verbose_print("Checking prediction file format...", end='\r')
 
-check_prediction(sample = args.name,
+check_prediction(sample = sample,
                  path_prediction = path_prediction)
 
 verbose_print("Checking prediction file format completed!")
@@ -194,7 +199,7 @@ verbose_print("Checking prediction file format completed!")
 verbose_print("Calculating base coverage...", end='\r')
 os.makedirs("coverage", exist_ok=True)
 
-coverage(sample = args.name,
+coverage(sample = sample,
          path_prediction = path_prediction,
          pred_threshold = args.threshold_prediction)
 
@@ -207,7 +212,7 @@ os.makedirs("walks/normal_mode", exist_ok=True)
 #TODO this will append paths/connections to previous file if using the same sample name
 ##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
 ##also needs to use multiprocessing which complicates things
-generate_paths(sample = args.name,
+generate_paths(sample = sample,
                number_iterations = args.number_iterations,
                filt_threshold = args.filt_gplas,
                mode = "normal",
@@ -221,18 +226,18 @@ os.makedirs("results/normal_mode", exist_ok=True)
 
 #TODO coocurrence script breaks if reruning gplas with the same sample name
 ##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
-calculate_coocurrence(sample = args.name,
+calculate_coocurrence(sample = sample,
                       number_iterations = args.number_iterations,
                       pred_threshold = args.threshold_prediction,
                       mod_threshold = args.modularity_threshold,
                       mode = "normal")
 
-utils.check_output(f"results/normal_mode/{args.name}_results_no_repeats.tab")
+utils.check_output(f"results/normal_mode/{sample}_results_no_repeats.tab")
 verbose_print("Calculating coocurrence of random walks completed!")
 
 ##_4.0 Resolve unbinned contigs
 #_4.1 Check for unbinned contigs
-unbinned_path=f'results/normal_mode/{args.name}_bin_Unbinned.fasta'
+unbinned_path=f'results/normal_mode/{sample}_bin_Unbinned.fasta'
 if os.path.exists(unbinned_path):
     #_4.1.1 Run gplas in bold mode if contigs were left unbinned
     verbose_print("Some contigs were left unbinned")#improve tell user how many contigs are unbinned?
@@ -240,7 +245,7 @@ if os.path.exists(unbinned_path):
     verbose_print("Generating random walks in bold mode...", end='\r')
     os.makedirs("walks/bold_mode", exist_ok=True)
 
-    generate_paths(sample = args.name,
+    generate_paths(sample = sample,
                    number_iterations = args.number_iterations,
                    filt_threshold = args.filt_gplas,
                    mode = "bold",
@@ -252,14 +257,14 @@ if os.path.exists(unbinned_path):
     verbose_print("Extracting unbinned contigs from bold walks...", end='\r')
     os.makedirs("walks/unbinned_nodes", exist_ok=True)
 
-    extract_unbinned_solutions(sample = args.name)
+    extract_unbinned_solutions(sample = sample)
     
     verbose_print("Extracting unbinned contigs from bold walks completed!")
 
     #_4.1.1.3 Recalculate coocurrence of walks using the combined solutions
     verbose_print("Recalculating coocurrence of random walks...", end='\r')
     
-    calculate_coocurrence(sample = args.name,
+    calculate_coocurrence(sample = sample,
                           number_iterations = args.number_iterations,
                           pred_threshold = args.threshold_prediction,
                           mod_threshold = args.modularity_threshold,
@@ -269,14 +274,14 @@ if os.path.exists(unbinned_path):
     
 #_4.1.2 Copy files from normal mode if there were no unbinned contigs
 else:
-    for file in glob.glob(f"results/normal_mode/{args.name}*"):
+    for file in glob.glob(f"results/normal_mode/{sample}*"):
         shutil.copy(file, "results/")
 
-utils.check_output(f"results/{args.name}_results_no_repeats.tab")
+utils.check_output(f"results/{sample}_results_no_repeats.tab")
 
 ##_5.0 Add repeated elements
 #_5.1 Check for repeats
-repeated_elements_path=f"coverage/{args.name}_repeat_nodes.tab"
+repeated_elements_path=f"coverage/{sample}_repeat_nodes.tab"
 line_content=linecache.getline(repeated_elements_path,1)
 if line_content:
     #_5.1.1 Run gplas on repeated elements
@@ -284,13 +289,13 @@ if line_content:
     os.makedirs("walks/repeats", exist_ok=True)
     
     #_5.1.1.1 Generate random walks
-    generate_repeat_paths(sample = args.name,
+    generate_repeat_paths(sample = sample,
                           number_iterations = args.number_iterations,
                           filt_threshold = args.filt_gplas,
                           sd_coverage = args.repeats_coverage_sd)
 
     #_5.1.1.2 Calculate coocurrence between walks
-    calculate_coocurrence_repeats(sample = args.name,
+    calculate_coocurrence_repeats(sample = sample,
                                   number_iterations = args.number_iterations,
                                   pred_threshold = args.threshold_prediction,
                                   mod_threshold = args.modularity_threshold,
@@ -301,50 +306,15 @@ if line_content:
 
 #_5.1.2 If there are no repeated elements, just rename the results files.
 else:
-    shutil.move("results/{args.name}_results_no_repeats.tab", "results/{args.name}_results.tab")
-    shutil.move("results/{args.name}_bins_no_repeats.tab", "results/{args.name}_bins.tab")
+    shutil.move("results/{sample}_results_no_repeats.tab", "results/{sample}_results.tab")
+    shutil.move("results/{sample}_bins_no_repeats.tab", "results/{sample}_bins.tab")
 
-utils.check_output(f"results/{args.name}_results.tab")
+utils.check_output(f"results/{sample}_results.tab")
 
 ##_6.0 If the -k flag was not selected, delete intermediary files
 if args.keep==False and args.extract==False:
     verbose_print("Intermediate files will be deleted. If you want to keep these files, use the -k flag")
-    #Coverage files
-    utils.delete_file(f"coverage/{args.name}_clean_links.tab")
-    utils.delete_file(f"coverage/{args.name}_clean_prediction.tab")
-    utils.delete_file(f"coverage/{args.name}_clean_repeats.tab")
-    utils.delete_file(f"coverage/{args.name}_estimation.txt")
-    utils.delete_file(f"coverage/{args.name}_graph_contigs.tab")
-    utils.delete_file(f"coverage/{args.name}_initialize_nodes.tab")
-    utils.delete_file(f"coverage/{args.name}_isolated_nodes.tab")
-    utils.delete_file(f"coverage/{args.name}_repeat_nodes.tab")
-    utils.delete_file(f"coverage/{args.name}_repeats_graph.tab")
-    #Walks normal mode
-    utils.delete_file(f"walks/normal_mode/{args.name}_solutions.tab")
-    #Walks bold mode + unbinned solutions
-    utils.delete_file(f"walks/bold_mode/{args.name}_solutions_bold.tab")
-    utils.delete_file(f"walks/unbinned_nodes/{args.name}_solutions_unbinned.tab")
-    utils.delete_file(f"walks/{args.name}_solutions.tab")
-    #Walks repeats
-    utils.delete_file(f"walks/repeats/{args.name}_solutions.tab")
-    #Results no_repeats
-    utils.delete_file(f"results/{args.name}_results_no_repeats.tab")
-    utils.delete_file(f"results/{args.name}_bins_no_repeats.tab")
-    
-    #Delete directories if they exist and are empty
-    utils.delete_empty_dir("coverage/")
-    utils.delete_empty_dir("walks/normal_mode/")
-    utils.delete_empty_dir("walks/bold_mode/")
-    utils.delete_empty_dir("walks/unbinned_nodes/")
-    utils.delete_empty_dir("walks/repeats/")
-    utils.delete_empty_dir("walks/")
+    utils.cleanup_intermediary_files(sample)
 
-    #Centrifuge cleanup
-    utils.delete_file(f"plasmidCC/{args.name}/{args.name}.fasta")
-    utils.delete_file(f"plasmidCC/{args.name}/{args.name}_centrifuge_classified.txt")
-    utils.delete_file(f"plasmidCC/{args.name}/{args.name}_centrifuge_results.txt")
-    utils.delete_file(f"plasmidCC/{args.name}/{args.name}_summary.txt")
-    utils.delete_empty_dir("plasmidCC/{args.name}/logs/")#TODO logs does not get deleted even when empty??
-    
 ##_7.0 Show success message and exit workflow
 success_message()
