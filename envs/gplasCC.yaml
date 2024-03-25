@@ -1,0 +1,16 @@
+name: gplasCC
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - biopython=1.83=py312h98912ed_0
+  - centrifuge-core=1.0.4.1=h43eeafb_0
+  - numpy=1.26.4=py312heda63a1_0
+  - pandas=2.2.0=py312hfb8ada1_0
+  - pycairo=1.25.1=py312he48a392_0
+  - python=3.12.1=hab00c5b_1_cpython
+  - python-igraph=0.11.3=py312ha213cae_1
+  - rich=13.7.0=pyhd8ed1ab_0
+  - scipy=1.12.0=py312heda63a1_2
+  - urllib3=2.2.0=pyhd8ed1ab_0

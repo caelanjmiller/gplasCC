@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import glob
 
 with open('envs/requirements.txt') as file_open:
      requirements = file_open.read().splitlines()
@@ -12,7 +13,7 @@ setup(
     ],
     use_scm_version={"write_to":"gplas/version.py"},
     #version="1.1.2-beta",
-    scripts=["gplas/snakefiles/mlplasmidssnake.smk"],
+    scripts=[script for script in glob.glob("gplas/scripts/m_*.py")],
     packages=find_packages(),
     install_requires=requirements,
     include_package_data=True,
