@@ -17,7 +17,7 @@ import sys
 #improve we have a lot of loops with "for row in range(solutions.shape[0]):"
 ## can we possibly merge some of them?
 
-def calculate_coocurrence_repeats(sample, classifier, number_iterations, pred_threshold, mod_threshold, sd_coverage=2):
+def calculate_coocurrence_repeats(sample, number_iterations, pred_threshold, mod_threshold, sd_coverage=2):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"coverage/{sample}_clean_links.tab"
@@ -30,7 +30,6 @@ def calculate_coocurrence_repeats(sample, classifier, number_iterations, pred_th
     path_bins = f"results/{sample}_results_no_repeats.tab"
     clean_repeats_path = f"coverage/{sample}_clean_repeats.tab"
     #Params
-    classifier = str(classifier)
     number_iterations = int(number_iterations)
     pred_threshold = float(pred_threshold)
     modularity_threshold = float(mod_threshold)
@@ -295,9 +294,8 @@ def calculate_coocurrence_repeats(sample, classifier, number_iterations, pred_th
     if((total_pairs.shape[0] > 0) & (total_pairs.shape[1] > 0)):
         total_pairs.loc[:,"Pair"] = ["-".join([total_pairs.loc[row,"Bin"], total_pairs.loc[row,"Starting_node"]]) for row in range(total_pairs.shape[0])]
     else:
-        print("gplas couldn't find any walks connecting repeats to plasmid-nodes.")
-        #ASK why is it randomly status=1 in the final script?
-        sys.exit(1)
+        print("gplas couldn't find any walks connecting repeats to plasmid-nodes.")#fix this print/exit statement to work with \r verbose printing
+        return
     
     single_edge_counting = []
     for pair in sorted(list(set(total_pairs.loc[:,"Pair"]))):
@@ -362,13 +360,13 @@ def calculate_coocurrence_repeats(sample, classifier, number_iterations, pred_th
     plasmid_repeats = repeat_assignments.loc[index,:]
     
     if(plasmid_repeats.shape[0] == 0):
-        print("No repeats associated with plasmids were found")
+        print("No repeats associated with plasmids were found")#fix this print statement to work with \r verbose printing
         bins_data.loc[:,"Prob_Chromosome"] = round(bins_data.loc[:,"Prob_Chromosome"], 2)
         bins_data.loc[:,"Prob_Plasmid"] = round(bins_data.loc[:,"Prob_Plasmid"], 2)
         bins_data.loc[:,"coverage"] = round(bins_data.loc[:,"coverage"], 2)
         full_info_assigned = bins_data
     else:
-        print("We found repeated elements associated to plasmid predictions")
+        print("We found repeated elements associated to plasmid predictions")#fix this print statement to work with \r verbose printing
         #Get all the repeat nodes
         index = clean_repeats.loc[:,"number"].isin(plasmid_repeats.loc[:,"number"]) # Selecting only contigs predicted as plasmid-derived
         pl_nodes = clean_repeats.loc[index,:]

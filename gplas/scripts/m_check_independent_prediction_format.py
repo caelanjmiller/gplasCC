@@ -9,7 +9,6 @@ from Bio.SeqIO.FastaIO import SimpleFastaParser
 def check_prediction(sample, path_prediction):
     
     #get a path for fasta file.
-    #improve f string
     raw_nodes_path = f"gplas_input/{sample}_raw_nodes.fasta" 
     
     #Check if prediction file exists
@@ -18,7 +17,7 @@ def check_prediction(sample, path_prediction):
     
     #Check if fasta file exists
     if(os.path.exists(raw_nodes_path) == False):
-        sys.exit("Nodes file does not exist or name is incorrect. The nodes file is produced by running the 'extract' command in gplas. Results will be located on the directory gplas_input/ and will be named as follows: $name_raw_nodes.fasta.")
+        sys.exit(f"Nodes file does not exist or name is incorrect. The nodes file is produced by running the 'extract' command in gplas. Results will be located on the directory gplas_input/ and will be named as follows: {sample}_raw_nodes.fasta.")
     
     #load prediction file.
     prediction_file = pd.read_csv(path_prediction, sep="\t", header=0)
@@ -60,7 +59,11 @@ def check_prediction(sample, path_prediction):
     
     if((is_object_dtype(prediction_file.dtypes["Prediction"]) == False) &
        (is_string_dtype(prediction_file.dtypes["Prediction"]) == False)):
-        sys.exit("Error in prediction file format. Third column should contain data formatted as character indicating the type of prediciton (Plasmid or Chromosome). This is a case sensitive input.")
+        sys.exit("Error in prediction file format. Third column should contain data formatted as character indicating the classified prediciton ")
+    
+    valid_predictions = ["Plasmid", "Chromosome"]
+    if(any([pred not in valid_predictions for pred in prediction_file["Prediction"]])):
+        sys.exit("Error in prediction file format. Third column values should be either (Plasmid or Chromosome). This is a case sensitive input.")
     
     if((is_object_dtype(prediction_file.dtypes["Contig_name"]) == False) &
        (is_string_dtype(prediction_file.dtypes["Contig_name"]) == False)):
@@ -73,7 +76,7 @@ def check_prediction(sample, path_prediction):
     
     #4. check if plasmids exist in the prediction
     if("Plasmid" not in prediction_file["Prediction"].values):
-        sys.exit("No plasmids are predicted, so gplas can't do anything")
+        sys.exit("There are no plasmids in the prediction file, gplas can't do anything")
     
     #######################################################################################################################################
     
@@ -90,11 +93,10 @@ def check_prediction(sample, path_prediction):
     comparison_output = [header in fasta_headers for header in prediction_headers]
     
     if(False in comparison_output):
-        sys.exit("Error in contig names. Contig names in plasmid prediction file should match exactly with those in FASTA file obtained after runnning the 'extract' command")
+        sys.exit("Error in contig names. Contig names in plasmid prediction file should match exactly with those in FASTA file obtained after runnning the '--extract' flag")
     
     #######################################################################################################################################
     
-    #6. All checks are successful
-    print("Congrats! Your prediction file is correctly formatted. Now we are moving on to predicting your plasmids.")
+    #6. All checks are successful!
     
     return

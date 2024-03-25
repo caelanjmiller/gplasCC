@@ -15,7 +15,7 @@ import numpy as np
 import sys
 
 #TODO run this script with test data where some initial nodes are classified as either plasmid/chromosome
-def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold, sd_coverage=2):
+def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage=2):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"coverage/{sample}_clean_links.tab"
@@ -25,7 +25,6 @@ def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold,
     path_init_nodes = f"coverage/{sample}_repeat_nodes.tab"
     path_cov_variation = f"coverage/{sample}_estimation.txt"
     #Params
-    classifier = str(classifier)
     number_iterations = int(number_iterations)
     filtering_threshold = float(filt_threshold)
     repeats_sd_coverage = int(sd_coverage)
@@ -65,8 +64,9 @@ def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold,
     
     initialize_nodes = pd.read_csv(path_init_nodes, sep="\t", header=None)
     
-    if(initialize_nodes.shape[0] == 0):
-        sys.exit("There are no repeats in your genome. Repeat recovery step will not run")
+    if(initialize_nodes.shape[0] == 0):#improve this check is already present in the main script
+        print("There are no repeats in your genome. Repeat recovery step will not run")
+        return
     
     initialize_nodes = [str(node) for node in initialize_nodes.iloc[:,0]]
     
@@ -76,7 +76,7 @@ def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold,
     
     #ASK check default values of 'nodes' & 'prob_small_repeats'; they are not defined in this script?
     # "nodes" is just not defined or even used at all anywhere in the script; I removed it for now
-    def plasmid_graph(output_path, classifier, initial_seed, direction, prob_small_repeats, classification, links=links, verbose=True, number_iterations=number_iterations, number_nodes=20, max_variation=max_variation, filtering_threshold=filtering_threshold):
+    def plasmid_graph(output_path, initial_seed, direction, prob_small_repeats, classification, links=links, verbose=True, number_iterations=number_iterations, number_nodes=20, max_variation=max_variation, filtering_threshold=filtering_threshold):
         for iteration in range(number_iterations): # Number of times we repeat this process
             path = [initial_seed] # We add the initial seed to the path, first element in the list
             seed = initial_seed
@@ -340,7 +340,7 @@ def generate_repeat_paths(sample, classifier, number_iterations, filt_threshold,
         positive_seed = seed + "+"
         negative_seed = seed + "-"
         
-        plasmid_graph(output_path=output_path, classifier=classifier, initial_seed=positive_seed, direction="forward", prob_small_repeats=0.5, classification = seed_classification, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
-        plasmid_graph(output_path=output_path, classifier=classifier, initial_seed=negative_seed, direction="reverse", prob_small_repeats=0.5, classification = seed_classification, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
+        plasmid_graph(output_path=output_path, initial_seed=positive_seed, direction="forward", prob_small_repeats=0.5, classification = seed_classification, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
+        plasmid_graph(output_path=output_path, initial_seed=negative_seed, direction="reverse", prob_small_repeats=0.5, classification = seed_classification, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
     
     return
