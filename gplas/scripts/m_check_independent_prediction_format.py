@@ -5,46 +5,60 @@ import sys
 import pandas as pd
 from pandas.api.types import is_integer_dtype, is_float_dtype, is_object_dtype, is_string_dtype
 from Bio.SeqIO.FastaIO import SimpleFastaParser
+from m_utils import quit_tool
 
-def check_prediction(sample, path_prediction):
+def format_error(message):
+    print('\n')
+    print("Error in prediction file format:")
+    print(message)
+    quit_tool(-1)
+
+def check_prediction(sample, path_prediction, plasmidCC):
     
     #get a path for fasta file.
     raw_nodes_path = f"gplas_input/{sample}_raw_nodes.fasta" 
     
     #Check if prediction file exists
-    if(os.path.exists(path_prediction) == False):
-        sys.exit("Prediction file does not exist or name is incorrect. Please, check your input for the -P argument.")
+    if not os.path.exists(path_prediction):
+        print("Prediction file does not exist or name is incorrect")
+        if plasmidCC:
+            print("Please check if something went wrong with your plasmidCC run")
+        else:
+            print("Please check your input for the -P argument")
+        quit_tool(-1)
     
     #Check if fasta file exists
-    if(os.path.exists(raw_nodes_path) == False):
-        sys.exit(f"Nodes file does not exist or name is incorrect. The nodes file is produced by running the 'extract' command in gplas. Results will be located on the directory gplas_input/ and will be named as follows: {sample}_raw_nodes.fasta.")
-    
+    if not os.path.exists(raw_nodes_path):
+        print("Nodes file does not exist or name is incorrect")
+        print(f"Please verify that '{raw_nodes_path}' exsists")
+        quit_tool(-1)
+
     #load prediction file.
     prediction_file = pd.read_csv(path_prediction, sep="\t", header=0)
     
     #######################################################################################################################################
     
     #1. Check the number of columns
-    if(prediction_file.shape[1] != 5):
-        sys.exit("Error in prediction file format. The file should contain 5 columns, and they should be tab separated.")
+    if prediction_file.shape[1] != 5:
+        format_error("The file should contain 5 columns, and they should be tab separated")
     
     #######################################################################################################################################
     
     #2. Check the column names
-    if(prediction_file.columns[0] != "Prob_Chromosome"):
-        sys.exit("Error in prediction file format. First column should be named Prob_Chromosome (case sensitive).")
+    if prediction_file.columns[0] != "Prob_Chromosome":
+        format_error("First column should be named Prob_Chromosome (case sensitive)")
     
-    if(prediction_file.columns[1] != "Prob_Plasmid"):
-        sys.exit("Error in prediction file format. Second column should be named Prob_Plasmid (case sensitive).")
+    if prediction_file.columns[1] != "Prob_Plasmid":
+        format_error("Second column should be named Prob_Plasmid (case sensitive)")
     
-    if(prediction_file.columns[2] != "Prediction"):
-        sys.exit("Error in prediction file format. Third column should be named Prediction (case sensitive).")
+    if prediction_file.columns[2] != "Prediction":
+        format_error("Third column should be named Prediction (case sensitive)")
     
-    if(prediction_file.columns[3] != "Contig_name"):
-        sys.exit("Error in prediction file format. Fourth column should be named Contig_name (case sensitive).")
+    if prediction_file.columns[3] != "Contig_name":
+        format_error("Fourth column should be named Contig_name (case sensitive)")
     
-    if(prediction_file.columns[4] != "Contig_length"):
-        sys.exit("Error in prediction file format. Fifth column should be named Contig_length (case sensitive).")
+    if prediction_file.columns[4] != "Contig_length":
+        format_error("Fifth column should be named Contig_length (case sensitive)")
     
     #######################################################################################################################################
     

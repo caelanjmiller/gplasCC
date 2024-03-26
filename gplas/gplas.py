@@ -186,7 +186,7 @@ if args.species or args.custom_db_path:
     run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path)
     utils.cleanup_centrifuge(sample)
     
-    print() # Adds a newline for cosmetic purposes
+    print('\n', end='')
     path_prediction = f"plasmidCC/{sample}/{sample}_gplas.tab"
     plasmidCC = True
 else:
@@ -194,11 +194,13 @@ else:
     plasmidCC = False
 
 #_2.2 Check if the prediction file is correctly formatted.
-verbose_print("Checking prediction file format...", end='\r')
+verbose_print("Checking prediction file...", end='\r')
 
-check_prediction(sample, path_prediction) # Add 'plasmidCC' argument to alter error messages
+check_prediction(sample, path_prediction, plasmidCC)
 
-verbose_print("Checking prediction file format completed!")
+verbose_print("Valid prediction file found!")
+
+utils.quit_tool(0)
 
 ##_3.0 Run gplas in normal mode
 #_3.1 Extract nodes/links from the assembly graph
