@@ -18,6 +18,7 @@ def check_prediction(sample, path_prediction, plasmidCC):
 
     #Check if prediction file exists
     if not os.path.exists(path_prediction):
+        print('\n')
         print("Prediction file does not exist or name is incorrect")
         if plasmidCC:
             print("Please check if something went wrong with your plasmidCC run")
