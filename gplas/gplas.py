@@ -200,8 +200,6 @@ check_prediction(sample, path_prediction, plasmidCC)
 
 verbose_print("Valid prediction file found!")
 
-utils.quit_tool(0)
-
 ##_3.0 Run gplas in normal mode
 #_3.1 Extract nodes/links from the assembly graph
 verbose_print("Calculating base coverage...", end='\r')
