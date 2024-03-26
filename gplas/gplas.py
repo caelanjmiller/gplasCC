@@ -37,7 +37,7 @@ start_time = time.time()
 pkgdir = os.path.dirname(__file__)
 
 # Load ASCII logo
-with open(f'{pkgdir}/../figures/logo.txt', 'r') as file: #TODO fix this path for final version
+with open(f'{pkgdir}/figures/logo.txt', 'r') as file:
     read_logo = file.read()
 
 #******************************#
@@ -183,7 +183,7 @@ if args.species or args.custom_db_path:
     os.makedirs("plasmidCC", exist_ok=True)
     inputFASTA = f"gplas_input/{sample}_contigs.fasta"
     
-    run_plasmidCC(inputFASTA, sample, args.species, args.length_filter)
+    run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path)
     utils.cleanup_centrifuge(sample)
     
     print() # Adds a newline for cosmetic purposes
