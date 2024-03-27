@@ -29,6 +29,7 @@ def is_valid_file(arg, extensions=['gfa']):
         raise argparse.ArgumentTypeError(f"'{arg}' is not a file of type {' or '.join(extensions)}")
     return arg
 
+
 def is_valid_dir(arg):
     if not os.path.isdir(arg):
         raise argparse.ArgumentTypeError(f"'{arg}' is not an existing directory, and I am afraid to create it")
@@ -43,7 +44,7 @@ def check_species(arg):
 
 def check_output(path):
     if not os.path.exists(path):
-        print("\n")
+        print('\n')
         print("Something went wrong while running gplas")
         print(f"Failed to create the following output: {path}")
         sys.exit(1)
@@ -59,9 +60,11 @@ def delete_empty_dir(dir_path):
         if not any(os.listdir(dir_path)):
             os.rmdir(dir_path)
 
+
 def cleanup_centrifuge(sample):
     delete_file(f"plasmidCC/{sample}/{sample}_plasmids.fasta")
     delete_file(f"plasmidCC/{sample}/{sample}_centrifuge_classified.txt")
+
 
 def cleanup_intermediary_files(sample):
     #Coverage files
