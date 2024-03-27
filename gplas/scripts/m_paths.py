@@ -15,6 +15,9 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
     number_iterations = int(number_iterations)
     filtering_threshold = float(filt_threshold)
     sd_coverage = int(sd_coverage)
+    # TODO make these into parameters?
+    number_nodes = 100
+    prob_small_repeats = 0.5
     #Outputs Normal Mode
     if mode == "normal":
         output_path = f"walks/normal_mode/{sample}_solutions.tab"
@@ -62,7 +65,8 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
     
     #ASK check default values of 'nodes' & 'prob_small_repeats'; they are not defined in this script?
     # "nodes" is just not defined or even used at all anywhere in the script; I removed it for now
-    def plasmid_graph(output_path, initial_seed, direction, prob_small_repeats, links=links, verbose=True, number_iterations=number_iterations, number_nodes=20, max_variation=max_variation, filtering_threshold=filtering_threshold):
+    def plasmid_graph(initial_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, direction, verbose=False):
+        paths_list = []
         for iteration in range(number_iterations): # Number of times we repeat this process
             path = [initial_seed] # We add the initial seed to the path, first element in the list
             seed = initial_seed
@@ -104,8 +108,7 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
                     if(verbose == True):
                         print("final path:", path, "\n")
                     output = "\t".join(path)
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
+                    paths_list.append(output)
                     path = [initial_seed] # There are no connections possible from this contig
                     break # Exiting elongation loop
                 
@@ -145,8 +148,7 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
                     if(verbose == True):
                         print("final path:", path, "\n")
                     output = "\t".join(path)
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
+                    paths_list.append(output)
                     path = [initial_seed] # There are no connections possible from this contig
                     break # Exiting elongation loop
                     
@@ -214,9 +216,7 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
                     if(verbose == True):
                         print("final path:", path, "\n")
                     output = "\t".join(path)
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
-                    
+                    paths_list.append(output)
                     #record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
                     path = [initial_seed] # There are no connections possible from this contig
                     break # Exiting elongation loop
@@ -240,8 +240,7 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
                     if(verbose == True):
                         print("final path:", path, "\n")
                     output = "\t".join(path)
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
+                    paths_list.append(output)
                     path = [initial_seed] 
                     break # Exiting elongation loop
                 
@@ -251,8 +250,7 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
                     if(verbose == True):
                         print("final path:", path, "\n")
                     output = "\t".join(path)
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
+                    paths_list.append(output)
                     path = [initial_seed] 
                     break # Exiting elongation loop
                 
@@ -265,12 +263,19 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
                 length_path = sum(info_path.loc[:,"length"])
                 info_path.loc[:,"contribution"] = info_path.loc[:,"length"] / length_path
                 path_mean = np.average(info_path.loc[:,"coverage"], weights=info_path.loc[:,"contribution"]) # Coverage of the current path
-                    
+
+        return paths_list
+
+    final_paths = []
     for seed in initialize_nodes:
         np.random.seed(123)
         positive_seed = seed + "+"
         negative_seed = seed + "-"
-        plasmid_graph(output_path=output_path, initial_seed=positive_seed, direction="forward", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
-        plasmid_graph(output_path=output_path, initial_seed=negative_seed, direction="reverse", prob_small_repeats=0.5, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
+        final_paths.extend(plasmid_graph(positive_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, direction="forward", verbose=False))
+        final_paths.extend(plasmid_graph(negative_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, direction="reverse", verbose=False))
+
+    with open(output_path, mode="w") as outfile:
+        for path in final_paths:
+            outfile.write(path + "\n")
 
     return
