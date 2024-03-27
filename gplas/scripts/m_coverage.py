@@ -1,16 +1,6 @@
-#!/usr/bin/env python3
-
-#from collections import defaultdict
-#from email.policy import default
 import pandas as pd
 import numpy as np
-#import scipy.stats
 import statistics
-#import igraph
-#import logging
-#from multiprocessing import Pool
-#from functools import partial
-#import copy
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 def coverage(sample, path_prediction, pred_threshold):
@@ -100,7 +90,7 @@ def coverage(sample, path_prediction, pred_threshold):
     links = pd.DataFrame(links)
     links.to_csv(output_clean_links, sep="\t", index=False, header=False)
     
-    unique_nodes = list(set(links[0]))
+    unique_nodes = sorted(list(set(links[0])))
     #improve skip outdegree_info as empty one and make it in one go with node_info; DONT USE CONCAT
     outdegree_info = pd.DataFrame()
     for node in unique_nodes:
@@ -165,12 +155,12 @@ def coverage(sample, path_prediction, pred_threshold):
     #and gets unsorted again(?) when transferred to initialize_nodes
     pl_nodes.sort_values(by="length", axis=0, ascending=False ,inplace=True)
     
-    initialize_nodes = list(set(pl_nodes["number"]))
+    initialize_nodes = sorted(list(set(pl_nodes["number"])))
     
     with open(output_initialize_nodes, "w") as file:
         file.write("\n".join(initialize_nodes))
     
-    repeats_nodes = list(set(repeats_final["number"]))
+    repeats_nodes = sorted(list(set(repeats_final["number"])))
     
     with open(output_repeat_nodes, "w") as file:
         file.write("\n".join(repeats_nodes))
