@@ -1,16 +1,6 @@
-#!/usr/bin/env python3
-
-#from collections import defaultdict
-#from email.policy import default
 import pandas as pd
 import numpy as np
-#import scipy.stats
-#import statistics
 import igraph as ig
-#import logging
-#from multiprocessing import Pool
-#from functools import partial
-#import copy
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import sys
 
@@ -547,8 +537,8 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, mod_thresho
     full_info_assigned = full_info_assigned.rename(columns={"Component":"Bin"})
     results_subgraph = results_subgraph.rename(columns={"Component":"Bin"})
     
-    full_info_assigned.to_csv(output_results, sep="\t", index=False, header=True, mode="a")
-    results_subgraph.to_csv(output_components, sep="\t", index=False, header=True, mode="a")
+    full_info_assigned.to_csv(output_results, sep='\t', index=False, header=True, mode='w')
+    results_subgraph.to_csv(output_components, sep='\t', index=False, header=True, mode='w')
     
     return
 #improve change the column order of ecoli_results_no_repeats to match the output of R?
