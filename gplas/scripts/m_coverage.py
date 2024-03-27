@@ -140,9 +140,6 @@ def coverage(sample, path_prediction, pred_threshold):
     pl_nodes = final_prediction[final_prediction['Prob_Plasmid'] >= pred_threshold]
     pl_nodes = pl_nodes[pl_nodes['Contig_length'] > 500]  # TODO is this threshold needed? if yes, use minlen param instead of hardcoded 500?
     pl_nodes = pl_nodes[[number not in list(repeats['number']) for number in pl_nodes['number']]]
-    #improve is sorting nessecary here? it is already sorted on number which is based on length
-    #and gets unsorted again(?) when transferred to initialize_nodes
-    pl_nodes.sort_values(by='length', axis=0, ascending=False ,inplace=True)
 
     initialize_nodes = sorted(list(set(pl_nodes['number'])))
     with open(output_initialize_nodes, 'w') as file:
