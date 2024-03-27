@@ -1,16 +1,6 @@
-#!/usr/bin/env python3
-
-#from collections import defaultdict
-#from email.policy import default
 import pandas as pd
 import numpy as np
-#import scipy.stats
-#import statistics
 import igraph as ig
-#import logging
-#from multiprocessing import Pool
-#from functools import partial
-#import copy
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 import sys
 
@@ -407,8 +397,8 @@ def calculate_coocurrence_repeats(sample, number_iterations, pred_threshold, mod
     
     results_summary = df_nodes.loc[:,["number", "Bin"]]
     
-    full_info_assigned.to_csv(output_results, sep="\t", index=False, header=True, mode="a")
-    results_summary.to_csv(output_components, sep="\t", index=False, header=True, mode="a")
+    full_info_assigned.to_csv(output_results, sep='\t', index=False, header=True, mode='w')
+    results_summary.to_csv(output_components, sep='\t', index=False, header=True, mode='w')
     
     #improve change the column order of ecoli_results_no_repeats to match the output of R?
     ##order node order in 'ecoli_bins_no_repeats' / ecoli_results_no_repeats & co.
@@ -417,6 +407,6 @@ def calculate_coocurrence_repeats(sample, number_iterations, pred_threshold, mod
     #format chromosome repeats and print
     chromosome_repeats = chromosome_repeats.loc[:,["number", "Bin"]] #improve change col order from the start instead of now
     chromosome_repeats.loc[:,"Bin"] = "Chromosome" #improve call it "Chromosome" from the start instead of "C"
-    chromosome_repeats.to_csv(output_chromosomes, sep="\t", index=False, header=True, mode="a")
+    chromosome_repeats.to_csv(output_chromosomes, sep='\t', index=False, header=True, mode='w')
     
     return
