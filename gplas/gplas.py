@@ -177,7 +177,6 @@ if args.extract:
 
 ##_2.0 Obtain correct prediction file
 #_2.1 Run plasmidCC if no independent prediction file was given
-##TODO fix plasmidCC FASTA input and only give it the sample_contigs.fasta as input to prevent double extracting of nodes
 if args.species or args.custom_db_path:
     verbose_print("Running plasmidCC to generate prediction file..." + '\n')
     os.makedirs("plasmidCC", exist_ok=True)
