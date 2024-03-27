@@ -1,17 +1,5 @@
-#!/usr/bin/env python3
-
-#from collections import defaultdict
-#from email.policy import default
 import pandas as pd
 import numpy as np
-#import scipy.stats
-#import statistics
-#import igraph
-#import logging
-#from multiprocessing import Pool
-#from functools import partial
-#import copy
-#from Bio.SeqIO.FastaIO import SimpleFastaParser
 import sys
 
 #TODO run this script with test data where some initial nodes are classified as either plasmid/chromosome
@@ -28,6 +16,9 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
     number_iterations = int(number_iterations)
     filtering_threshold = float(filt_threshold)
     repeats_sd_coverage = int(sd_coverage)
+    # TODO make these into parameters?
+    number_nodes = 100
+    prob_small_repeats = 0.5
     #Outputs
     output_path = f"walks/repeats/{sample}_solutions.tab"
     #output_connections = f"walks/repeats/{sample}_connections.tab"
@@ -76,7 +67,9 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
     
     #ASK check default values of 'nodes' & 'prob_small_repeats'; they are not defined in this script?
     # "nodes" is just not defined or even used at all anywhere in the script; I removed it for now
-    def plasmid_graph(output_path, initial_seed, direction, prob_small_repeats, classification, links=links, verbose=True, number_iterations=number_iterations, number_nodes=20, max_variation=max_variation, filtering_threshold=filtering_threshold):
+    def plasmid_graph(initial_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, classification, direction, verbose=False):
+
+        paths_list = []
         for iteration in range(number_iterations): # Number of times we repeat this process
             path = [initial_seed] # We add the initial seed to the path, first element in the list
             seed = initial_seed
@@ -120,8 +113,7 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
                         print("final path:", path, "\n")
                     output = ",".join(path) #join path with ',' for later step in coocurrence_repeats script
                     output = "\t".join([output, classification, unitig_seed_classification, str(path_mean)])
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
+                    paths_list.append(output)
                     path = [initial_seed] # There are no connections possible from this contig
                     unitig_seed_classification = classification
                     break # Exiting elongation loop
@@ -165,8 +157,7 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
                         print("final path:", path, "\n")
                     output = ",".join(path) #join path with ',' for later step in coocurrence_repeats script
                     output = "\t".join([output, classification, unitig_seed_classification, str(path_mean)])
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
+                    paths_list.append(output)
                     path = [initial_seed] # There are no connections possible from this contig
                     unitig_seed_classification = classification
                     break # Exiting elongation loop
@@ -237,9 +228,7 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
                         print("final path:", path, "\n")
                     output = ",".join(path)  #join path with ',' for later step in coocurrence_repeats script
                     output = "\t".join([output, classification, unitig_seed_classification, str(path_mean)])
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
-                    
+                    paths_list.append(output)                    
                     #record_connections.to_csv(output_connections, sep="\t", index=False, header=False, mode="a")
                     path = [initial_seed] # There are no connections possible from this contig
                     unitig_seed_classification = classification
@@ -265,8 +254,7 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
                         print("final path:", path, "\n")
                     output = ",".join(path) #join path with ',' for later step in coocurrence_repeats script
                     output = "\t".join([output, classification, unitig_seed_classification, str(path_mean)])
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
+                    paths_list.append(output)
                     path = [initial_seed]
                     unitig_seed_classification = classification
                     break # Exiting elongation loop
@@ -295,8 +283,7 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
                         print("final path:", path, "\n")
                     output = ",".join(path) #join path with ',' for later step in coocurrence_repeats script
                     output = "\t".join([output, classification, unitig_seed_classification, str(path_mean)])
-                    with open(output_path, mode="a") as file:
-                        file.write(output + "\n")
+                    paths_list.append(output)
                     path = [initial_seed]
                     unitig_seed_classification = classification
                     break # Exiting elongation loop
@@ -313,8 +300,7 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
                             print("final path:", path, "\n")
                         output = ",".join(path) #join path with ',' for later step in coocurrence_repeats script
                         output = "\t".join([output, classification, unitig_seed_classification, str(path_mean)])
-                        with open(output_path, mode="a") as file:
-                            file.write(output + "\n")
+                        paths_list.append(output)
                         path = [initial_seed]
                         unitig_seed_classification = classification
                         break # Exiting elongation loop
@@ -327,8 +313,10 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
                     length_path = sum(info_path.loc[:,"length"])
                     info_path.loc[:,"contribution"] = info_path.loc[:,"length"] / length_path
                     path_mean = np.average(info_path.loc[:,"coverage"], weights=info_path.loc[:,"contribution"]) # Coverage of the current path
-                    
-    
+
+        return paths_list
+
+    final_paths = []
     for seed in initialize_nodes:
         np.random.seed(123)
         seed_info = clean_pred.loc[clean_pred.loc[:,"number"].isin([seed]),:]
@@ -339,8 +327,11 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
         
         positive_seed = seed + "+"
         negative_seed = seed + "-"
-        
-        plasmid_graph(output_path=output_path, initial_seed=positive_seed, direction="forward", prob_small_repeats=0.5, classification = seed_classification, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
-        plasmid_graph(output_path=output_path, initial_seed=negative_seed, direction="reverse", prob_small_repeats=0.5, classification = seed_classification, links=links, verbose=False, number_iterations=number_iterations, number_nodes=100, max_variation=max_variation, filtering_threshold=filtering_threshold)
-    
+        final_paths.extend(plasmid_graph(positive_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, seed_classification, direction="forward", verbose=False))
+        final_paths.extend(plasmid_graph(negative_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, seed_classification, direction="reverse", verbose=False))
+
+    with open(output_path, mode='w') as outfile:
+        for path in final_paths:
+            outfile.write(path + '\n')
+
     return
