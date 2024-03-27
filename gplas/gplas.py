@@ -1,22 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-#from cProfile import run
 import shutil
 import linecache
-#import glob
 import os
 import sys
 import argparse
-#import subprocess
-#from pathlib import Path
 import glob
 from .version import version as VERSION
 #VERSION="1.0.0"
 import time
-##os.chdir("C:/Users/oscar/Documenten/UU/04_BiBc/6.2_Research_Profile/gplas/gplas-2-python/gplas/scripts")
-##os.getcwd()
 from plasmidCC.scripts import utils as utilsCC
+#import glob
+#import subprocess
+#from pathlib import Path
 
 #TODO change script/function/import names
 from gplas.scripts.m_node_extraction import extract_nodes
@@ -48,12 +42,12 @@ with open(f'{pkgdir}/figures/logo.txt', 'r') as file:
 
 class PriorityPrinting(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        if option_string == "-h" or option_string == "--help":
+        if option_string == '-h' or option_string == '--help':
             print(read_logo + '\n')
             parser.print_help()
-        elif option_string == "-v" or option_string == "--version":
+        elif option_string == '-v' or option_string == '--version':
             print(f"gplas version {VERSION}")
-        elif option_string == "--speciesopts":
+        elif option_string == '--speciesopts':
             print_speciesopts()
         parser.exit()
 
@@ -61,7 +55,7 @@ class PriorityPrinting(argparse.Action):
 parser = argparse.ArgumentParser(description="gplas: A tool for binning plasmid-predicted contigs into individual predictions", add_help=False)
 parser.register('action', 'printing', PriorityPrinting)
 
-inputgroup = parser.add_argument_group("General")
+inputgroup = parser.add_argument_group('General')
 inputgroup.add_argument('-i', dest='input', type=utils.is_valid_file, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
 #inputgroup.add_argument('-o', dest='outdir', type=utils.is_valid_dir, default=".", help="Output directory")  # TODO go through all code and append outdir where needed
 inputgroup.add_argument('-n', dest='name', type=str, help="Name prefix for output files (default: input file name)")
@@ -72,7 +66,7 @@ classifiergroup.add_argument('-p', dest='custom_db_path', type=utilsCC.verify_us
 classifiergroup.add_argument('-P', dest='prediction', type=utils.file_exists, help="If not using plasmidCC. Provide a path to an independent binary classification file")
 classifiergroup.add_argument('--extract', action='store_true', help="extract FASTA sequences from the assembly graph to use with an external classifier")
 
-paramgroup = parser.add_argument_group("Parameters")
+paramgroup = parser.add_argument_group('Parameters')
 paramgroup.add_argument('-t', dest='threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences (default: %(default)s)")
 paramgroup.add_argument('-b', dest='bold_coverage_sd', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes (default: %(default)s)")
 paramgroup.add_argument('-r', dest='repeats_coverage_sd', type=int, default=2, help="Coverage variance allowed for assigning repeats to bins (default: %(default)s)")
@@ -82,12 +76,12 @@ paramgroup.add_argument('-e', dest='edge_threshold', type=float, default=0.1, he
 paramgroup.add_argument('-q', dest='modularity_threshold', type=float, default=0.2, help="Modularity threshold to split components in the plasmidome network (default: %(default)s)")
 paramgroup.add_argument('-l', dest='length_filter', type=int, default=1000, help="Filtering threshold for sequence length (default: %(default)s)")
 
-othergroup = parser.add_argument_group("Other")
+othergroup = parser.add_argument_group('Other')
 othergroup.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
-#othergroup.add_argument('--threads', type=int, default=1, help="Max number of threads to ")#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#othergroup.add_argument('--threads', type=int, default=1, help="Max number of threads to ")  #TODO add multi processing
 othergroup.add_argument('--silent', action='store_true', help="Suppress verbose print statements")
 
-infogroup = parser.add_argument_group("Info")
+infogroup = parser.add_argument_group('Info')
 infogroup.add_argument('--speciesopts', action='printing', nargs=0, help="Prints a list of all supported species for the -s flag")
 infogroup.add_argument('-v', '--version', action='printing', nargs=0, help="Prints gplas version")
 infogroup.add_argument('-h', '--help', action='printing', nargs=0, help="Prints this message")
@@ -146,9 +140,9 @@ else:
 print('\n')
 print(read_logo)
 print('\n')
-print("##################################################################")
 
 #Print chosen parameters
+print("##################################################################")
 print("Your results will be named:...........................", sample)
 print("Input graph:..........................................", infilename)
 print("Threshold for predicting plasmid-derived contigs:.....", args.threshold_prediction)
@@ -159,12 +153,12 @@ print("Modularity threshold used to partition the network:...", args.modularity_
 print("Coverage SD for bold mode:............................", args.bold_coverage_sd)
 print("Coverage SD for repeats:..............................", args.repeats_coverage_sd)
 print("Minimum sequence length:..............................", args.length_filter)
-print("##################################################################\n")
+print("##################################################################" + '\n')
 
 ##_1.0 Run analysis
 #_1.1 Extract nodes and links from the assembly graph
 verbose_print("Extracting contigs from the assembly graph...", end='\r')
-os.makedirs("gplas_input", exist_ok=True)
+os.makedirs('gplas_input', exist_ok=True)
 
 extract_nodes(sample, infile, args.length_filter)
 
@@ -179,12 +173,12 @@ if args.extract:
 #_2.1 Run plasmidCC if no independent prediction file was given
 if args.species or args.custom_db_path:
     verbose_print("Running plasmidCC to generate prediction file..." + '\n')
-    os.makedirs("plasmidCC", exist_ok=True)
+    os.makedirs('plasmidCC', exist_ok=True)
     inputFASTA = f"gplas_input/{sample}_contigs.fasta"
-    
+
     run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path)
     utils.cleanup_centrifuge(sample)
-    
+
     print('\n', end='')
     path_prediction = f"plasmidCC/{sample}/{sample}_gplas.tab"
     plasmidCC = True
@@ -202,7 +196,7 @@ verbose_print("Valid prediction file found!")
 ##_3.0 Run gplas in normal mode
 #_3.1 Extract nodes/links from the assembly graph
 verbose_print("Calculating base coverage...", end='\r')
-os.makedirs("coverage", exist_ok=True)
+os.makedirs('coverage', exist_ok=True)
 
 coverage(sample, path_prediction, args.threshold_prediction)
 
@@ -212,10 +206,7 @@ verbose_print("Calculating base coverage completed!")
 verbose_print("Generating random walks in normal mode...", end='\r')
 os.makedirs("walks/normal_mode", exist_ok=True)
 
-#TODO this will append paths/connections to previous file if using the same sample name
-##instead of appending to file each loop, append to list and all the way at the end write list of lists to file?
-##also needs to use multiprocessing which complicates things
-generate_paths(sample, args.number_iterations, args.filt_gplas, mode="normal")
+generate_paths(sample, args.number_iterations, args.filt_gplas, mode='normal')
 
 verbose_print("Generating random walks in normal mode completed!")
 
@@ -223,42 +214,40 @@ verbose_print("Generating random walks in normal mode completed!")
 verbose_print("Calculating coocurrence of random walks...", end='\r')
 os.makedirs("results/normal_mode", exist_ok=True)
 
-#TODO coocurrence script breaks if reruning gplas with the same sample name
-##see generate_paths() appending to old file; coocurrence doesnt break if you remove the previous 'solutions' file
-calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode="normal")
+calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='normal')
 
 utils.check_output(f"results/normal_mode/{sample}_results_no_repeats.tab")
 verbose_print("Calculating coocurrence of random walks completed!")
 
 ##_4.0 Resolve unbinned contigs
 #_4.1 Check for unbinned contigs
-unbinned_path=f'results/normal_mode/{sample}_bin_Unbinned.fasta'
+unbinned_path=f"results/normal_mode/{sample}_bin_Unbinned.fasta"
 if os.path.exists(unbinned_path):
     #_4.1.1 Run gplas in bold mode if contigs were left unbinned
-    verbose_print("Some contigs were left unbinned")#improve tell user how many contigs are unbinned?
+    verbose_print("Some contigs were left unbinned")  # improve tell user how many contigs are unbinned?
     #_4.1.1.1 Generate random walks
     verbose_print("Generating random walks in bold mode...", end='\r')
     os.makedirs("walks/bold_mode", exist_ok=True)
 
-    generate_paths(sample, args.number_iterations, args.filt_gplas, args.bold_coverage_sd, mode="bold")
-    
+    generate_paths(sample, args.number_iterations, args.filt_gplas, args.bold_coverage_sd, mode='bold')
+
     verbose_print("Generating random walks in bold mode completed!")
-    
+
     #_4.1.1.2 Extract unbinned solutions
     verbose_print("Extracting unbinned contigs from bold walks...", end='\r')
     os.makedirs("walks/unbinned_nodes", exist_ok=True)
 
     extract_unbinned_solutions(sample)
-    
+
     verbose_print("Extracting unbinned contigs from bold walks completed!")
 
     #_4.1.1.3 Recalculate coocurrence of walks using the combined solutions
     verbose_print("Recalculating coocurrence of random walks...", end='\r')
-    
-    calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode="unbinned")
+
+    calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='unbinned')
 
     verbose_print("Recalculating coocurrence of random walks completed!")
-    
+
 #_4.1.2 Copy files from normal mode if there were no unbinned contigs
 else:
     for file in glob.glob(f"results/normal_mode/{sample}*"):
@@ -274,13 +263,13 @@ if line_content:
     #_5.1.1 Run gplas on repeated elements
     verbose_print("Adding repeated elements to the predictions...", end='\r')
     os.makedirs("walks/repeats", exist_ok=True)
-    
+
     #_5.1.1.1 Generate random walks
     generate_repeat_paths(sample, args.number_iterations, args.filt_gplas, args.repeats_coverage_sd)
 
     #_5.1.1.2 Calculate coocurrence between walks
     calculate_coocurrence_repeats(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, args.repeats_coverage_sd)
-    
+
     verbose_print("Adding repeated elements to the predictions completed!")
 
 
