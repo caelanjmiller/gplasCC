@@ -62,39 +62,39 @@ def check_prediction(sample, path_prediction, plasmidCC):
     #######################################################################################################################################
 
     #3. Check the data type of every column
-    if(not is_float_dtype(prediction_file.dtypes["Prob_Chromosome"]) and
-       not is_integer_dtype(prediction_file.dtypes["Prob_Chromosome"])):
+    if(not is_float_dtype(prediction_file.dtypes['Prob_Chromosome']) and
+       not is_integer_dtype(prediction_file.dtypes['Prob_Chromosome'])):
         format_error("First column should contain numeric values")
 
-    if max(prediction_file["Prob_Chromosome"]) > 1 or min(prediction_file["Prob_Chromosome"]) < 0:
+    if max(prediction_file['Prob_Chromosome']) > 1 or min(prediction_file['Prob_Chromosome']) < 0:
         format_error("First column should contain values between 0 and 1")
 
-    if(not is_float_dtype(prediction_file.dtypes["Prob_Plasmid"]) and
-       not is_integer_dtype(prediction_file.dtypes["Prob_Plasmid"])):
+    if(not is_float_dtype(prediction_file.dtypes['Prob_Plasmid']) and
+       not is_integer_dtype(prediction_file.dtypes['Prob_Plasmid'])):
         format_error("Second column should contain numeric values")
 
-    if max(prediction_file["Prob_Plasmid"]) > 1 or min(prediction_file["Prob_Plasmid"]) < 0:
+    if max(prediction_file['Prob_Plasmid']) > 1 or min(prediction_file['Prob_Plasmid']) < 0:
         format_error("Second column should contain values between 0 and 1")
 
-    if(not is_object_dtype(prediction_file.dtypes["Prediction"]) and
-       not is_string_dtype(prediction_file.dtypes["Prediction"])):
+    if(not is_object_dtype(prediction_file.dtypes['Prediction']) and
+       not is_string_dtype(prediction_file.dtypes['Prediction'])):
         format_error("Third column should contain data formatted as character")
 
     valid_predictions = ['Plasmid', 'Chromosome']
-    if any([pred not in valid_predictions for pred in prediction_file["Prediction"]]):
+    if any([pred not in valid_predictions for pred in prediction_file['Prediction']]):
         format_error(f"Third column values should be either {' or '.join(valid_predictions)} (case sensitive)")
 
-    if(not is_object_dtype(prediction_file.dtypes["Contig_name"]) and
-       not is_string_dtype(prediction_file.dtypes["Contig_name"])):
+    if(not is_object_dtype(prediction_file.dtypes['Contig_name']) and
+       not is_string_dtype(prediction_file.dtypes['Contig_name'])):
         format_error("Fourth column should contain data formatted as character")
 
-    if not is_integer_dtype(prediction_file.dtypes["Contig_length"]):
+    if not is_integer_dtype(prediction_file.dtypes['Contig_length']):
         format_error("Fifth column should contain integer values")
 
     #######################################################################################################################################
 
     #4. check if plasmids exist in the prediction
-    if 'Plasmid' not in prediction_file["Prediction"].values:
+    if 'Plasmid' not in prediction_file['Prediction'].values:
         format_error("There are no plasmids in the prediction file, gplas can't do anything")
 
     #######################################################################################################################################
@@ -105,7 +105,7 @@ def check_prediction(sample, path_prediction, plasmidCC):
         fasta_headers = [str(node[0]) for node in SimpleFastaParser(file)]
 
     ##5.2 Get the headers from the prediction file
-    prediction_headers = prediction_file["Contig_name"]
+    prediction_headers = prediction_file['Contig_name']
 
     ##5.3 See if the predictions are in the fasta headers
     #improve do we also need to check the other way around? now there can be contigs in the FASTA that are not in the prediction file
