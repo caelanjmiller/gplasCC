@@ -4,7 +4,7 @@ import sys
 from plasmidCC.scripts.utils import speciesopts
 
 
-def quit_tool(exitcode):
+def quit_tool(exitcode=0):
     if exitcode != 0:
         print('\n', end='')
         print("This run of gplas has ended unexpectedly. Pease check above for any error messages")
