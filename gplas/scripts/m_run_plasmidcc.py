@@ -2,12 +2,12 @@ import subprocess
 import shutil
 
 
-def run_plasmidCC(infile, sample, maxlen, species, custom_db_path):
+def run_plasmidCC(infile, sample, minlen, species, custom_db_path):
     if shutil.which('plasmidCC'):
         if species:
-            cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -s {species} -l {maxlen} -D -g -f"
+            cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -s {species} -l {minlen} -D -g -f"
         elif custom_db_path:
-            cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -p {custom_db_path} -l {maxlen} -D -g -f"
+            cmd = f"plasmidCC -i {infile} -o plasmidCC -n {sample} -p {custom_db_path} -l {minlen} -D -g -f"
         else:
             raise Exception("No input given for either species (-s) or custom_db_path (-p)")
 

@@ -1,7 +1,7 @@
 import shutil
 
 
-def extract_nodes(sample, infile, maxlen):
+def extract_nodes(sample, infile, minlen):
     output_links = f"gplas_input/{sample}_raw_links.txt"
     output_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     output_contigs = f"gplas_input/{sample}_contigs.fasta"
@@ -18,7 +18,7 @@ def extract_nodes(sample, infile, maxlen):
                 else: #spades
                     information = cols[3]
                 nodes.write(f">{number}_{information}\n{sequence}\n")
-                if len(sequence) >= maxlen:
+                if len(sequence) >= minlen:
                     contigs.write(f">{number}_{information}\n{sequence}\n")
             elif line[0] == 'L':
                 links.write(f"{line}\n")
