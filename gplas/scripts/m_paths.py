@@ -4,7 +4,7 @@ import scipy.stats
 import sys
 
 
-def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mode='normal'):
+def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1, mode='normal'):
     #Inputs
     path_links = f"coverage/{sample}_clean_links.tab"
     path_prediction = f"coverage/{sample}_clean_prediction.tab"
@@ -13,9 +13,6 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
     path_init_nodes = f"coverage/{sample}_initialize_nodes.tab"
     path_cov_variation = f"coverage/{sample}_estimation.txt"
     #Params
-    number_iterations = int(number_iterations)
-    filtering_threshold = float(filt_threshold)
-    sd_coverage = int(sd_coverage)
     # TODO make these into parameters?
     number_nodes = 100
     prob_small_repeats = 0.5
@@ -55,7 +52,7 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
     initialize_nodes = pd.read_csv(path_init_nodes, sep='\t', header=None)
 
     if(initialize_nodes.shape[0] == 0):
-        sys.exit("There are no suitable plasmids to initiate a random walk. gplas can't do anything")
+        sys.exit("There are no suitable plasmids to initiate a random walk. gplas can't do anything")  # TODO exit statement compliance
 
     initialize_nodes = [str(node) for node in initialize_nodes.iloc[:,0]]
     

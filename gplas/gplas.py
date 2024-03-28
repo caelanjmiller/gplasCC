@@ -265,7 +265,7 @@ if line_content:
     os.makedirs("walks/repeats", exist_ok=True)
 
     #_5.1.1.1 Generate random walks
-    generate_repeat_paths(sample, args.number_iterations, args.filt_gplas, args.repeats_coverage_sd)
+    generate_repeat_paths(sample, args.number_iterations, args.filt_gplas)
 
     #_5.1.1.2 Calculate coocurrence between walks
     calculate_coocurrence_repeats(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, args.repeats_coverage_sd)

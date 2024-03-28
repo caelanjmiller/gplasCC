@@ -2,18 +2,14 @@ import pandas as pd
 import numpy as np
 
 #TODO run this script with test data where some initial nodes are classified as either plasmid/chromosome
-def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage=2):
+def generate_repeat_paths(sample, number_iterations, filtering_threshold):
     #Inputs
     path_links = f"coverage/{sample}_clean_links.tab"
     path_prediction = f"coverage/{sample}_clean_prediction.tab"
     path_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
     path_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
     path_init_nodes = f"coverage/{sample}_repeat_nodes.tab"
-    path_cov_variation = f"coverage/{sample}_estimation.txt"
     #Params
-    number_iterations = int(number_iterations)
-    filtering_threshold = float(filt_threshold)
-    repeats_sd_coverage = int(sd_coverage)
     # TODO make these into parameters?
     number_nodes = 100
     prob_small_repeats = 0.5
@@ -49,11 +45,7 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
     initialize_nodes = pd.read_csv(path_init_nodes, sep='\t', header=None)
     initialize_nodes = [str(node) for node in initialize_nodes.iloc[:,0]]
 
-    with open(path_cov_variation, mode='r') as file:
-        max_variation = float(file.readline()) * repeats_sd_coverage
-
-
-    def plasmid_graph(initial_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, classification, direction):
+    def plasmid_graph(initial_seed, output_path, links, number_iterations, number_nodes, filtering_threshold, prob_small_repeats, classification, direction):
         paths_list = []
         for iteration in range(number_iterations): # Number of times we repeat this process
             path = [initial_seed] # We add the initial seed to the path, first element in the list
@@ -276,8 +268,8 @@ def generate_repeat_paths(sample, number_iterations, filt_threshold, sd_coverage
 
         positive_seed = seed + '+'
         negative_seed = seed + '-'
-        final_paths.extend(plasmid_graph(positive_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, seed_classification, direction='forward'))
-        final_paths.extend(plasmid_graph(negative_seed, output_path, links, number_iterations, number_nodes, max_variation, filtering_threshold, prob_small_repeats, seed_classification, direction='reverse'))
+        final_paths.extend(plasmid_graph(positive_seed, output_path, links, number_iterations, number_nodes, filtering_threshold, prob_small_repeats, seed_classification, direction='forward'))
+        final_paths.extend(plasmid_graph(negative_seed, output_path, links, number_iterations, number_nodes, filtering_threshold, prob_small_repeats, seed_classification, direction='reverse'))
 
     with open(output_path, mode='w') as outfile:
         for path in final_paths:
