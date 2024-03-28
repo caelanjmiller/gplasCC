@@ -18,7 +18,7 @@ def quit_tool(exitcode=0):
 def file_exists(arg):
     if not os.path.isfile(arg):
         raise argparse.ArgumentTypeError(f"'{arg}' is not an existing file" + "\nPlease make sure the file exists and is spelled correctly")
-    return arg
+    return str(arg)
 
 
 def is_valid_file(arg, extensions=['gfa']):

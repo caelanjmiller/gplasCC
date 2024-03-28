@@ -6,10 +6,6 @@ def coverage(sample, path_prediction, pred_threshold):
     #Inputs    
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_links = f"gplas_input/{sample}_raw_links.txt"
-    path_prediction = str(path_prediction)
-        
-    #Params
-    pred_threshold = float(pred_threshold)
     
     #Outputs
     output_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
