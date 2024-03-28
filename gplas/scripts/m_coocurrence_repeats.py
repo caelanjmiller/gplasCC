@@ -11,20 +11,14 @@ def scalar1(x):  # TODO add: from coocurrence import scalar1; it is the same ide
 
 #improve we have a lot of loops with "for row in range(solutions.shape[0]):"
 ## can we possibly merge some of them?
-def calculate_coocurrence_repeats(sample, number_iterations, pred_threshold, mod_threshold, sd_coverage=2):  # TODO remove unused arguments
+def calculate_coocurrence_repeats(sample):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_prediction = f"coverage/{sample}_clean_prediction.tab"
-    path_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
-    path_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
-    path_init_nodes = f"coverage/{sample}_repeat_nodes.tab"
     input_solutions = f"walks/repeats/{sample}_solutions.tab"
     path_bins = f"results/{sample}_results_no_repeats.tab"
     clean_repeats_path = f"coverage/{sample}_clean_repeats.tab"
-    #Params
-    number_iterations = int(number_iterations)
-    pred_threshold = float(pred_threshold)
-    sample = str(sample)
+
     #Outputs
     output_dir = "results/"
     output_results = f"results/{sample}_results.tab"
@@ -40,25 +34,6 @@ def calculate_coocurrence_repeats(sample, number_iterations, pred_threshold, mod
                                     'number':str,
                                     'length':int,
                                     'coverage':float})
-
-    graph_contigs = pd.read_csv(path_graph_contigs, sep='\t', header=0)
-
-    #improve find a way to check both signed and unsigned nodes without making a copy of small/repeat nodes df
-    ##what part of small/repeats / signed/unsigned is used in this/each script?
-    small_contigs = graph_contigs[graph_contigs['length'] < 500].copy()
-    small_contigs_signed_nodes = small_contigs.copy()
-    small_contigs_signed_nodes = [node for node in small_contigs_signed_nodes['number']]
-    small_contigs.loc[:,'number'] = [name.replace('+','') for name in small_contigs['number']]
-    small_contigs.loc[:,'number'] = [name.replace('-','') for name in small_contigs['number']]
-
-    repeats = pd.read_csv(path_graph_repeats, sep='\t', header=0)
-    repeats_signed_nodes = repeats.copy()
-    repeats_signed_nodes = [node for node in repeats_signed_nodes['number']]
-    repeats.loc[:,'number'] = [name.replace('+','') for name in repeats['number']]
-    repeats.loc[:,'number'] = [name.replace('-','') for name in repeats['number']]
-
-    initialize_nodes = pd.read_csv(path_init_nodes, sep='\t', header=None)
-    initialize_nodes = [str(node) for node in initialize_nodes.iloc[:,0]]
 
     solutions = pd.read_csv(input_solutions, sep='\t', header=None, names=['walks', 'initial_classification', 'unitig_classification', 'path_coverage'])
     max_nodes = max([walk.count(',')+1 for walk in solutions.loc[:,'walks']])

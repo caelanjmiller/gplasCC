@@ -69,7 +69,6 @@ classifiergroup.add_argument('--extract', action='store_true', help="extract FAS
 paramgroup = parser.add_argument_group('Parameters')
 paramgroup.add_argument('-t', dest='threshold_prediction', type=float, default=0.5, help="Prediction threshold for plasmid-derived sequences (default: %(default)s)")
 paramgroup.add_argument('-b', dest='bold_coverage_sd', type=int, default=5, help="Coverage variance allowed for bold walks to recover unbinned plasmid-predicted nodes (default: %(default)s)")
-paramgroup.add_argument('-r', dest='repeats_coverage_sd', type=int, default=2, help="Coverage variance allowed for assigning repeats to bins (default: %(default)s)")
 paramgroup.add_argument('-x', dest='number_iterations', type=int, default=20,help="Number of walk iterations per starting node (default: %(default)s)")
 paramgroup.add_argument('-f', dest='filt_gplas', type=float, default=0.1, help="filtering threshold to reject outgoing edges (default: %(default)s)")
 paramgroup.add_argument('-e', dest='edge_threshold', type=float, default=0.1, help="Edge threshold (default: %(default)s)")
@@ -151,7 +150,6 @@ print("Threshold of gplas scores:............................", args.filt_gplas)
 print("Minimum frequency to consider an edge:................", args.edge_threshold)
 print("Modularity threshold used to partition the network:...", args.modularity_threshold)
 print("Coverage SD for bold mode:............................", args.bold_coverage_sd)
-print("Coverage SD for repeats:..............................", args.repeats_coverage_sd)
 print("Minimum sequence length:..............................", args.length_filter)
 print("##################################################################" + '\n')
 
@@ -268,7 +266,7 @@ if line_content:
     generate_repeat_paths(sample, args.number_iterations, args.filt_gplas)
 
     #_5.1.1.2 Calculate coocurrence between walks
-    calculate_coocurrence_repeats(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, args.repeats_coverage_sd)
+    calculate_coocurrence_repeats(sample)
 
     verbose_print("Adding repeated elements to the predictions completed!")
 
