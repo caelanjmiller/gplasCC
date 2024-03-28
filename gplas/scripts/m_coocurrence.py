@@ -99,7 +99,8 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, mod_thresho
     #get unique set of nodes
     unique_nodes = list(set(all_nodes))
 
-    #TODO turn co-ocurrence matrix creation into a seperate function? idk if usefull if the rest of the script is still as it is
+    #TODO turn co-ocurrence matrix creation into a seperate function?
+    ## moving code to functions might be usefull for reusing/importing code in coocurrence_repeats
     #CREATE A CO-OCURRENCE MATRIX
     ##Column names are the nodes included in plasmid walks.
     ##Each row is a new walk
