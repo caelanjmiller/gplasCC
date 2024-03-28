@@ -46,7 +46,7 @@ def check_output(path):
     if not os.path.exists(path):
         print('\n')
         print("Something went wrong while running gplas")
-        print(f"Failed to create the following output: {path}")
+        print(f"Failed to create the following output: {path}")  # TODO print '\n'+'failed to create' and then call quit_tool
         sys.exit(1)
 
 
@@ -90,7 +90,6 @@ def cleanup_intermediary_files(sample):
     delete_file(f"results/{sample}_bins_no_repeats.tab")
     #Centrifuge classification
     delete_file(f"plasmidCC/{sample}/{sample}_gplas.tab")
-
     #Delete directories if they exist and are empty
     delete_empty_dir("coverage/")
     delete_empty_dir("walks/normal_mode/")
