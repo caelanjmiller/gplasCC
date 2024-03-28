@@ -32,7 +32,7 @@ def partitioning_components(graph):
 
 #improve we have a lot of loops with "for row in range(solutions.shape[0]):"
 ## can we possibly merge some of them?
-def calculate_coocurrence(sample, number_iterations, pred_threshold, mod_threshold, mode='normal'):
+def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_threshold, mode='normal'):
     if mode == 'normal':
         subdir = 'normal_mode/'
     elif mode == 'unbinned':
@@ -40,17 +40,10 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, mod_thresho
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
     path_prediction = f"coverage/{sample}_clean_prediction.tab"
-    path_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
     path_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
-    path_init_nodes = f"coverage/{sample}_initialize_nodes.tab"
     path_isolated_nodes = f"coverage/{sample}_isolated_nodes.tab"
     input_solutions = f"walks/{subdir}{sample}_solutions.tab"
-    #Params
-    #improve can't we get rid of #Params and just use the function arguments?
-    number_iterations = int(number_iterations)
-    pred_threshold = float(pred_threshold)
-    modularity_threshold = float(mod_threshold)
-    sample = str(sample)
+
     #Outputs
     output_dir = f"results/{subdir}"
     output_results = f"results/{subdir}{sample}_results_no_repeats.tab"
@@ -67,23 +60,9 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, mod_thresho
                                     'length':int,
                                     'coverage':float})
 
-    graph_contigs = pd.read_csv(path_graph_contigs, sep='\t', header=0)
-
-    #improve find a way to check both signed and unsigned nodes without making a copy of small/repeat nodes df
-    small_contigs = graph_contigs[graph_contigs['length'] < 500].copy()
-    small_contigs_signed_nodes = small_contigs.copy()
-    small_contigs_signed_nodes = [node for node in small_contigs_signed_nodes['number']]
-    small_contigs.loc[:,'number'] = [name.replace('+','') for name in small_contigs['number']]
-    small_contigs.loc[:,'number'] = [name.replace('-','') for name in small_contigs['number']]
-
     repeats = pd.read_csv(path_graph_repeats, sep='\t', header=0)
-    repeats_signed_nodes = repeats.copy()
-    repeats_signed_nodes = [node for node in repeats_signed_nodes['number']]
     repeats.loc[:,'number'] = [name.replace('+','') for name in repeats['number']]
     repeats.loc[:,'number'] = [name.replace('-','') for name in repeats['number']]
-
-    initialize_nodes = pd.read_csv(path_init_nodes, sep='\t', header=None)
-    initialize_nodes = [str(node) for node in initialize_nodes.iloc[:,0]]
 
     with open(input_solutions) as file:
         max_nodes = max([line.count('\t')+1 for line in file])
@@ -222,7 +201,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, mod_thresho
             index = df_nodes.loc[:,'Component'] == component
             nodes_component = df_nodes.loc[index,:]
             component_complete_name = '_'.join([sample, 'bin', str(component)])
-            filename = ''.join([output_dir, component_complete_name, '.fasta'])
+            filename = ''.join([output_dir, component_complete_name, '.fasta'])  # TODO just turn this into a simple f-string??
 
             with open(filename, mode='w') as file:
                 for contig in range(nodes_component.shape[0]):
@@ -484,7 +463,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, mod_thresho
         index = df_nodes.loc[:,'Component'] == component
         nodes_component = df_nodes.loc[index,:]
         component_complete_name = '_'.join([sample, 'bin', str(component)])
-        filename = ''.join([output_dir, component_complete_name, '.fasta'])
+        filename = ''.join([output_dir, component_complete_name, '.fasta'])  # TODO just turn this into a simple f-string??
 
         with open(filename, mode='w') as file:
             for contig in range(nodes_component.shape[0]):
