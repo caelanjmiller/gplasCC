@@ -69,20 +69,6 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
             path = [initial_seed] # We add the initial seed to the path, first element in the list
             seed = initial_seed
 
-            #improve make sure all instances of record_connections have the same columns, if it is used in later scripts
-            record_connections = pd.DataFrame(data={'factor':1.0,
-                                                    'number_iterations':number_iterations,
-                                                    'iteration':iteration,
-                                                    'elongation':0,
-                                                    'first_node':initial_seed,
-                                                    'ingoing_node':seed,
-                                                    'outgoing_node':seed,
-                                                    'Probability_pl_chr':1,
-                                                    'Probability_cov':1,
-                                                    'Probability':1,
-                                                    'Probability_freq':1,
-                                                    'Verdict':'selected'}, index=[0])
-
             #################################### Coverage of the current path #################################
 
             # Extracting the info from our current path                     
@@ -215,10 +201,6 @@ def generate_paths(sample, number_iterations, filt_threshold, sd_coverage=1, mod
                     filter_connections['Probability_freq'] = filter_connections.loc[:,'Probability']/sum(filter_connections.loc[:,'Probability'])
 
                 random_connection = np.random.choice(filter_connections.loc[:,'outgoing_node'], size=1, p=filter_connections.loc[:,'Probability_freq'])[0] # Choose one connection 
-
-                index = record_connections.loc[:,'outgoing_node'] == random_connection
-                record_connections.loc[index,'Verdict'] = 'selected'
-
                 path.append(str(random_connection))
 
                 if(random_connection == path[0]):
