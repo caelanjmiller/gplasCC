@@ -74,7 +74,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                     unitig_seed_classification = classification
                     break # Exiting elongation loop
 
-                list_connections = list(set(current_links[2])) # All the possible unique connections 
+                list_connections = sorted(list(set(current_links[2]))) # All the possible unique connections 
 
                 #ASK why is classificatioin != 'Plasmid' also here?; why run this if not plasmid but len = 1??; change OR to AND?
                 # We do not allow that a node which is not a repeat appears more than 1 time in any solution but we exclude the initial seed from this consideration 

@@ -76,7 +76,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         all_nodes.extend(nodes)
 
     #get unique set of nodes
-    unique_nodes = list(set(all_nodes))
+    unique_nodes = sorted(list(set(all_nodes)))
 
     #TODO turn co-ocurrence matrix creation into a seperate function?
     ## moving code to functions might be usefull for reusing/importing code in coocurrence_repeats
@@ -119,7 +119,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     #check if the number of circular walks starting from each node equals the number of iterations.
     #if this is the case, add the circular walk to total_pairs
     if len(circular_sequences) > 0:
-        no_duplicated = [list(unique_walk) for unique_walk in set(tuple(walk) for walk in circular_sequences)] # remove duplicate entries
+        no_duplicated = [sorted(list(unique_walk)) for unique_walk in set(tuple(walk) for walk in circular_sequences)] # remove duplicate entries
 
         for combination in range(len(no_duplicated)):
             combi = no_duplicated[combination]
@@ -141,12 +141,12 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     #Scale weights
     complete_node_info = pd.DataFrame()
-    for node in list(set(total_pairs.loc[:,'Starting_node'])):
+    for node in sorted(list(set(total_pairs.loc[:,'Starting_node']))):
         index = total_pairs.loc[:,'Starting_node'] == node
         first_node = total_pairs.loc[index,:]
         particular_node = []
 
-        for connecting_node in list(set(first_node.loc[:,'Connecting_node'])):
+        for connecting_node in sorted(list(set(first_node.loc[:,'Connecting_node']))):
             index = first_node.loc[:,'Connecting_node'] == connecting_node
             first_second_nodes = first_node.loc[index,:]
             total_weight = sum(first_second_nodes.loc[:,'weight'])
@@ -197,7 +197,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         df_nodes = pd.DataFrame(data=raw_nodes, columns=['Contig_name', 'Sequence'])
         df_nodes = df_nodes.merge(pl_unbinned, on='Contig_name')
 
-        for component in set(df_nodes.loc[:,'Component']):
+        for component in sorted(list(set(df_nodes.loc[:,'Component']))):
             index = df_nodes.loc[:,'Component'] == component
             nodes_component = df_nodes.loc[index,:]
             component_complete_name = '_'.join([sample, 'bin', str(component)])
@@ -219,7 +219,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     weight_counting = pd.DataFrame(weight_counting, columns=['Pair','Count'])
 
-    unique_pairs = list(set(weight_counting.loc[:,'Pair']))
+    unique_pairs = sorted(list(set(weight_counting.loc[:,'Pair'])))
     sum_weights = []
     for pair in unique_pairs:
         index = list(weight_counting.loc[:,'Pair'] == pair)
@@ -234,7 +234,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     full_graph_info = pd.DataFrame()
 
-    for node in list(set(weight_graph.loc[:,'From_to'])):
+    for node in sorted(list(set(weight_graph.loc[:,'From_to']))):
         index = weight_graph.loc[:,'From_to'] == node
         df_node = weight_graph.loc[index,:].copy()
         df_node.loc[:,'scaled_weight'] = scalar1(df_node.loc[:,'weight'])
@@ -242,7 +242,8 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         full_graph_info = pd.concat([full_graph_info, df_node])
 
     full_graph_info.loc[:,'width'] = full_graph_info.loc[:,'scaled_weight'].copy() * 5
-    #improve get rid of this merge and other df shenanigans; current problem is the lost order when taking unique nodes list(set(from_to))
+    #TODO get rid of this merge and other df shenanigans; current problem is the lost order when taking unique nodes list(set(from_to))
+    ##TODO check if above has been solved by using sorted(list(set)) instead of list(set())
     weight_graph = weight_graph.merge(full_graph_info, on=['From_to', 'To_from', 'weight'])
 
     graph_pairs = ig.Graph.DataFrame(weight_graph, directed=False, use_vids=False)
@@ -285,7 +286,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
             index = full_info_components.loc[:,'Node'] == first_node
             info_first_node = full_info_components.loc[index,:]
 
-            partition_info.loc[:,'Original_component'] = info_first_node.loc[:,'Original_component'][0] # TODO this line causes an error (KeyError: 0) when -n is left empty and there aren't yet any gplas directories created before running the gplas command. But only sometimes, most of the time it just works??????
+            partition_info.loc[:,'Original_component'] = info_first_node.loc[:,'Original_component'].values[0] # TODO '.values' fixed this? the bug was: this line causes an error (KeyError: 0). But only sometimes, most of the time it just works??????
             complete_partition_info = pd.concat([complete_partition_info, partition_info], ignore_index=True)
 
         complete_partition_info.loc[:,'Modularity'] = round(complete_partition_info.loc[:,'Modularity'], 2)
@@ -459,7 +460,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     df_nodes = df_nodes.merge(full_info_assigned, on='Contig_name')
 
     #Write fasta files
-    for component in set(df_nodes.loc[:,'Component']):
+    for component in sorted(list(set(df_nodes.loc[:,'Component']))):
         index = df_nodes.loc[:,'Component'] == component
         nodes_component = df_nodes.loc[index,:]
         component_complete_name = '_'.join([sample, 'bin', str(component)])

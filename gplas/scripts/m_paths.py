@@ -87,7 +87,7 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
                     path = [initial_seed] # There are no connections possible from this contig
                     break # Exiting elongation loop
 
-                list_connections = list(set(current_links[2])) # All the possible unique connections 
+                list_connections = sorted(list(set(current_links[2]))) # All the possible unique connections 
 
                 # We do not allow that a node which is not a repeat appears more than 1 time in any solution but we exclude the initial seed from this consideration 
                 if(len(path) > 1): # If the path has more than one element        

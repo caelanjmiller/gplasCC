@@ -128,7 +128,7 @@ def calculate_coocurrence_repeats(sample):
         all_nodes.extend(nodes)
 
     #get unique set of nodes
-    unique_nodes = list(set(all_nodes))
+    unique_nodes = sorted(list(set(all_nodes)))
 
     #CREATE A CO-OCURRENCE MATRIX
     ##Column names are the nodes included in plasmid walks.
@@ -172,12 +172,12 @@ def calculate_coocurrence_repeats(sample):
 
     #Scale weights
     complete_node_info = pd.DataFrame()
-    for node in list(set(total_pairs.loc[:,'Starting_node'])):
+    for node in sorted(list(set(total_pairs.loc[:,'Starting_node']))):
         index = total_pairs.loc[:,'Starting_node'] == node
         first_node = total_pairs.loc[index,:]
         particular_node = []
 
-        for connecting_node in list(set(first_node.loc[:,'Connecting_node'])):
+        for connecting_node in sorted(list(set(first_node.loc[:,'Connecting_node']))):
             index = first_node.loc[:,'Connecting_node'] == connecting_node
             first_second_nodes = first_node.loc[index,:]
             total_weight = sum(first_second_nodes.loc[:,'weight'])
@@ -321,7 +321,7 @@ def calculate_coocurrence_repeats(sample):
     df_nodes = df_nodes.merge(full_info_assigned, on='Contig_name')
 
     #Write fasta files
-    for component in set(df_nodes.loc[:,'Bin']): #improve also use sorted() everytime we use a set()
+    for component in sorted(list(set(df_nodes.loc[:,'Bin']))):
         index = df_nodes.loc[:,'Bin'] == component
         nodes_component = df_nodes.loc[index,:]
         component_complete_name = '_'.join([sample, 'bin', str(component)])
