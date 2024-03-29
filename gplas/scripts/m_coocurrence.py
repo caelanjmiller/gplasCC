@@ -171,14 +171,13 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     #First check if we actually have co-ocurrence of unitigs.
     if total_pairs.shape[0] > 0 and total_pairs.shape[1] > 0:
         for row in range(total_pairs.shape[0]):
-            initial_node = int(total_pairs.iloc[row,0])
-            connecting_node = int(total_pairs.iloc[row,1])
+            initial_node = total_pairs.iloc[row,0]
+            connecting_node = total_pairs.iloc[row,1]
             raw_count = int(total_pairs.iloc[row,2])
-            #improve move the int() casting to only the if statement and keep is as (default)/str for the rest
-            if initial_node < connecting_node:
-                pair = '-'.join([str(initial_node), str(connecting_node)])
+            if int(initial_node) < int(connecting_node):
+                pair = f"{initial_node}-{connecting_node}"
             else:
-                pair = '-'.join([str(connecting_node), str(initial_node)])
+                pair = f"{connecting_node}-{initial_node}"
 
             weight_counting.append([pair, raw_count])
     else:
@@ -200,8 +199,8 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         for component in sorted(list(set(df_nodes.loc[:,'Component']))):
             index = df_nodes.loc[:,'Component'] == component
             nodes_component = df_nodes.loc[index,:]
-            component_complete_name = '_'.join([sample, 'bin', str(component)])
-            filename = ''.join([output_dir, component_complete_name, '.fasta'])  # TODO just turn this into a simple f-string??
+            component_complete_name = f"{sample}_bin_{component}"
+            filename = f"{output_dir}{component_complete_name}.fasta"
 
             with open(filename, mode='w') as file:
                 for contig in range(nodes_component.shape[0]):
@@ -435,7 +434,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         isolated_nr = 0
 
         while isolated_nr <= pl_isolated.shape[0]:
-            isolated_identification = '_'.join(['Isolated', str(isolated_nr)])
+            isolated_identification = f"Isolated_{isolated_nr}"
             pl_isolated.loc['Component'][isolated_nr] = isolated_identification
             isolated_nr += 1
 
@@ -463,8 +462,8 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     for component in sorted(list(set(df_nodes.loc[:,'Component']))):
         index = df_nodes.loc[:,'Component'] == component
         nodes_component = df_nodes.loc[index,:]
-        component_complete_name = '_'.join([sample, 'bin', str(component)])
-        filename = ''.join([output_dir, component_complete_name, '.fasta'])  # TODO just turn this into a simple f-string??
+        component_complete_name = f"{sample}_bin_{component}"
+        filename = f"{output_dir}{component_complete_name}.fasta"
 
         with open(filename, mode='w') as file:
             for contig in range(nodes_component.shape[0]):

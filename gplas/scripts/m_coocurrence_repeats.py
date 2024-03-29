@@ -322,8 +322,8 @@ def calculate_coocurrence_repeats(sample):
     for component in sorted(list(set(df_nodes.loc[:,'Bin']))):
         index = df_nodes.loc[:,'Bin'] == component
         nodes_component = df_nodes.loc[index,:]
-        component_complete_name = '_'.join([sample, 'bin', str(component)])
-        filename = ''.join([output_dir, component_complete_name, '.fasta'])
+        component_complete_name = f"{sample}_bin_{component}"
+        filename = f"{output_dir}{component_complete_name}.fasta"
 
         with open(filename, mode='w') as file:
             for contig in range(nodes_component.shape[0]):
