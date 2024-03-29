@@ -271,10 +271,8 @@ def calculate_coocurrence_repeats(sample):
             if repeat_bin.loc[:,'coverage'].values[0] + accumulated_cov >= repeat_bin.loc[:,'bin_coverage'].values[0]:
                 accumulated_cov += repeat_bin.loc[:,'bin_coverage'].values[0]
                 repeat_assignments = pd.concat([repeat_assignments, repeat_bin], ignore_index=True)
-                rank += 1
-            else:
-                rank += 1
-
+            rank += 1
+            
     #TODO ASK this whole rank stuff was just for fun and is immediatly removed again????????????????
     repeat_assignments = repeat_assignments.loc[:,['To_from','From_to']].rename(columns={'To_from':'Bin',
                                                                                          'From_to':'number'})
