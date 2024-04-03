@@ -162,7 +162,14 @@ if not args.extract:
 ##_1.0 Run analysis
 #_1.1 Extract nodes and links from the assembly graph
 os.makedirs('gplas_input', exist_ok=True)
-extract_nodes(sample, infile, args.length_filter)
+
+try:
+    extract_nodes(sample, infile, args.length_filter)
+except Exception as err:
+    print('\n')
+    print(err)
+    utils.quit_tool(err)
+
 utils.check_output(f"gplas_input/{sample}_raw_nodes.fasta")
 
 #_1.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
@@ -184,7 +191,6 @@ if args.species or args.custom_db_path:
         utils.quit_tool(err)
 
     utils.cleanup_centrifuge(sample)
-
     print('\n', end='')
     path_prediction = f"plasmidCC/{sample}/{sample}_gplas.tab"
 else:
@@ -194,6 +200,7 @@ utils.check_output(path_prediction)
 
 #_2.2 Check if the prediction file is correctly formatted.
 verbose_print("Checking prediction file...", end='\r')
+
 try:
     check_prediction(sample, path_prediction)
 except (TypeError, ValueError) as err:
@@ -201,6 +208,11 @@ except (TypeError, ValueError) as err:
     print("Error in prediction file format:")
     print(err)
     utils.quit_tool(err)
+except Exception as err:
+    print('\n')
+    print(err)
+    utils.quit_tool(err)
+
 verbose_print("Valid prediction file found!")
 
 ##_3.0 Run gplas in normal mode
