@@ -100,7 +100,7 @@ Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
     end_time = time.time()
     duration = end_time - start_time
     verbose_print(f"gplas took {round(duration,1)} seconds to run")
-    sys.exit(0)
+    utils.quit_tool(0)
 
 def success_message_extract():
     print('\n')
@@ -112,18 +112,7 @@ We hope it helps your research, thank you for using gplas version {VERSION}
 
 Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
-    sys.exit(0)
-
-
-def quit_tool(exitcode=0):
-    if exitcode != 0:
-        print('\n', end='')
-        print("This run of gplas has ended unexpectedly. Pease check above for any error messages")
-        sys.exit(1)
-    else:
-        print('\n', end='')
-        print("gplas has succesfully completed running, thanks for using gplas!")  # TODO integrate this with success_message()
-        sys.exit(0)
+    utils.quit_tool(0)
 
 
 def verbose_print(message, end='\n'):
@@ -147,37 +136,36 @@ if args.name:
 else:
     sample, _ = os.path.splitext(infilename)
 
-#Print messages
-print('\n')
-print(read_logo)
-print('\n')
-
-#Print chosen parameters
-print("##################################################################")
-print("Your results will be named:...........................", sample)
-print("Input graph:..........................................", infilename)
-print("Threshold for predicting plasmid-derived contigs:.....", args.threshold_prediction)
-print("Number of plasmid walks created per node:.............", args.number_iterations)
-print("Threshold of gplas scores:............................", args.filt_gplas)
-print("Minimum frequency to consider an edge:................", args.edge_threshold)
-print("Modularity threshold used to partition the network:...", args.modularity_threshold)
-print("Coverage SD for bold mode:............................", args.bold_coverage_sd)
-print("Minimum sequence length:..............................", args.length_filter)
-print("##################################################################" + '\n')
+if not args.extract:
+    #Print messages
+    print('\n')
+    print(read_logo)
+    print('\n')
+    
+    #Print chosen parameters
+    print("##################################################################")
+    print("Your results will be named:...........................", sample)
+    print("Input graph:..........................................", infilename)
+    print("Threshold for predicting plasmid-derived contigs:.....", args.threshold_prediction)
+    print("Number of plasmid walks created per node:.............", args.number_iterations)
+    print("Threshold of gplas scores:............................", args.filt_gplas)
+    print("Minimum frequency to consider an edge:................", args.edge_threshold)
+    print("Modularity threshold used to partition the network:...", args.modularity_threshold)
+    print("Coverage SD for bold mode:............................", args.bold_coverage_sd)
+    print("Minimum sequence length:..............................", args.length_filter)
+    print("##################################################################" + '\n')
+    verbose_print("Extracting contigs from the assembly graph...", end='\r')
 
 ##_1.0 Run analysis
 #_1.1 Extract nodes and links from the assembly graph
-verbose_print("Extracting contigs from the assembly graph...", end='\r')
 os.makedirs('gplas_input', exist_ok=True)
-
 extract_nodes(sample, infile, args.length_filter)
-
 utils.check_output(f"gplas_input/{sample}_raw_nodes.fasta")
-verbose_print("Extracting contigs from the assembly graph completed!")
 
 #_1.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
 if args.extract:
     success_message_extract() #Exits the workflow
+verbose_print("Extracting contigs from the assembly graph completed!")
 
 ##_2.0 Obtain correct prediction file
 #_2.1 Run plasmidCC if no independent prediction file was given
@@ -204,7 +192,7 @@ except (TypeError, ValueError) as err:
     print('\n')
     print("Error in prediction file format:")
     print(err)
-    quit_tool(err)
+    utils.quit_tool(err)
 verbose_print("Valid prediction file found!")
 
 ##_3.0 Run gplas in normal mode
