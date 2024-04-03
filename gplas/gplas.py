@@ -1,16 +1,12 @@
 import shutil
 import linecache
 import os
-import sys
 import argparse
 import glob
 from .version import version as VERSION
 #VERSION="1.0.0"
 import time
 from plasmidCC.scripts import utils as utilsCC
-#import glob
-#import subprocess
-#from pathlib import Path
 
 #TODO change script/function/import names
 from gplas.scripts.m_node_extraction import extract_nodes
@@ -51,7 +47,7 @@ class PriorityPrinting(argparse.Action):
             try:
                 print_speciesopts()
             except Exception as err:
-                print(err)
+                print_and_exit(err, 0)
         parser.exit()
 
 #create a function to pass float ranges
@@ -124,6 +120,10 @@ def verbose_print(message, end='\n'):
     else:
         return print(message, end=end)
 
+def print_and_exit(err, newlines=1):
+    print('\n'*newlines + str(err))
+    utils.quit_tool(err)
+
 #******************************#
 #*                            *#
 #*        Start gplas         *#
@@ -166,9 +166,10 @@ os.makedirs('gplas_input', exist_ok=True)
 try:
     extract_nodes(sample, infile, args.length_filter)
 except Exception as err:
-    print('\n')
-    print(err)
-    utils.quit_tool(err)
+    if args.extract:
+        print_and_exit(err, 0)
+    else:
+        print_and_exit(err, 2)
 
 utils.check_output(f"gplas_input/{sample}_raw_nodes.fasta")
 
@@ -187,8 +188,7 @@ if args.species or args.custom_db_path:
     try:
         run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path)
     except Exception as err:
-        print(err)
-        utils.quit_tool(err)
+        print_and_exit(err, 0)
 
     utils.cleanup_centrifuge(sample)
     print('\n', end='')
@@ -209,9 +209,7 @@ except (TypeError, ValueError) as err:
     print(err)
     utils.quit_tool(err)
 except Exception as err:
-    print('\n')
-    print(err)
-    utils.quit_tool(err)
+    print_and_exit(err, 2)
 
 verbose_print("Valid prediction file found!")
 
@@ -220,7 +218,10 @@ verbose_print("Valid prediction file found!")
 verbose_print("Calculating base coverage...", end='\r')
 os.makedirs('coverage', exist_ok=True)
 
-coverage(sample, path_prediction, args.threshold_prediction)
+try:
+    coverage(sample, path_prediction, args.threshold_prediction)
+except Exception as err:
+    print_and_exit(err, 2)
 
 verbose_print("Calculating base coverage completed!")
 
@@ -228,7 +229,10 @@ verbose_print("Calculating base coverage completed!")
 verbose_print("Generating random walks in normal mode...", end='\r')
 os.makedirs("walks/normal_mode", exist_ok=True)
 
-generate_paths(sample, args.number_iterations, args.filt_gplas, mode='normal')
+try:
+    generate_paths(sample, args.number_iterations, args.filt_gplas, mode='normal')
+except Exception as err:
+    print_and_exit(err, 2)
 
 verbose_print("Generating random walks in normal mode completed!")
 
@@ -236,7 +240,10 @@ verbose_print("Generating random walks in normal mode completed!")
 verbose_print("Calculating coocurrence of random walks...", end='\r')
 os.makedirs("results/normal_mode", exist_ok=True)
 
-calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='normal')
+try:
+    calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='normal')
+except Exception as err:
+    print_and_exit(err, 2)
 
 utils.check_output(f"results/normal_mode/{sample}_results_no_repeats.tab")
 verbose_print("Calculating coocurrence of random walks completed!")
@@ -251,7 +258,10 @@ if os.path.exists(unbinned_path):
     verbose_print("Generating random walks in bold mode...", end='\r')
     os.makedirs("walks/bold_mode", exist_ok=True)
 
-    generate_paths(sample, args.number_iterations, args.filt_gplas, args.bold_coverage_sd, mode='bold')
+    try:
+        generate_paths(sample, args.number_iterations, args.filt_gplas, args.bold_coverage_sd, mode='bold')
+    except Exception as err:
+        print_and_exit(err, 2)
 
     verbose_print("Generating random walks in bold mode completed!")
 
@@ -259,14 +269,20 @@ if os.path.exists(unbinned_path):
     verbose_print("Extracting unbinned contigs from bold walks...", end='\r')
     os.makedirs("walks/unbinned_nodes", exist_ok=True)
 
-    extract_unbinned_solutions(sample)
+    try:
+        extract_unbinned_solutions(sample)
+    except Exception as err:
+        print_and_exit(err, 2)
 
     verbose_print("Extracting unbinned contigs from bold walks completed!")
 
     #_4.1.1.3 Recalculate coocurrence of walks using the combined solutions
     verbose_print("Recalculating coocurrence of random walks...", end='\r')
 
-    calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='unbinned')
+    try:
+        calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='unbinned')
+    except Exception as err:
+        print_and_exit(err, 2)
 
     verbose_print("Recalculating coocurrence of random walks completed!")
 
@@ -287,10 +303,16 @@ if line_content:
     os.makedirs("walks/repeats", exist_ok=True)
 
     #_5.1.1.1 Generate random walks
-    generate_repeat_paths(sample, args.number_iterations, args.filt_gplas)
+    try:
+        generate_repeat_paths(sample, args.number_iterations, args.filt_gplas)
+    except Exception as err:
+        print_and_exit(err, 2)
 
     #_5.1.1.2 Calculate coocurrence between walks
-    calculate_coocurrence_repeats(sample)
+    try:
+        calculate_coocurrence_repeats(sample)
+    except Exception as err:
+        print_and_exit(err, 2)
 
     verbose_print("Adding repeated elements to the predictions completed!")
 
