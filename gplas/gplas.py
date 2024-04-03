@@ -114,6 +114,18 @@ Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
     sys.exit(0)
 
+
+def quit_tool(exitcode=0):
+    if exitcode != 0:
+        print('\n', end='')
+        print("This run of gplas has ended unexpectedly. Pease check above for any error messages")
+        sys.exit(1)
+    else:
+        print('\n', end='')
+        print("gplas has succesfully completed running, thanks for using gplas!")  # TODO integrate this with success_message()
+        sys.exit(0)
+
+
 def verbose_print(message, end='\n'):
     if args.silent:
         return
@@ -179,16 +191,20 @@ if args.species or args.custom_db_path:
 
     print('\n', end='')
     path_prediction = f"plasmidCC/{sample}/{sample}_gplas.tab"
-    plasmidCC = True
 else:
     path_prediction = args.prediction
-    plasmidCC = False
+
+utils.check_output(path_prediction)
 
 #_2.2 Check if the prediction file is correctly formatted.
 verbose_print("Checking prediction file...", end='\r')
-
-check_prediction(sample, path_prediction, plasmidCC)
-
+try:
+    check_prediction(sample, path_prediction)
+except (TypeError, ValueError) as err:
+    print('\n')
+    print("Error in prediction file format:")
+    print(err)
+    quit_tool(err)
 verbose_print("Valid prediction file found!")
 
 ##_3.0 Run gplas in normal mode
