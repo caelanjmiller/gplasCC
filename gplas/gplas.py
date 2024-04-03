@@ -48,7 +48,10 @@ class PriorityPrinting(argparse.Action):
         elif option_string == '-v' or option_string == '--version':
             print(f"gplas version {VERSION}")
         elif option_string == '--speciesopts':
-            print_speciesopts()
+            try:
+                print_speciesopts()
+            except Exception as err:
+                print(err)
         parser.exit()
 
 #create a function to pass float ranges
@@ -170,11 +173,16 @@ verbose_print("Extracting contigs from the assembly graph completed!")
 ##_2.0 Obtain correct prediction file
 #_2.1 Run plasmidCC if no independent prediction file was given
 if args.species or args.custom_db_path:
-    verbose_print("Running plasmidCC to generate prediction file..." + '\n')
+    verbose_print("Running plasmidCC to generate prediction file:" + '\n')
     os.makedirs('plasmidCC', exist_ok=True)
     inputFASTA = f"gplas_input/{sample}_contigs.fasta"
 
-    run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path)
+    try:
+        run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path)
+    except Exception as err:
+        print(err)
+        utils.quit_tool(err)
+
     utils.cleanup_centrifuge(sample)
 
     print('\n', end='')
