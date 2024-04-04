@@ -88,10 +88,10 @@ def success_message():
     print('\n')
     print(read_logo)
     print(f"""
-Congratulations! Prediction succesfully done.
-Your results are in results/
-We hope it helps your research, thank you for using gplas version {VERSION}
+Congratulations! Prediction succesfully done
+Your results are in 'results/'
 
+Thank you for using gplas version {VERSION} we hope it helps your research
 Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
     end_time = time.time()
@@ -103,10 +103,10 @@ def success_message_extract():
     print('\n')
     print(read_logo)
     print(f"""
-Congratulations! Your nodes have been succesfully extracted.
-Your results are in gplas_input/{sample}_contigs.fasta. Please, use an external tool to classify the nodes in this file, and then bin them into individual plasmids using gplas.
-We hope it helps your research, thank you for using gplas version {VERSION}
+Your nodes have been succesfully extracted to 'gplas_input/{sample}_contigs.fasta'
+You can use an external tool to classify these contigs, and then use gplas to bin them into individual plasmids
 
+Thank you for using gplas version {VERSION} we hope it helps your research
 Please cite: https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
 """)
     utils.quit_tool(0)
