@@ -1,5 +1,4 @@
 import shutil
-import linecache
 import os
 import argparse
 import glob
@@ -201,6 +200,14 @@ coverage(sample, path_prediction, args.threshold_prediction)
 
 verbose_print("Calculating base coverage completed!")
 
+# Check for suitable plasmid nodes
+init_nodes_path = f"coverage/{sample}_initialize_nodes.tab"
+with open(init_nodes_path, mode='r') as file:
+    line_content = file.readline()
+if not line_content:
+    print("There are no suitable plasmids to initiate a random walk. gplas can't do anything")
+    utils.quit_tool(-1)
+
 #_3.2 Generate random walks
 verbose_print("Generating random walks in normal mode...", end='\r')
 os.makedirs("walks/normal_mode", exist_ok=True)
@@ -220,7 +227,7 @@ verbose_print("Calculating coocurrence of random walks completed!")
 
 ##_4.0 Resolve unbinned contigs
 #_4.1 Check for unbinned contigs
-unbinned_path=f"results/normal_mode/{sample}_bin_Unbinned.fasta"
+unbinned_path = f"results/normal_mode/{sample}_bin_Unbinned.fasta"
 if os.path.exists(unbinned_path):
     #_4.1.1 Run gplas in bold mode if contigs were left unbinned
     verbose_print("Some contigs were left unbinned")  # improve tell user how many contigs are unbinned?
@@ -256,8 +263,9 @@ utils.check_output(f"results/{sample}_results_no_repeats.tab")
 
 ##_5.0 Add repeated elements
 #_5.1 Check for repeats
-repeated_elements_path=f"coverage/{sample}_repeat_nodes.tab"
-line_content=linecache.getline(repeated_elements_path,1)
+repeated_elements_path = f"coverage/{sample}_repeat_nodes.tab"
+with open(repeated_elements_path, mode='r') as file:
+    line_content = file.readline()
 if line_content:
     #_5.1.1 Run gplas on repeated elements
     verbose_print("Adding repeated elements to the predictions...", end='\r')
@@ -270,7 +278,6 @@ if line_content:
     calculate_coocurrence_repeats(sample)
 
     verbose_print("Adding repeated elements to the predictions completed!")
-
 
 #_5.1.2 If there are no repeated elements, just rename the results files.
 else:
