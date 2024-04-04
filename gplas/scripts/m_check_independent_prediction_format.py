@@ -3,8 +3,11 @@ from pandas.api.types import is_integer_dtype, is_float_dtype, is_object_dtype, 
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
-def check_prediction(sample, path_prediction):
+class PredictionFileFormatError(Exception):
+    pass
 
+
+def check_prediction(sample, path_prediction):
     #0. Load prediction file.
     prediction_file = pd.read_csv(path_prediction, sep='\t', header=0)
 
@@ -12,63 +15,63 @@ def check_prediction(sample, path_prediction):
 
     #1. Check the number of columns
     if prediction_file.shape[1] != 5:
-        raise TypeError("Prediction file should contain 5 tab-separated columns")
+        raise PredictionFileFormatError("Prediction file should contain 5 tab-separated columns")
 
     #######################################################################################################################################
 
     #2. Check the column names
     if prediction_file.columns[0] != 'Prob_Chromosome':
-        raise ValueError("First column should be named Prob_Chromosome (case sensitive)")
+        raise PredictionFileFormatError("First column should be named Prob_Chromosome (case sensitive)")
 
     if prediction_file.columns[1] != 'Prob_Plasmid':
-        raise ValueError("Second column should be named Prob_Plasmid (case sensitive)")
+        raise PredictionFileFormatError("Second column should be named Prob_Plasmid (case sensitive)")
 
     if prediction_file.columns[2] != 'Prediction':
-        raise ValueError("Third column should be named Prediction (case sensitive)")
+        raise PredictionFileFormatError("Third column should be named Prediction (case sensitive)")
 
     if prediction_file.columns[3] != 'Contig_name':
-        raise ValueError("Fourth column should be named Contig_name (case sensitive)")
+        raise PredictionFileFormatError("Fourth column should be named Contig_name (case sensitive)")
 
     if prediction_file.columns[4] != 'Contig_length':
-        raise ValueError("Fifth column should be named Contig_length (case sensitive)")
+        raise PredictionFileFormatError("Fifth column should be named Contig_length (case sensitive)")
 
     #######################################################################################################################################
 
     #3. Check the data type of every column
     if(not is_float_dtype(prediction_file.dtypes['Prob_Chromosome']) and
        not is_integer_dtype(prediction_file.dtypes['Prob_Chromosome'])):
-        raise TypeError("First column should be of type float/integer")
+        raise PredictionFileFormatError("First column should be of type float/integer")
 
     if max(prediction_file['Prob_Chromosome']) > 1 or min(prediction_file['Prob_Chromosome']) < 0:
-        raise ValueError("First column should contain values between 0 and 1")
+        raise PredictionFileFormatError("First column should contain values between 0 and 1")
 
     if(not is_float_dtype(prediction_file.dtypes['Prob_Plasmid']) and
        not is_integer_dtype(prediction_file.dtypes['Prob_Plasmid'])):
-        raise TypeError("Second column should be of type float/integer")
+        raise PredictionFileFormatError("Second column should be of type float/integer")
 
     if max(prediction_file['Prob_Plasmid']) > 1 or min(prediction_file['Prob_Plasmid']) < 0:
-        raise ValueError("Second column should contain values between 0 and 1")
+        raise PredictionFileFormatError("Second column should contain values between 0 and 1")
 
     if(not is_object_dtype(prediction_file.dtypes['Prediction']) and
        not is_string_dtype(prediction_file.dtypes['Prediction'])):
-        raise TypeError("Third column should be of type character/string")
+        raise PredictionFileFormatError("Third column should be of type character/string")
 
     valid_predictions = ['Plasmid', 'Chromosome']
     if any([pred not in valid_predictions for pred in prediction_file['Prediction']]):
-        raise ValueError(f"Third column values should be either {' or '.join(valid_predictions)} (case sensitive)")
+        raise PredictionFileFormatError(f"Third column values should be either {' or '.join(valid_predictions)} (case sensitive)")
 
     if(not is_object_dtype(prediction_file.dtypes['Contig_name']) and
        not is_string_dtype(prediction_file.dtypes['Contig_name'])):
-        raise TypeError("Fourth column should be of type character/string")
+        raise PredictionFileFormatError("Fourth column should be of type character/string")
 
     if not is_integer_dtype(prediction_file.dtypes['Contig_length']):
-        raise TypeError("Fifth column should be of type integer")
+        raise PredictionFileFormatError("Fifth column should be of type integer")
 
     #######################################################################################################################################
 
     #4. check if plasmids exist in the prediction
     if 'Plasmid' not in prediction_file['Prediction'].values:
-        raise ValueError("There are no plasmids in the prediction file, gplas can't do anything")
+        raise PredictionFileFormatError("There are no plasmids in the prediction file, gplas can't do anything")
 
     #######################################################################################################################################
 
@@ -89,7 +92,7 @@ def check_prediction(sample, path_prediction):
     comparison_output = [header in fasta_headers for header in prediction_headers]
 
     if not all(comparison_output):
-        raise ValueError(f"Contig names in prediction file should match exactly with those in '{raw_nodes_path}'")
+        raise PredictionFileFormatError(f"Contig names in prediction file should match exactly with those in '{raw_nodes_path}'")
 
     #######################################################################################################################################
 

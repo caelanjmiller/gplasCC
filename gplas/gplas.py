@@ -12,6 +12,7 @@ from plasmidCC.scripts import utils as utilsCC
 from gplas.scripts.m_node_extraction import extract_nodes
 from gplas.scripts.m_node_extraction import extract_unbinned_solutions
 from gplas.scripts.m_check_independent_prediction_format import check_prediction
+from gplas.scripts.m_check_independent_prediction_format import PredictionFileFormatError
 from gplas.scripts.m_coverage import coverage
 from gplas.scripts.m_paths import generate_paths
 from gplas.scripts.m_coocurrence import calculate_coocurrence
@@ -203,13 +204,10 @@ verbose_print("Checking prediction file...", end='\r')
 
 try:
     check_prediction(sample, path_prediction)
-except (TypeError, ValueError) as err:
-    print('\n')
-    print("Error in prediction file format:")
+except PredictionFileFormatError as err:
+    print('\n\n' + "Error in prediction file format:")
     print(err)
     utils.quit_tool(err)
-except Exception as err:
-    print_and_exit(err, 2)
 
 verbose_print("Valid prediction file found!")
 
