@@ -42,10 +42,7 @@ class PriorityPrinting(argparse.Action):
         elif option_string == '-v' or option_string == '--version':
             print(f"gplas version {VERSION}")
         elif option_string == '--speciesopts':
-            try:
-                print_speciesopts()
-            except Exception as err:
-                print_and_exit(err, 0)
+            print_speciesopts()
         parser.exit()
 
 #create a function to pass float ranges
@@ -118,9 +115,6 @@ def verbose_print(message, end='\n'):
     else:
         return print(message, end=end)
 
-def print_and_exit(err, newlines=1):
-    print('\n'*newlines + str(err))
-    utils.quit_tool(err)
 
 #******************************#
 #*                            *#
@@ -176,12 +170,9 @@ if args.species or args.custom_db_path:
     os.makedirs('plasmidCC', exist_ok=True)
     inputFASTA = f"gplas_input/{sample}_contigs.fasta"
 
-    try:
-        run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path)
-    except Exception as err:
-        print_and_exit(err, 0)
-
+    run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path)
     utils.cleanup_centrifuge(sample)
+
     print('\n', end='')
     path_prediction = f"plasmidCC/{sample}/{sample}_gplas.tab"
 else:
