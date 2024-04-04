@@ -8,19 +8,19 @@ from .version import version as VERSION
 import time
 from plasmidCC.scripts import utils as utilsCC
 
-#TODO change script/function/import names
-from gplas.scripts.m_node_extraction import extract_nodes
-from gplas.scripts.m_node_extraction import extract_unbinned_solutions
-from gplas.scripts.m_check_independent_prediction_format import check_prediction
-from gplas.scripts.m_check_independent_prediction_format import PredictionFileFormatError
-from gplas.scripts.m_coverage import coverage
-from gplas.scripts.m_paths import generate_paths
-from gplas.scripts.m_coocurrence import calculate_coocurrence
-from gplas.scripts.m_paths_repeats import generate_repeat_paths
-from gplas.scripts.m_coocurrence_repeats import calculate_coocurrence_repeats
-from gplas.scripts.m_run_plasmidcc import run_plasmidCC
-from gplas.scripts.m_run_plasmidcc import print_speciesopts
-from gplas.scripts import m_utils as utils
+#TODO change function/import names
+from gplas.scripts.node_extraction import extract_nodes
+from gplas.scripts.node_extraction import extract_unbinned_solutions
+from gplas.scripts.check_prediction_format import check_prediction
+from gplas.scripts.check_prediction_format import PredictionFileFormatError
+from gplas.scripts.coverage import coverage
+from gplas.scripts.paths import generate_paths
+from gplas.scripts.coocurrence import calculate_coocurrence
+from gplas.scripts.paths_repeats import generate_repeat_paths
+from gplas.scripts.coocurrence_repeats import calculate_coocurrence_repeats
+from gplas.scripts.run_plasmidcc import run_plasmidCC
+from gplas.scripts.run_plasmidcc import print_speciesopts
+from gplas.scripts import utils
 
 start_time = time.time()
 
