@@ -142,7 +142,7 @@ def coverage(sample, path_prediction, pred_threshold):
         for node in initialize_nodes:
             file.write(node + '\n')
 
-    repeats_nodes = sorted(list(set(repeats_final['number'])))    
+    repeats_nodes = sorted(list(set(repeats_final['number'])))
     with open(output_repeat_nodes, 'w') as file:
         for node in repeats_nodes:
             file.write(node + '\n')
