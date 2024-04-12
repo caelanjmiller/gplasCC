@@ -220,10 +220,13 @@ verbose_print("Generating random walks in normal mode completed!")
 verbose_print("Calculating coocurrence of random walks...", end='\r')
 os.makedirs("results/normal_mode", exist_ok=True)
 
-calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='normal')
+if not calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='normal'):
+    print("gplas couldn't find any walks connecting plasmid-predicted nodes")
+    print("Plasmid nodes will be classified as Unbinned. If this is unexpected, please assemble your genome with different parameters or with a different tool and re-run gplas")
+else:
+    verbose_print("Calculating coocurrence of random walks completed!")
 
 utils.check_output(f"results/normal_mode/{sample}_results_no_repeats.tab")
-verbose_print("Calculating coocurrence of random walks completed!")
 
 ##_4.0 Resolve unbinned contigs
 #_4.1 Check for unbinned contigs
@@ -250,9 +253,11 @@ if os.path.exists(unbinned_path):
     #_4.1.1.3 Recalculate coocurrence of walks using the combined solutions
     verbose_print("Recalculating coocurrence of random walks...", end='\r')
 
-    calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='unbinned')
-
-    verbose_print("Recalculating coocurrence of random walks completed!")
+    if not calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='unbinned'):
+        print("gplas bold mode couldn't find any walks connecting plasmid-predicted nodes")
+        print("Plasmid nodes will be classified as Unbinned. If this is unexpected, please assemble your genome with different parameters or with a different tool and re-run gplas")
+    else:
+        verbose_print("Recalculating coocurrence of random walks completed!")
 
 #_4.1.2 Copy files from normal mode if there were no unbinned contigs
 else:
