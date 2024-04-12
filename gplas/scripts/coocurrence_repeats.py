@@ -272,7 +272,6 @@ def calculate_coocurrence_repeats(sample):
                 repeat_assignments = pd.concat([repeat_assignments, repeat_bin], ignore_index=True)
             rank += 1
             
-    #TODO ASK this whole rank stuff was just for fun and is immediatly removed again????????????????
     repeat_assignments = repeat_assignments.loc[:,['To_from','From_to']].rename(columns={'To_from':'Bin',
                                                                                          'From_to':'number'})
     #separate results into plasmid and chromosome repeats
@@ -283,13 +282,13 @@ def calculate_coocurrence_repeats(sample):
     plasmid_repeats = repeat_assignments.loc[index,:]
 
     if plasmid_repeats.shape[0] == 0:
-        print("gplas did not find repeated elements associated with plasmid predictions")  # TODO fix this print statement to work with \r verbose printing
+        print("gplas did not find repeated elements associated with plasmid predictions")
         bins_data.loc[:,'Prob_Chromosome'] = round(bins_data.loc[:,'Prob_Chromosome'], 2)
         bins_data.loc[:,'Prob_Plasmid'] = round(bins_data.loc[:,'Prob_Plasmid'], 2)
         bins_data.loc[:,'coverage'] = round(bins_data.loc[:,'coverage'], 2)
         full_info_assigned = bins_data
     else:
-        print("gplas found repeated elements associated with plasmid predictions")  # TODO fix this print statement to work with \r verbose printing
+        print("gplas found repeated elements associated with plasmid predictions")
         #Get all the repeat nodes
         index = clean_repeats.loc[:,'number'].isin(plasmid_repeats.loc[:,'number']) # Selecting only contigs predicted as plasmid-derived
         pl_nodes = clean_repeats.loc[index,:]
