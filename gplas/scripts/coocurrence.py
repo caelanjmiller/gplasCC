@@ -181,7 +181,6 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
             weight_counting.append([pair, raw_count])
     else:
-        print("gplas couldn't find any walks connecting plasmid-predicted nodes. Plasmid nodes will be classified as Unbinned. If this is unexpected, please assemble your genome with different parameters or with a different tool and re-run gplas.")
         index = clean_pred.loc[:,'Prob_Plasmid'] > pred_threshold
         pl_unbinned = clean_pred.loc[index,:].copy()
         pl_unbinned.loc[:,'Component'] = 'Unbinned'
@@ -214,7 +213,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         results_subgraph.to_csv(output_components, sep='\t', index=False, header=True, mode='w')
         #improve remove this empty png?? or keep for consistency by always producing 'a' plot?
         ig.plot(None, target=output_png, bbox=(700,700))
-        return  # TODO check if this return works properly
+        return False
 
     weight_counting = pd.DataFrame(weight_counting, columns=['Pair','Count'])
 
@@ -476,7 +475,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     full_info_assigned.to_csv(output_results, sep='\t', index=False, header=True, mode='w')
     results_subgraph.to_csv(output_components, sep='\t', index=False, header=True, mode='w')
 
-    return
+    return True
 #improve change the column order of ecoli_results_no_repeats to match the output of R?
 ##order node order in 'ecoli_bins_no_repeats' / ecoli_results_no_repeats & co.
 ### bins_no_repeats is not ordered but results_no_repeats is?

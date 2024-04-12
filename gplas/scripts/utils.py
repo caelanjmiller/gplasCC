@@ -7,11 +7,9 @@ from plasmidCC.scripts.utils import speciesopts
 def quit_tool(exitcode=0):
     if exitcode != 0:
         print('\n', end='')
-        print("This run of gplas has ended unexpectedly. Pease check above for any error messages")
-        sys.exit(1)
+        print("This run of gplas has ended unexpectedly. Please check above for any error messages")
+        sys.exit(-1)
     else:
-        print()
-        print("gplas has succesfully completed running, thanks for using gplas!")  # TODO integrate this with success_message() from gplas.py
         sys.exit(0)
 
 
@@ -45,9 +43,8 @@ def check_species(arg):
 def check_output(path):
     if not os.path.exists(path):
         print('\n')
-        print("Something went wrong while running gplas")
-        print(f"Failed to create the following output: {path}")  # TODO print '\n'+'failed to create' and then call quit_tool
-        sys.exit(1)
+        print(f"Failed to create the following output: {path}")
+        quit_tool(-1)
 
 
 def delete_file(file_path):

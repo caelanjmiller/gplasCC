@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import scipy.stats
-import sys
 
 
 def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1, mode='normal'):
@@ -50,10 +49,6 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
     repeats.loc[:,'number'] = [name.replace('-','') for name in repeats['number']]
 
     initialize_nodes = pd.read_csv(path_init_nodes, sep='\t', header=None)
-
-    if(initialize_nodes.shape[0] == 0):
-        sys.exit("There are no suitable plasmids to initiate a random walk. gplas can't do anything")  # TODO exit statement compliance
-
     initialize_nodes = [str(node) for node in initialize_nodes.iloc[:,0]]
     
     with open(path_cov_variation, mode='r') as file:
