@@ -280,11 +280,10 @@ if line_content:
     generate_repeat_paths(sample, args.number_iterations, args.filt_gplas)
 
     #_5.1.1.2 Calculate coocurrence between walks
-    calculate_coocurrence_repeats(sample)
+    if not calculate_coocurrence_repeats(sample):
+        print("gplas couldn't find any walks connecting repeats to plasmid-nodes")
 
-    verbose_print("Adding repeated elements to the predictions completed!")
-
-#_5.1.2 If there are no repeated elements, just rename the results files.
+#_5.1.2 If there are no repeated elements, just rename the results files
 else:
     shutil.move("results/{sample}_results_no_repeats.tab", "results/{sample}_results.tab")
     shutil.move("results/{sample}_bins_no_repeats.tab", "results/{sample}_bins.tab")

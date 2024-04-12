@@ -213,8 +213,7 @@ def calculate_coocurrence_repeats(sample):
     if total_pairs.shape[0] > 0 and total_pairs.shape[1] > 0:
         total_pairs.loc[:,'Pair'] = ['-'.join([total_pairs.loc[row,'Bin'], total_pairs.loc[row,'Starting_node']]) for row in range(total_pairs.shape[0])]
     else:
-        print("gplas couldn't find any walks connecting repeats to plasmid-nodes.")
-        return  # TODO fix this print/exit statement to work with \r verbose printing
+        return False
 
     single_edge_counting = []
     for pair in sorted(list(set(total_pairs.loc[:,'Pair']))):
@@ -284,13 +283,13 @@ def calculate_coocurrence_repeats(sample):
     plasmid_repeats = repeat_assignments.loc[index,:]
 
     if plasmid_repeats.shape[0] == 0:
-        print("No repeats associated with plasmids were found")  # TODO fix this print statement to work with \r verbose printing
+        print("gplas did not find repeated elements associated with plasmid predictions")  # TODO fix this print statement to work with \r verbose printing
         bins_data.loc[:,'Prob_Chromosome'] = round(bins_data.loc[:,'Prob_Chromosome'], 2)
         bins_data.loc[:,'Prob_Plasmid'] = round(bins_data.loc[:,'Prob_Plasmid'], 2)
         bins_data.loc[:,'coverage'] = round(bins_data.loc[:,'coverage'], 2)
         full_info_assigned = bins_data
     else:
-        print("We found repeated elements associated to plasmid predictions")  # TODO fix this print statement to work with \r verbose printing
+        print("gplas found repeated elements associated with plasmid predictions")  # TODO fix this print statement to work with \r verbose printing
         #Get all the repeat nodes
         index = clean_repeats.loc[:,'number'].isin(plasmid_repeats.loc[:,'number']) # Selecting only contigs predicted as plasmid-derived
         pl_nodes = clean_repeats.loc[index,:]
@@ -343,4 +342,4 @@ def calculate_coocurrence_repeats(sample):
     chromosome_repeats.loc[:,'Bin'] = 'Chromosome' #improve call it 'Chromosome' from the start instead of 'C'
     chromosome_repeats.to_csv(output_chromosomes, sep='\t', index=False, header=True, mode='w')
 
-    return
+    return True
