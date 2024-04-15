@@ -38,7 +38,9 @@ def calculate_coocurrence_repeats(sample):
     solutions = pd.read_csv(input_solutions, sep='\t', header=None, names=['walks', 'initial_classification', 'unitig_classification', 'path_coverage'])
     max_nodes = max([walk.count(',')+1 for walk in solutions.loc[:,'walks']])
     steps = [''.join(['step_', str(step)]) for step in range(max_nodes)]
-    solutions[steps] = solutions.loc[:,'walks'].str.split(',', expand=True)
+    stepsDf = pd.DataFrame(solutions.loc[:,'walks'].str.split(',', expand=True))
+    stepsDf.columns = steps
+    solutions = pd.concat([solutions, stepsDf], axis=1)
 
     solutions = solutions.drop(columns='walks')
     col_order = solutions.columns.to_list()
@@ -88,6 +90,7 @@ def calculate_coocurrence_repeats(sample):
     initial_nodes = [node.replace('+','') for node in solutions.loc[:,'step_0']]
     initial_nodes = [node.replace('-','') for node in initial_nodes]
     solutions.loc[:,'initial_node'] = initial_nodes
+    solutions.reset_index(inplace=True, drop=True)
 
     #combine inital nodes with bin in a single variable
     solutions.loc[:,'repeat_bin'] = ['-'.join([solutions.loc[row,'initial_node'], solutions.loc[row,'Bin']]) for row in range(solutions.shape[0])]
