@@ -1,8 +1,0 @@
-name: centrifuge_plus
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
-dependencies:
-  - centrifuge-core=1.0.4.1=h43eeafb_0
-  - pycairo=1.25.1=py312he48a392_0
