@@ -1,11 +1,3 @@
-results/
-gplas/results/
-gplas_input/
-gplas/gplas_input/
-walks/
-gplas/walks/
-coverage/
-gplas/coverage/
 gplas.egg-info/
 .eggs/
 build/
@@ -13,5 +5,3 @@ dist/
 gplas/version.py
 gplas/__pycache__/
 gplas/scripts/__pycache__/
-gplas/scripts/test_functions.py
-gplas/scripts/test_multiprocessing.py
