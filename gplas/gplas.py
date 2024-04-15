@@ -24,7 +24,7 @@ start_time = time.time()
 pkgdir = os.path.dirname(__file__)
 
 # Load ASCII logo
-with open(f'{pkgdir}/figures/logo.txt', 'r') as file:
+with open(f'{pkgdir}/logo.txt', 'r') as file:
     read_logo = file.read()
 
 #******************************#

@@ -1,7 +1,7 @@
 gplas2: binning plasmid-predicted contigs
 ================
 
-<div align="center"><img src="figures/logo.png" alt="gplas" width="600"/></div>
+<div align="center"><img src="logo.png" alt="gplas" width="600"/></div>
 
 gplas2 is a tool to bin plasmid-predicted contigs based on sequence
 composition, coverage and assembly graph information. 

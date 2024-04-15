@@ -22,7 +22,7 @@ setup(
     scripts=[script for script in glob.glob("gplas/scripts/m_*.py")],
     packages=find_packages(),
     install_requires=requirements,
-    include_package_data=True,
+    #include_package_data=True,
     package_data={'': ['gplas/*']},
     entry_points={
         'console_scripts': ["gplas = gplas.gplas:main"],
