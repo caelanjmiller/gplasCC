@@ -7,7 +7,6 @@ from .version import version as VERSION
 import time
 from plasmidCC.scripts import utils as utilsCC
 
-#TODO change function/import names
 from gplas.scripts.node_extraction import extract_nodes, extract_unbinned_solutions
 from gplas.scripts.check_prediction_format import check_prediction, PredictionFileFormatError
 from gplas.scripts.coverage import coverage
