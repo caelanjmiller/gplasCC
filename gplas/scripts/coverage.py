@@ -118,7 +118,6 @@ def coverage(sample, path_prediction, pred_threshold):
     unique_nodes_signless = [node.replace('+','') for node in unique_nodes_signless]
     unique_nodes_signless = [node.replace('-','') for node in unique_nodes_signless]
 
-    #TODO run with test data that contains isolated nodes
     isolated_nodes = contig_info[[number not in unique_nodes_signless for number in contig_info['number']]]
     isolated_nodes = pd.merge(pred, isolated_nodes['Contig_name'], on='Contig_name')
     isolated_nodes = isolated_nodes[isolated_nodes['Prob_Plasmid'] >= pred_threshold]
@@ -143,7 +142,7 @@ def coverage(sample, path_prediction, pred_threshold):
         for node in repeats_nodes:
             file.write(node + '\n')
 
-    chr_contigs = pred[(pred['Prob_Chromosome'] > 0.7) & (pred['Contig_length'] > 1000)]  # TODO this is hardcoded
+    chr_contigs = pred[(pred['Prob_Chromosome'] > 0.7) & (pred['Contig_length'] > 1000)]  # TODO this is hardcoded, both values could/should become parameters?
     cov_estimation = chr_contigs[[number not in list(repeats['number']) for number in chr_contigs['number']]]
     sd_estimation = statistics.stdev(cov_estimation['coverage'])
 
