@@ -53,9 +53,8 @@ def coverage(sample, path_prediction, pred_threshold):
                                            'length':lengths,
                                            'coverage':coverage,
                                            'Contig_name':raw_contig_names})
-    #TODO find a way to do this without using concat; just use dicts as intermediary instead of full dataframes?
-    #TODO do we need to use ignore_index=True for this merge? (if we decide to keep using pd.concat)
-    graph_contigs = pd.concat([graph_pos_contigs, graph_neg_contigs])
+
+    graph_contigs = pd.concat([graph_pos_contigs, graph_neg_contigs], ignore_index=True)
     graph_contigs.to_csv(output_graph_contigs, sep='\t', index=False, mode='w')
 
     raw_links = pd.read_csv(path_links, sep='\t', header=None)
@@ -80,25 +79,22 @@ def coverage(sample, path_prediction, pred_threshold):
     links.to_csv(output_clean_links, sep='\t', index=False, header=False, mode='w')
 
     unique_nodes = sorted(list(set(links[0])))
-    #TODO skip outdegree_info as empty one and make it in one go with node_info; DONT USE CONCAT
-    outdegree_info = pd.DataFrame()
+
+    outdegree_info = []
     for node in unique_nodes:
         repeat_links = links[links[0] == node]
-        unique_links = repeat_links.drop_duplicates()  # TODO unique_links is unused??
-        node_info = pd.DataFrame(data={'number':node,
-                                       'outdegree':len(repeat_links[2])}, index = [0])
-        #TODO do we need to use ignore_index=True here?
-        outdegree_info = pd.concat([outdegree_info, node_info])
+        unique_links = repeat_links.drop_duplicates()
+        outdegree_info.append([node, len(unique_links[2])])
 
-    #TODO skip indegree_info as empty one and make it in one go with node_info; DONT USE CONCAT
-    indegree_info = pd.DataFrame()
+    outdegree_info = pd.DataFrame(outdegree_info, columns=['number', 'outdegree'])
+
+    indegree_info = []
     for node in unique_nodes:
         repeat_links = links[links[2] == node]
-        unique_links = repeat_links.drop_duplicates()  # TODO unique_links is unused??
-        node_info = pd.DataFrame(data={'number':node,
-                                       'indegree':len(repeat_links[0])}, index = [0])
-        #TODO do we need to use ignore_index=True here?
-        indegree_info = pd.concat([indegree_info, node_info])
+        unique_links = repeat_links.drop_duplicates()
+        indegree_info.append([node, len(unique_links[0])])
+
+    indegree_info = pd.DataFrame(indegree_info, columns=['number', 'indegree'])
 
     repeat_info = pd.merge(outdegree_info, indegree_info, on='number')
     repeats = repeat_info[(repeat_info['indegree'] > 1) | (repeat_info['outdegree'] > 1)]
