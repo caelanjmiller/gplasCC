@@ -130,12 +130,11 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
                 prob_df.loc[:,'number'] = [number.replace('+','') for number in prob_df['number']]
                 prob_df.loc[:,'number'] = [number.replace('-','') for number in prob_df['number']]
 
-                #TODO ASK check if this makes sense as a fix
-                #TODO there has to be a better way to extract the predictions and keep the same order as in prob_df
                 for number in prob_df.loc[:,'number']:
-                    index = [value == number for value in clean_pred.loc[:,'number']]
-                    if(clean_pred.loc[index,'Prob_Plasmid'].shape[0] > 0):
-                        prob_df.loc[prob_df.loc[:,'number'] == number, 'Prob_Plasmid'] = float(clean_pred.loc[index,'Prob_Plasmid'].values[0])
+                    matchID = clean_pred.index[clean_pred['number'] == number]
+                    if any(matchID):
+                        index = prob_df.loc[:,'number'] == number
+                        prob_df.loc[index, 'Prob_Plasmid'] = float(clean_pred.loc[matchID, 'Prob_Plasmid'].values[0])
 
                 # Short contigs do not have a reliable probability, we assign them a predefined probability (passed via the argument 'prob_small_repeats')
                 index = prob_df.loc[:,'number'].isin(small_contigs.loc[:,'number'])
@@ -223,7 +222,6 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
 
 
     final_paths = []
-    #rng = np.random.default_rng(123) # Set random seed
     for seed in initialize_nodes:
         np.random.seed(123)
         positive_seed = seed + '+'

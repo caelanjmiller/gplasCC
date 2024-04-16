@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 
-#TODO run this script with test data where some initial nodes are classified as either plasmid/chromosome
 def generate_repeat_paths(sample, number_iterations, filtering_threshold):
     #Inputs
     path_links = f"coverage/{sample}_clean_links.tab"
@@ -126,17 +125,16 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                 prob_df.loc[:,'number'] = [number.replace('+','') for number in prob_df['number']]
                 prob_df.loc[:,'number'] = [number.replace('-','') for number in prob_df['number']]
 
-                #TODO ASK check if this makes sense as a fix
-                #TODO there has to be a better way to extract the predictions and keep the same order as in prob_df
                 #TODO ASK base probs is now 0.5 check if this is 'allowed' or if something needs to change
                 if(((classification != 'Plasmid') & (classification != 'Chromosome')) | ((unitig_seed_classification != 'Plasmid') & (unitig_seed_classification != 'Chromosome'))):
                     final_probs = pd.Series([float(0.5)]*total_connections)
                 else:
                     for number in prob_df.loc[:,'number']:
-                        index = [value == number for value in clean_pred.loc[:,'number']]
-                        if(clean_pred.loc[index,'Prob_Plasmid'].shape[0] > 0):
-                            prob_df.loc[prob_df.loc[:,'number'] == number, 'Prob_Plasmid'] = float(clean_pred.loc[index,'Prob_Plasmid'].values[0])
-                            prob_df.loc[prob_df.loc[:,'number'] == number, 'Prob_Chromosome'] = float(clean_pred.loc[index,'Prob_Chromosome'].values[0])
+                        matchID = clean_pred.index[clean_pred['number'] == number]
+                        if any(matchID):
+                            index = prob_df.loc[:,'number'] == number
+                            prob_df.loc[index, 'Prob_Plasmid'] = float(clean_pred.loc[matchID,'Prob_Plasmid'].values[0])
+                            prob_df.loc[index, 'Prob_Chromosome'] = float(clean_pred.loc[matchID,'Prob_Chromosome'].values[0])
 
                     if((classification == 'Plasmid') | (unitig_seed_classification == 'Plasmid')):
                         final_probs = prob_df.loc[:,'Prob_Plasmid'].copy()
