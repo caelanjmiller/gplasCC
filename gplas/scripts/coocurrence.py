@@ -242,15 +242,10 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     no_loops_graph = graph_pairs.simplify(multiple=False)
 
     #Analyze if the plasmidome network can be partitioned into different sub-networks.
-    #TODO move components_graph down for better flow
     #Get clusters based on connectivity alone.
     components_graph = no_loops_graph.decompose(mode='weak', minelements=2)
-
-    #Create a data-frame to hold the results from the different clusters
-    #TODO relocate complete_partition_info
-    complete_partition_info = pd.DataFrame()
-
-    #Get a table that contains each node and the component it belongs.
+    
+    #Get a table that contains each node and the component it belongs to
     components = no_loops_graph.connected_components()
     info_comp_member = components.membership
     original_components = sorted(list(set(info_comp_member)))
@@ -264,7 +259,9 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     full_info_components = node_and_component.merge(information_components, on='Original_component')
 
-    #Analyze if each components needs to be sub-divided
+    #Analyze if each component needs to be sub-divided
+    #Create a data-frame to hold the results from the different clusters
+    complete_partition_info = pd.DataFrame()
     #TODO this statement is always true?? when is len(components_graph) ever 0?
     if len(components_graph) >= 1:
         #Loop through each component and run the different community detection algorithms.
@@ -276,7 +273,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
             index = full_info_components.loc[:,'Node'] == first_node
             info_first_node = full_info_components.loc[index,:]
 
-            partition_info.loc[:,'Original_component'] = info_first_node.loc[:,'Original_component'].values[0] # TODO '.values' fixed this? the bug was: this line causes an error (KeyError: 0). But only sometimes, most of the time it just works??????
+            partition_info.loc[:,'Original_component'] = info_first_node.loc[:,'Original_component'].values[0]
             complete_partition_info = pd.concat([complete_partition_info, partition_info], ignore_index=True)
 
         complete_partition_info.loc[:,'Modularity'] = round(complete_partition_info.loc[:,'Modularity'], 2)
@@ -302,6 +299,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     contigs_membership = []
     #TODO can we replace internal_component with just 'component' from the for loop?
     #TODO internal_component is iterated with +=1 (only if not singleton??) but it is never reset to 0?
+    #TODO test this with a sample that gets subdivided
     internal_component = 0
 
     #For determining partition, get the algorithm that provides the biggest modularity value.
