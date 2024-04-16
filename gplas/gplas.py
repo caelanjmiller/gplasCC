@@ -154,7 +154,7 @@ utils.check_output(f"gplas_input/{sample}_raw_nodes.fasta")
 #_1.2 If in extract mode, exit workflow after succesful extraction. Else continue workflow
 if args.extract:
     success_message_extract() #Exits the workflow
-print("Extracting contigs from the assembly graph completed!")
+print("Extracting contigs from the assembly graph............ completed!")
 
 ##_2.0 Obtain correct prediction file
 #_2.1 Run plasmidCC if no independent prediction file was given
@@ -182,17 +182,15 @@ except PredictionFileFormatError as err:
     print('\n\n' + "Error in prediction file format:")
     print(err)
     utils.quit_tool(err)
-
-print("Valid prediction file found!")
+print("Checking prediction file.............................. completed!")
 
 ##_3.0 Run gplas in normal mode
 #_3.1 Extract nodes/links from the assembly graph
-print("Calculating base coverage...", end='\r')
+print("Processing input data...", end='\r')
 os.makedirs('coverage', exist_ok=True)
 
 coverage(sample, path_prediction, args.threshold_prediction)
-
-print("Calculating base coverage completed!")
+print("Processing input data................................. completed!")
 
 # Check for suitable plasmid nodes
 init_nodes_path = f"coverage/{sample}_initialize_nodes.tab"
@@ -207,19 +205,18 @@ print("Generating random walks in normal mode...", end='\r')
 os.makedirs("walks/normal_mode", exist_ok=True)
 
 generate_paths(sample, args.number_iterations, args.filt_gplas, mode='normal')
-
-print("Generating random walks in normal mode completed!")
+print("Generating random walks in normal mode................ completed!")
 
 #_3.3 Calculate coocurrence between walks
 print("Calculating coocurrence of random walks...", end='\r')
 os.makedirs("results/normal_mode", exist_ok=True)
 
 if not calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='normal'):
+    print("Calculating coocurrence of random walks............... completed!")
     print("gplas couldn't find any walks connecting plasmid-predicted nodes")
     print("Plasmid nodes will be classified as Unbinned. If this is unexpected, please assemble your genome with different parameters or with a different tool and re-run gplas")
 else:
-    print("Calculating coocurrence of random walks completed!")
-
+    print("Calculating coocurrence of random walks............... completed!")
 utils.check_output(f"results/normal_mode/{sample}_results_no_repeats.tab")
 
 ##_4.0 Resolve unbinned contigs
@@ -233,25 +230,21 @@ if os.path.exists(unbinned_path):
     os.makedirs("walks/bold_mode", exist_ok=True)
 
     generate_paths(sample, args.number_iterations, args.filt_gplas, args.bold_coverage_sd, mode='bold')
-
-    print("Generating random walks in bold mode completed!")
+    print("Generating random walks in bold mode.................. completed!")
 
     #_4.1.1.2 Extract unbinned solutions
-    print("Extracting unbinned contigs from bold walks...", end='\r')
     os.makedirs("walks/unbinned_nodes", exist_ok=True)
-
     extract_unbinned_solutions(sample)
-
-    print("Extracting unbinned contigs from bold walks completed!")
 
     #_4.1.1.3 Recalculate coocurrence of walks using the combined solutions
     print("Recalculating coocurrence of random walks...", end='\r')
 
     if not calculate_coocurrence(sample, args.number_iterations, args.threshold_prediction, args.modularity_threshold, mode='unbinned'):
+        print("Recalculating coocurrence of random walks............. completed!")
         print("gplas bold mode couldn't find any walks connecting plasmid-predicted nodes")
         print("Plasmid nodes will be classified as Unbinned. If this is unexpected, please assemble your genome with different parameters or with a different tool and re-run gplas")
     else:
-        print("Recalculating coocurrence of random walks completed!")
+        print("Recalculating coocurrence of random walks............. completed!")
 
 #_4.1.2 Copy files from normal mode if there were no unbinned contigs
 else:
@@ -275,7 +268,7 @@ if line_content:
 
     #_5.1.1.2 Calculate coocurrence between walks
     if not calculate_coocurrence_repeats(sample):
-        print("Adding repeated elements to the predictions completed!")
+        print("Adding repeated elements to the predictions........... completed!")
         print("gplas couldn't find any walks connecting repeats to plasmid-nodes")
 
 #_5.1.2 If there are no repeated elements, just rename the results files
