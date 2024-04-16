@@ -79,7 +79,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     unique_nodes = sorted(list(set(all_nodes)))
 
     #TODO turn co-ocurrence matrix creation into a seperate function?
-    ## moving code to functions might be usefull for reusing/importing code in coocurrence_repeats
+    ##    moving code to functions might be useful for reusing/importing code in coocurrence_repeats
     #CREATE A CO-OCURRENCE MATRIX
     ##Column names are the nodes included in plasmid walks.
     ##Each row is a new walk
@@ -220,8 +220,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         index = list(weight_counting.loc[:,'Pair'] == pair)
         sum_weights.append(sum(weight_counting.loc[index,'Count']))
 
-    #TODO remove random comma in .split()? check if it does anything
-    pairs = [pair.split('-',) for pair in unique_pairs]
+    pairs = [pair.split('-') for pair in unique_pairs]
 
     weight_graph = pd.DataFrame(data={'From_to':[pair[0] for pair in pairs],
                                       'To_from':[pair[1] for pair in pairs],
@@ -233,15 +232,11 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         index = weight_graph.loc[:,'From_to'] == node
         df_node = weight_graph.loc[index,:].copy()
         df_node.loc[:,'scaled_weight'] = scalar1(df_node.loc[:,'weight'])
-        #TODO do we need to use ignore_index=True here?
-        full_graph_info = pd.concat([full_graph_info, df_node])
+        full_graph_info = pd.concat([full_graph_info, df_node], ignore_index=True)
 
     full_graph_info.loc[:,'width'] = full_graph_info.loc[:,'scaled_weight'].copy() * 5
-    #TODO get rid of this merge and other df shenanigans; current problem is the lost order when taking unique nodes list(set(from_to))
-    ##TODO check if above has been solved by using sorted(list(set)) instead of list(set())
-    weight_graph = weight_graph.merge(full_graph_info, on=['From_to', 'To_from', 'weight'])
 
-    graph_pairs = ig.Graph.DataFrame(weight_graph, directed=False, use_vids=False)
+    graph_pairs = ig.Graph.DataFrame(full_graph_info, directed=False, use_vids=False)
 
     # Simplifying the graph - Removing self-loops from the graph
     no_loops_graph = graph_pairs.simplify(multiple=False)
