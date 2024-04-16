@@ -284,6 +284,7 @@ def calculate_coocurrence_repeats(sample):
     index = repeat_assignments.loc[:,'Bin'] != 'C'
     plasmid_repeats = repeat_assignments.loc[index,:]
 
+    print("Adding repeated elements to the predictions completed!")
     if plasmid_repeats.shape[0] == 0:
         print("gplas did not find repeated elements associated with plasmid predictions")
         bins_data.loc[:,'Prob_Chromosome'] = round(bins_data.loc[:,'Prob_Chromosome'], 2)
