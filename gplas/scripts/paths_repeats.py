@@ -29,7 +29,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
 
     graph_contigs = pd.read_csv(path_graph_contigs, sep='\t', header=0)
 
-    #improve find a way to check both signed and unsigned nodes without making a copy of small/repeat nodes df
+    #TODO find a way to check both signed and unsigned nodes without making a copy of small/repeat nodes df
     small_contigs = graph_contigs[graph_contigs['length'] < 500].copy()
     small_contigs_signed_nodes = small_contigs.copy()
     small_contigs_signed_nodes = [node for node in small_contigs_signed_nodes['number']]
@@ -76,7 +76,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
 
                 list_connections = sorted(list(set(current_links[2]))) # All the possible unique connections 
 
-                #ASK why is classificatioin != 'Plasmid' also here?; why run this if not plasmid but len = 1??; change OR to AND?
+                #TODO ASK why is classificatioin != 'Plasmid' also here?; why run this if not plasmid but len = 1??; change OR to AND?
                 # We do not allow that a node which is not a repeat appears more than 1 time in any solution but we exclude the initial seed from this consideration 
                 if((len(path) > 1) | (classification != 'Plasmid')): # If the path has more than one element        
                     remove_nodes = path[1:]
@@ -126,9 +126,9 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                 prob_df.loc[:,'number'] = [number.replace('+','') for number in prob_df['number']]
                 prob_df.loc[:,'number'] = [number.replace('-','') for number in prob_df['number']]
 
-                #ASK check if this makes sense as a fix
-                #improve there has to be a better way to extract the predictions and keep the same order as in prob_df
-                #ASK base probs is now 0.5 check if this is 'allowed' or if something needs to change
+                #TODO ASK check if this makes sense as a fix
+                #TODO there has to be a better way to extract the predictions and keep the same order as in prob_df
+                #TODO ASK base probs is now 0.5 check if this is 'allowed' or if something needs to change
                 if(((classification != 'Plasmid') & (classification != 'Chromosome')) | ((unitig_seed_classification != 'Plasmid') & (unitig_seed_classification != 'Chromosome'))):
                     final_probs = pd.Series([float(0.5)]*total_connections)
                 else:
@@ -151,7 +151,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                 index = prob_df.loc[:,'number'].isin(repeats.loc[:,'number'])
                 final_probs.loc[index] = float(prob_small_repeats)
 
-                #improve fix this mess for record_connections
+                #TODO fix this mess for record_connections
                 record_connections = []
                 for i in range(len(final_probs)):
                     record_connections.append([1.0, number_iterations, iteration, elongation, initial_seed, seed, list_connections[i], final_probs[i]])
@@ -162,7 +162,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                 cov_connections_info = graph_contigs.loc[index,:].copy()
 
                 cov_connections_info.loc[:,'Probability_cov'] = float(1)
-                #improve find a better way to do this merge
+                #TODO find a better way to do this merge
                 record_connections = record_connections.merge(cov_connections_info[['number','Probability_cov']], left_on='outgoing_node', right_on='number')
                 record_connections = record_connections.drop(columns='number')
 
@@ -193,7 +193,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                 random_connection = np.random.choice(filter_connections.loc[:,'outgoing_node'], size=1, p=filter_connections.loc[:,'Probability_freq'])[0] # Choose one connection 
                 path.append(str(random_connection))
 
-                #ASK why do we check for plasmid here?
+                #TODO ASK why do we check for plasmid here?
                 if((random_connection == path[0]) & (classification == 'Plasmid')):
                     output = ','.join(path) # We join path with ',' for later step in coocurrence_repeats script
                     output = '\t'.join([output, classification, unitig_seed_classification, str(path_mean)])
@@ -247,7 +247,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                     first_node = info_path.loc[info_path.loc[:,'number'].isin([initial_seed])].copy()
                     index = ~info_path.loc[:,'number'].isin(repeats_signed_nodes)
                     info_path = info_path.loc[index,:]
-                    #improve do we need to use ignore_index=True here?
+                    #TODO do we need to use ignore_index=True here?
                     info_path = pd.concat([info_path, first_node])                
                     length_path = sum(info_path.loc[:,'length'])
                     info_path.loc[:,'contribution'] = info_path.loc[:,'length'] / length_path

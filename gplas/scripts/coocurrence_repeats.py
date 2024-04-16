@@ -9,8 +9,8 @@ def scalar1(x):  # TODO add: from coocurrence import scalar1; it is the same ide
     return scaled_x
 
 
-#improve we have a lot of loops with "for row in range(solutions.shape[0]):"
-## can we possibly merge some of them?
+#TODO we have a lot of loops with "for row in range(solutions.shape[0]):"
+##    can we possibly merge some of them?
 def calculate_coocurrence_repeats(sample):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
@@ -74,7 +74,7 @@ def calculate_coocurrence_repeats(sample):
     solutions = solutions.merge(bins_data.loc[:,['number','Bin']], how='left', left_on='last_nodes_signless', right_on='number')
     solutions = solutions.drop(columns='number')
     #assign 'C' to the chromosome and -1 to repeats
-    #ASK repeats are not assigned -1 in R?
+    #TODO ASK repeats are not assigned -1 in R? (i.e. comment above is lying?)
     index = solutions.loc[:,'Bin'].isna()
     solutions.loc[index,'Bin'] = 'C'
 
@@ -169,7 +169,7 @@ def calculate_coocurrence_repeats(sample):
     total_pairs.loc[:,'Connecting_node'] = [node.replace('-','') for node in total_pairs.loc[:,'Connecting_node']]
 
     #Filter-out cases of no-coocurrence
-    #ASK filter is on weight > 1 why not weight > 0??
+    #TODO ASK filter is on weight > 1 why not weight > 0??
     index = [weight > 1 for weight in total_pairs.loc[:,'weight']]
     total_pairs = total_pairs.loc[index,:]
 
@@ -246,7 +246,7 @@ def calculate_coocurrence_repeats(sample):
     bins_coverage = pd.DataFrame(data=bins_coverage, columns=['Bin', 'bin_coverage'])
 
     weight_graph = weight_graph.merge(clean_repeats.loc[:,['number', 'coverage']], how='left', left_on='From_to', right_on='number')
-    #improve find a more elegant/efficient way to properly merge dataframes
+    #TODO find a more elegant/efficient way to properly merge dataframes
     weight_graph = weight_graph.drop(columns='number')
 
     weight_graph = weight_graph.merge(bins_coverage, how='left', left_on='To_from', right_on='Bin')
@@ -336,13 +336,9 @@ def calculate_coocurrence_repeats(sample):
     full_info_assigned.to_csv(output_results, sep='\t', index=False, header=True, mode='w')
     results_summary.to_csv(output_components, sep='\t', index=False, header=True, mode='w')
 
-    #improve change the column order of ecoli_results_no_repeats to match the output of R?
-    ##order node order in 'ecoli_bins_no_repeats' / ecoli_results_no_repeats & co.
-    ### bins_no_repeats is not ordered but results_no_repeats is?
-
     #format chromosome repeats and print
-    chromosome_repeats = chromosome_repeats.loc[:,['number', 'Bin']] #improve change col order from the start instead of now
-    chromosome_repeats.loc[:,'Bin'] = 'Chromosome' #improve call it 'Chromosome' from the start instead of 'C'
+    chromosome_repeats = chromosome_repeats.loc[:,['number', 'Bin']] #TODO change col order from the start instead of changing it at the end
+    chromosome_repeats.loc[:,'Bin'] = 'Chromosome' #TODO call it 'Chromosome' from the start instead of 'C'
     chromosome_repeats.to_csv(output_chromosomes, sep='\t', index=False, header=True, mode='w')
 
     return True

@@ -69,7 +69,7 @@ paramgroup.add_argument('-l', dest='length_filter', type=int, default=1000, help
 
 othergroup = parser.add_argument_group('Other')
 othergroup.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
-#othergroup.add_argument('--threads', type=int, default=1, help="Max number of threads to ")  #TODO add multi processing
+#othergroup.add_argument('--threads', type=int, default=1, help="Max number of threads to ")  #TODO add multi processing for paths scripts
 
 infogroup = parser.add_argument_group('Info')
 infogroup.add_argument('--speciesopts', action='printing', nargs=0, help="Prints a list of all supported species for the -s flag")
