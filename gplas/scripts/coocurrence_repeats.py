@@ -3,7 +3,7 @@ import numpy as np
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
-def scalar1(x):  # TODO add: from coocurrence import scalar1; it is the same identical function
+def scalar1(x):  # TODO can we do something like: from coocurrence import scalar1; it is the same identical function
     denominator = (sum([value*value for value in x]))**0.5
     scaled_x = [value/denominator for value in x]
     return scaled_x
