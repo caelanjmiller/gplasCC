@@ -245,8 +245,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                     first_node = info_path.loc[info_path.loc[:,'number'].isin([initial_seed])].copy()
                     index = ~info_path.loc[:,'number'].isin(repeats_signed_nodes)
                     info_path = info_path.loc[index,:]
-                    #TODO do we need to use ignore_index=True here?
-                    info_path = pd.concat([info_path, first_node])                
+                    info_path = pd.concat([info_path, first_node], ignore_index=True)                
                     length_path = sum(info_path.loc[:,'length'])
                     info_path.loc[:,'contribution'] = info_path.loc[:,'length'] / length_path
                     path_mean = np.average(info_path.loc[:,'coverage'], weights=info_path.loc[:,'contribution']) # Coverage of the current path
