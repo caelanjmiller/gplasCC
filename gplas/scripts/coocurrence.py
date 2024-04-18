@@ -1,6 +1,7 @@
 import pandas as pd
 import igraph as ig
 from Bio.SeqIO.FastaIO import SimpleFastaParser
+import warnings
 
 
 def scalar1(x):
@@ -18,7 +19,18 @@ def partitioning_components(graph):
     modularity_walktrap = clusters_walktrap.modularity
 
     # Leading eigen values
-    clusters_eigen = graph.community_leading_eigenvector()
+    # TODO find a better way to fix non-converging eigenvalue errors
+    # For some samples there is a ~10% chance for the eigenvalue to not converge and raise an error message
+    # We use this code to catch this error and/or a runtime warning and simply try the algorithm again up to 5 times
+    # It is not a pretty fix but it seems to work for now
+    warnings.filterwarnings("error") # allow warnings to be caught as exceptions
+    for attempt in range(5):
+        try:
+            clusters_eigen = graph.community_leading_eigenvector()
+            break
+        except (ig._igraph.InternalError, RuntimeWarning):
+            pass
+    warnings.resetwarnings() # return warnings to normal behavior
     modularity_eigen = clusters_eigen.modularity
 
     # Louvain method
