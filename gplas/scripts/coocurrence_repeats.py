@@ -261,9 +261,10 @@ def calculate_coocurrence_repeats(sample):
     #loop through each of the repeats
     for node in sorted(list(set(weight_graph.loc[:,'From_to']))):
         index = weight_graph.loc[:,'From_to'] == node
-        df_node = weight_graph.loc[index,:].copy()
+        df_node = weight_graph.loc[index,:].copy().reset_index(drop=True)
         #create a rank of the most likely connections, based on the co-ocurence count
-        df_node.loc[:,'rank'] = [sorted(df_node.loc[:,'weight'], reverse=True).index(weight) for weight in df_node.loc[:,'weight']]
+        df_node.sort_values(by='weight', axis=0, ascending=False, ignore_index=True, inplace=True)
+        df_node.loc[:,'rank'] = df_node.index.tolist()
 
         rank = 0 #start from the highest ranking (0)
         accumulated_cov = 0
