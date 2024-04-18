@@ -30,8 +30,8 @@ def partitioning_components(graph):
     return partition_info
 
 
-#improve we have a lot of loops with "for row in range(solutions.shape[0]):"
-## can we possibly merge some of them?
+#TODO we have a lot of loops with "for row in range(solutions.shape[0]):"
+##    can we possibly merge some of them?
 def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_threshold, mode='normal'):
     if mode == 'normal':
         subdir = 'normal_mode/'
@@ -79,7 +79,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     unique_nodes = sorted(list(set(all_nodes)))
 
     #TODO turn co-ocurrence matrix creation into a seperate function?
-    ## moving code to functions might be usefull for reusing/importing code in coocurrence_repeats
+    ##    moving code to functions might be useful for reusing/importing code in coocurrence_repeats
     #CREATE A CO-OCURRENCE MATRIX
     ##Column names are the nodes included in plasmid walks.
     ##Each row is a new walk
@@ -135,7 +135,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     total_pairs.loc[:,'Connecting_node'] = [node.replace('-','') for node in total_pairs.loc[:,'Connecting_node']]
 
     #Filter-out cases of no-coocurrence
-    #ASK filter is on weight > 1 why not weight > 0??
+    #TODO ASK filter is on weight > 1 why not weight > 0??
     index = [weight > 1 for weight in total_pairs.loc[:,'weight']]
     total_pairs = total_pairs.loc[index,:]
 
@@ -204,15 +204,12 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
             with open(filename, mode='w') as file:
                 for contig in range(nodes_component.shape[0]):
                     file.write('>' + nodes_component.iloc[contig,0] + '\n' + nodes_component.iloc[contig,1] + '\n')
-        #improve name the column 'Bin' from the start instead of 'Component' and then renaming
-        ##can we use lowercase 'bin'?
+        #TODO if possible, name the column 'Bin' from the start instead of 'Component' and then renaming it later
         pl_unbinned = pl_unbinned.rename(columns={'Component':'Bin'})
         results_subgraph = pl_unbinned.loc[:,['number','Bin']]
 
         pl_unbinned.to_csv(output_results, sep='\t', index=False, header=True, mode='w')
         results_subgraph.to_csv(output_components, sep='\t', index=False, header=True, mode='w')
-        #improve remove this empty png?? or keep for consistency by always producing 'a' plot?
-        ig.plot(None, target=output_png, bbox=(700,700))
         return False
 
     weight_counting = pd.DataFrame(weight_counting, columns=['Pair','Count'])
@@ -223,8 +220,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         index = list(weight_counting.loc[:,'Pair'] == pair)
         sum_weights.append(sum(weight_counting.loc[index,'Count']))
 
-    #improve remove random comma in .split()?
-    pairs = [pair.split('-',) for pair in unique_pairs]
+    pairs = [pair.split('-') for pair in unique_pairs]
 
     weight_graph = pd.DataFrame(data={'From_to':[pair[0] for pair in pairs],
                                       'To_from':[pair[1] for pair in pairs],
@@ -236,29 +232,20 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         index = weight_graph.loc[:,'From_to'] == node
         df_node = weight_graph.loc[index,:].copy()
         df_node.loc[:,'scaled_weight'] = scalar1(df_node.loc[:,'weight'])
-        #improve do we need to use ignore_index=True here?
-        full_graph_info = pd.concat([full_graph_info, df_node])
+        full_graph_info = pd.concat([full_graph_info, df_node], ignore_index=True)
 
     full_graph_info.loc[:,'width'] = full_graph_info.loc[:,'scaled_weight'].copy() * 5
-    #TODO get rid of this merge and other df shenanigans; current problem is the lost order when taking unique nodes list(set(from_to))
-    ##TODO check if above has been solved by using sorted(list(set)) instead of list(set())
-    weight_graph = weight_graph.merge(full_graph_info, on=['From_to', 'To_from', 'weight'])
 
-    graph_pairs = ig.Graph.DataFrame(weight_graph, directed=False, use_vids=False)
+    graph_pairs = ig.Graph.DataFrame(full_graph_info, directed=False, use_vids=False)
 
     # Simplifying the graph - Removing self-loops from the graph
     no_loops_graph = graph_pairs.simplify(multiple=False)
 
     #Analyze if the plasmidome network can be partitioned into different sub-networks.
-    #improve move components_graph down for better flow
     #Get clusters based on connectivity alone.
     components_graph = no_loops_graph.decompose(mode='weak', minelements=2)
-
-    #Create a data-frame to hold the results from the different clusters
-    #improve relocate complete_partition_info
-    complete_partition_info = pd.DataFrame()
-
-    #Get a table that contains each node and the component it belongs.
+    
+    #Get a table that contains each node and the component it belongs to
     components = no_loops_graph.connected_components()
     info_comp_member = components.membership
     original_components = sorted(list(set(info_comp_member)))
@@ -272,8 +259,10 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     full_info_components = node_and_component.merge(information_components, on='Original_component')
 
-    #Analyze if each components needs to be sub-divided
-    #improve this is always true?? when is len(components_graph) ever 0?
+    #Analyze if each component needs to be sub-divided
+    #Create a data-frame to hold the results from the different clusters
+    complete_partition_info = pd.DataFrame()
+    #TODO this statement is always true?? when is len(components_graph) ever 0?
     if len(components_graph) >= 1:
         #Loop through each component and run the different community detection algorithms.
         #As output we get a table with the different modularity values of each community detection algorithm for each sub-graph.
@@ -284,7 +273,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
             index = full_info_components.loc[:,'Node'] == first_node
             info_first_node = full_info_components.loc[index,:]
 
-            partition_info.loc[:,'Original_component'] = info_first_node.loc[:,'Original_component'].values[0] # TODO '.values' fixed this? the bug was: this line causes an error (KeyError: 0). But only sometimes, most of the time it just works??????
+            partition_info.loc[:,'Original_component'] = info_first_node.loc[:,'Original_component'].values[0]
             complete_partition_info = pd.concat([complete_partition_info, partition_info], ignore_index=True)
 
         complete_partition_info.loc[:,'Modularity'] = round(complete_partition_info.loc[:,'Modularity'], 2)
@@ -294,8 +283,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     #Add singletons components, namely Single-node components from the plasmidome network.
     index = [info_comp_size[component] == 1 for component in range(len(info_comp_size))]
-    #improve use np.where
-    singletons_component = [i for i, x in enumerate(index) if x]
+    singletons_component = [i for i, x in enumerate(index) if x]  # TODO replace this list comprehension with np.where?
 
     #Add the singletons to the rest of the data.
     if len(singletons_component) > 0:
@@ -309,8 +297,9 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     #When suitable, get the results from the network partitioning algorithm.
     contigs_membership = []
-    #improve can we replace internal_component with just 'component' from the for loop?
-    #improve internal_component is iterated with +=1 (only if not singleton??) but it is never reset to 0?
+    #TODO can we replace internal_component with just 'component' from the for loop?
+    #TODO internal_component is iterated with +=1 (only if not singleton??) but it is never reset to 0?
+    #TODO test this with a sample that gets subdivided
     internal_component = 0
 
     #For determining partition, get the algorithm that provides the biggest modularity value.
@@ -372,11 +361,11 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         cluster_name = unique_clusters[number]
         contigs_membership.loc[:,'Final_cluster'] = [cluster.replace(cluster_name, str(number)) for cluster in contigs_membership.loc[:,'Final_cluster']]
 
-    #improve program will fail if there are more than 31 clusters and it runs out of hardcoded colors?
+    #TODO does this mean the program will fail if there are more than 31 clusters and it runs out of hardcoded colors?
     set_colors = ['#add8e6','#d49f36','#507f2d','#84b67c','#a06fda','#df462a','#5a51dc','#5b83db','#c76c2d','#4f49a3','#552095','#82702d','#dd6bbb','#334c22','#d83979','#55baad','#dc4555','#62aad3','#8c3025','#417d61','#862977','#bba672','#403367','#da8a6d','#a79cd4','#71482c','#c689d0','#6b2940','#d593a7','#895c8b','#bd5975']
     contigs_membership.loc[:,'Color'] = [set_colors[int(cluster)] for cluster in contigs_membership.loc[:,'Final_cluster']]
     order_contigs = pd.DataFrame(data=no_loops_graph.vs['name'], columns=['Contig'])
-    #improve we do this merge to rearrange contigs_membership. replace with np.match?
+    #TODO we do this merge to rearrange contigs_membership. replace with np.match?
     contigs_membership = order_contigs.merge(contigs_membership, on='Contig')
     no_loops_graph.vs['color'] = contigs_membership.loc[:,'Color']
 
@@ -391,7 +380,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     #Get the final membership data after partitioning
     results_subgraph = pd.DataFrame(data={'number':contigs_membership.loc[:,'Contig'],
-                                          'Component':contigs_membership.loc[:,'Final_cluster']}) #improve cluster+1 if preferred
+                                          'Component':contigs_membership.loc[:,'Final_cluster']})
 
     #Get all the plasmid nodes
     index = clean_pred.loc[:,'Prob_Plasmid'] >= pred_threshold
@@ -410,7 +399,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     #TODO test with data containing isolated nodes
     #If there are isolated nodes, remove them from the unbinned and create a new category
     isolated_nodes = pd.read_csv(path_isolated_nodes, sep='\t', header=0)
-    #ASK mistake in R?? pl_isolated is pl_unbinned, filtered with the index of pl_notassigned; probem is copied and present in .py
+    #TODO ASK mistake in original R-script?? pl_isolated is pl_unbinned, filtered with the index of pl_notassigned; probem is copied and present in this python script
     index = pl_notassigned.loc[:,'number'].isin(isolated_nodes.loc[:,'number'])
     pl_isolated = pl_unbinned.loc[index,:]
     index = ~pl_unbinned.loc[:,'number'].isin(isolated_nodes.loc[:,'number'])
@@ -468,7 +457,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
             for contig in range(nodes_component.shape[0]):
                 file.write('>' + nodes_component.iloc[contig,0] + '\n' + nodes_component.iloc[contig,1] + '\n')
 
-    #improve start the column as 'Bin' instead of changing at the end; like in coocurrence_repeats.py
+    #TODO start the column as 'Bin' instead of renaming it at the end; like in coocurrence_repeats.py
     full_info_assigned = full_info_assigned.rename(columns={'Component':'Bin'})
     results_subgraph = results_subgraph.rename(columns={'Component':'Bin'})
 
@@ -476,6 +465,3 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     results_subgraph.to_csv(output_components, sep='\t', index=False, header=True, mode='w')
 
     return True
-#improve change the column order of ecoli_results_no_repeats to match the output of R?
-##order node order in 'ecoli_bins_no_repeats' / ecoli_results_no_repeats & co.
-### bins_no_repeats is not ordered but results_no_repeats is?

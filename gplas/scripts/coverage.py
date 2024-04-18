@@ -53,9 +53,8 @@ def coverage(sample, path_prediction, pred_threshold):
                                            'length':lengths,
                                            'coverage':coverage,
                                            'Contig_name':raw_contig_names})
-    #improve find a way to do this without using concat; just use dicts as intermediary instead of full dataframes?
-    #improve do we need to use ignore_index=True here?
-    graph_contigs = pd.concat([graph_pos_contigs, graph_neg_contigs])
+
+    graph_contigs = pd.concat([graph_pos_contigs, graph_neg_contigs], ignore_index=True)
     graph_contigs.to_csv(output_graph_contigs, sep='\t', index=False, mode='w')
 
     raw_links = pd.read_csv(path_links, sep='\t', header=None)
@@ -80,25 +79,22 @@ def coverage(sample, path_prediction, pred_threshold):
     links.to_csv(output_clean_links, sep='\t', index=False, header=False, mode='w')
 
     unique_nodes = sorted(list(set(links[0])))
-    #improve skip outdegree_info as empty one and make it in one go with node_info; DONT USE CONCAT
-    outdegree_info = pd.DataFrame()
+
+    outdegree_info = []
     for node in unique_nodes:
         repeat_links = links[links[0] == node]
-        unique_links = repeat_links.drop_duplicates()  # TODO unique_links is unused??
-        node_info = pd.DataFrame(data={'number':node,
-                                       'outdegree':len(repeat_links[2])}, index = [0])
-        #improve do we need to use ignore_index=True here?
-        outdegree_info = pd.concat([outdegree_info, node_info])
+        unique_links = repeat_links.drop_duplicates()
+        outdegree_info.append([node, len(unique_links[2])])
 
-    #improve skip indegree_info as empty one and make it in one go with node_info; DONT USE CONCAT
-    indegree_info = pd.DataFrame()
+    outdegree_info = pd.DataFrame(outdegree_info, columns=['number', 'outdegree'])
+
+    indegree_info = []
     for node in unique_nodes:
         repeat_links = links[links[2] == node]
-        unique_links = repeat_links.drop_duplicates()  # TODO unique_links is unused??
-        node_info = pd.DataFrame(data={'number':node,
-                                       'indegree':len(repeat_links[0])}, index = [0])
-        #improve do we need to use ignore_index=True here?
-        indegree_info = pd.concat([indegree_info, node_info])
+        unique_links = repeat_links.drop_duplicates()
+        indegree_info.append([node, len(unique_links[0])])
+
+    indegree_info = pd.DataFrame(indegree_info, columns=['number', 'indegree'])
 
     repeat_info = pd.merge(outdegree_info, indegree_info, on='number')
     repeats = repeat_info[(repeat_info['indegree'] > 1) | (repeat_info['outdegree'] > 1)]
@@ -122,7 +118,6 @@ def coverage(sample, path_prediction, pred_threshold):
     unique_nodes_signless = [node.replace('+','') for node in unique_nodes_signless]
     unique_nodes_signless = [node.replace('-','') for node in unique_nodes_signless]
 
-    #TODO run with test data that contains isolated nodes
     isolated_nodes = contig_info[[number not in unique_nodes_signless for number in contig_info['number']]]
     isolated_nodes = pd.merge(pred, isolated_nodes['Contig_name'], on='Contig_name')
     isolated_nodes = isolated_nodes[isolated_nodes['Prob_Plasmid'] >= pred_threshold]
@@ -147,7 +142,7 @@ def coverage(sample, path_prediction, pred_threshold):
         for node in repeats_nodes:
             file.write(node + '\n')
 
-    chr_contigs = pred[(pred['Prob_Chromosome'] > 0.7) & (pred['Contig_length'] > 1000)]  # TODO this is hardcoded
+    chr_contigs = pred[(pred['Prob_Chromosome'] > 0.7) & (pred['Contig_length'] > 1000)]  # TODO this is hardcoded, both values could/should become parameters?
     cov_estimation = chr_contigs[[number not in list(repeats['number']) for number in chr_contigs['number']]]
     sd_estimation = statistics.stdev(cov_estimation['coverage'])
 

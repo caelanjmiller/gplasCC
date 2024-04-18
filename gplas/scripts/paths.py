@@ -35,7 +35,7 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
 
     graph_contigs = pd.read_csv(path_graph_contigs, sep='\t', header=0)
 
-    #improve find a way to check both signed and unsigned nodes without making a copy of small/repeat nodes df
+    #TODO find a way to check both signed and unsigned nodes without making a copy of small/repeat nodes df
     small_contigs = graph_contigs[graph_contigs['length'] < 500].copy()
     small_contigs_signed_nodes = small_contigs.copy()
     small_contigs_signed_nodes = [node for node in small_contigs_signed_nodes['number']]
@@ -130,12 +130,11 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
                 prob_df.loc[:,'number'] = [number.replace('+','') for number in prob_df['number']]
                 prob_df.loc[:,'number'] = [number.replace('-','') for number in prob_df['number']]
 
-                #ASK check if this makes sense as a fix
-                #improve there has to be a better way to extract the predictions and keep the same order as in prob_df
                 for number in prob_df.loc[:,'number']:
-                    index = [value == number for value in clean_pred.loc[:,'number']]
-                    if(clean_pred.loc[index,'Prob_Plasmid'].shape[0] > 0):
-                        prob_df.loc[prob_df.loc[:,'number'] == number, 'Prob_Plasmid'] = float(clean_pred.loc[index,'Prob_Plasmid'].values[0])
+                    matchID = clean_pred.index[clean_pred['number'] == number]
+                    if any(matchID):
+                        index = prob_df.loc[:,'number'] == number
+                        prob_df.loc[index, 'Prob_Plasmid'] = float(clean_pred.loc[matchID, 'Prob_Plasmid'].values[0])
 
                 # Short contigs do not have a reliable probability, we assign them a predefined probability (passed via the argument 'prob_small_repeats')
                 index = prob_df.loc[:,'number'].isin(small_contigs.loc[:,'number'])
@@ -147,7 +146,7 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
 
                 final_probs = list(prob_df.loc[:,'Prob_Plasmid'])
 
-                #improve fix this mess for record_connections
+                #TODO fix this mess for record_connections
                 record_connections = []
                 for i in range(len(final_probs)):
                     record_connections.append([1.0, number_iterations, iteration, elongation, initial_seed, seed, list_connections[i], final_probs[i]])
@@ -166,7 +165,7 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
                 # Simple test
                 window = up_threshold - down_threshold
                 cov_connections_info.loc[:,'Probability_cov'] = abs(window)
-                #improve find a better way to do this merge
+                #TODO find a better way to do this merge
                 record_connections = record_connections.merge(cov_connections_info[['number','Probability_cov']], left_on='outgoing_node', right_on='number')
                 record_connections = record_connections.drop(columns='number')
 
@@ -223,7 +222,6 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
 
 
     final_paths = []
-    #rng = np.random.default_rng(123) # Set random seed
     for seed in initialize_nodes:
         np.random.seed(123)
         positive_seed = seed + '+'

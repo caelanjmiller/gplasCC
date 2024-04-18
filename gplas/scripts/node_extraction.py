@@ -13,10 +13,12 @@ def extract_nodes(sample, infile, minlen):
                 cols = line.split('\t')
                 number = cols[0] + str(cols[1])
                 sequence = cols[2]
-                if len(cols) > 4: #unicycler
+                if 'LN' in str(cols[3]): # Unicycler assembly
                     information = '_'.join(cols[3:])
-                else: #spades
+                elif 'KC' in str(cols[3]): # Spades assembly
                     information = cols[3]
+                else: # Empty sequence field (0 length), or other error in gfa format
+                    continue # Skip node and continue to the next
                 nodes.write(f">{number}_{information}\n{sequence}\n")
                 if len(sequence) >= minlen:
                     contigs.write(f">{number}_{information}\n{sequence}\n")
