@@ -198,6 +198,8 @@ with open(init_nodes_path, mode='r') as file:
     line_content = file.readline()
 if not line_content:
     print("There are no suitable plasmids to initiate a random walk. gplas can't do anything")
+    if not args.keep:
+        utils.cleanup_intermediary_files(sample)
     utils.quit_tool(-1)
 
 #_3.2 Generate random walks

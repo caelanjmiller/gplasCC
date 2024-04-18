@@ -130,7 +130,8 @@ def coverage(sample, path_prediction, pred_threshold):
 
     pl_nodes = final_prediction[final_prediction['Prob_Plasmid'] >= pred_threshold]
     pl_nodes = pl_nodes[pl_nodes['Contig_length'] > 500]  # TODO ASK is this threshold needed? if yes, use minlen param instead of hardcoded 500?
-    pl_nodes = pl_nodes[[number not in list(repeats['number']) for number in pl_nodes['number']]]
+    index = [number not in list(repeats['number']) for number in pl_nodes['number']]
+    pl_nodes = pl_nodes.loc[index,:]
 
     initialize_nodes = sorted(list(set(pl_nodes['number'])))
     with open(output_initialize_nodes, 'w') as file:
