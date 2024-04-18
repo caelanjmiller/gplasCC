@@ -67,8 +67,13 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     with open(input_solutions) as file:
         max_nodes = max([line.count('\t')+1 for line in file])
 
-    solutions = pd.read_csv(input_solutions, sep='\t', header=None, names=range(max_nodes))
-
+    solutions = pd.read_csv(input_solutions, sep='\t', header=None, names=range(max_nodes), engine='python')
+    #TODO if the line above does not define engine='python', it produces a pandas ParserError for only 2 of the 214 ecoli test samples?????
+    #this is not a problem anywhere else in the gplas scripts or for any other test samples
+    #GCA_013602835.1_ASM1360283v1
+    #GCA_013802065.1_ASM1380206v1
+    #ParserError: Error tokenizing data. C error: Buffer overflow caught - possible malformed input file.
+    
     #create a list with all the nodes that appear in the plasmid walks.
     all_nodes = []
     for row in range(solutions.shape[0]):
