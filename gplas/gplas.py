@@ -272,13 +272,13 @@ if line_content:
     if not calculate_coocurrence_repeats(sample):
         print("Adding repeated elements to the predictions........... completed!")
         print("gplas couldn't find any walks connecting repeats to plasmid-nodes")
-        shutil.move("results/{sample}_results_no_repeats.tab", "results/{sample}_results.tab")
-        shutil.move("results/{sample}_bins_no_repeats.tab", "results/{sample}_bins.tab")
+        shutil.move(f"results/{sample}_results_no_repeats.tab", "results/{sample}_results.tab")
+        shutil.move(f"results/{sample}_bins_no_repeats.tab", "results/{sample}_bins.tab")
 
 #_5.1.2 If there are no repeated elements, just rename the results files
 else:
-    shutil.move("results/{sample}_results_no_repeats.tab", "results/{sample}_results.tab")
-    shutil.move("results/{sample}_bins_no_repeats.tab", "results/{sample}_bins.tab")
+    shutil.move(f"results/{sample}_results_no_repeats.tab", "results/{sample}_results.tab")
+    shutil.move(f"results/{sample}_bins_no_repeats.tab", "results/{sample}_bins.tab")
 
 utils.check_output(f"results/{sample}_results.tab")
 
