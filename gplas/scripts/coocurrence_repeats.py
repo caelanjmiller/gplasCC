@@ -257,7 +257,7 @@ def calculate_coocurrence_repeats(sample):
     weight_graph.loc[index,'bin_coverage'] = float(1)
 
     #Explore if the combination of bins proposed by the algorithm is plausible based on coverage
-    repeat_assignments = pd.DataFrame()
+    repeat_assignments = pd.DataFrame(columns=['From_to', 'To_from', 'weight', 'coverage', 'bin_coverage', 'rank'])
     #loop through each of the repeats
     for node in sorted(list(set(weight_graph.loc[:,'From_to']))):
         index = weight_graph.loc[:,'From_to'] == node
