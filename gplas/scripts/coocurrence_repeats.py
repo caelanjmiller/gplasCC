@@ -174,7 +174,7 @@ def calculate_coocurrence_repeats(sample):
     total_pairs = total_pairs.loc[index,:]
 
     #Scale weights
-    complete_node_info = pd.DataFrame()
+    complete_node_info = pd.DataFrame(columns=['Starting_node', 'Connecting_node', 'weight'])
     for node in sorted(list(set(total_pairs.loc[:,'Starting_node']))):
         index = total_pairs.loc[:,'Starting_node'] == node
         first_node = total_pairs.loc[index,:]
