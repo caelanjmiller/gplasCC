@@ -200,9 +200,13 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     else:
         index = clean_pred.loc[:,'Prob_Plasmid'] > pred_threshold
         pl_unbinned = clean_pred.loc[index,:].copy()
+        pl_unbinned = pl_unbinned.drop(columns='Contig_length')
+        pl_unbinned['Component'] = pd.Series(dtype='object')
+        pl_unbinned['Prob_Chromosome'] = pd.Series(dtype='float')
+        pl_unbinned['Prob_Plasmid'] = pd.Series(dtype='float')
+        pl_unbinned['coverage'] = pd.Series(dtype='float')
         if pl_unbinned.shape[0] > 0:
             pl_unbinned.loc[:,'Component'] = 'Unbinned'
-            pl_unbinned = pl_unbinned.drop(columns='Contig_length')
             pl_unbinned.loc[:,'Prob_Chromosome'] = round(pl_unbinned.loc[:,'Prob_Chromosome'], 2)
             pl_unbinned.loc[:,'Prob_Plasmid'] = round(pl_unbinned.loc[:,'Prob_Plasmid'], 2)
             pl_unbinned.loc[:,'coverage'] = round(pl_unbinned.loc[:,'coverage'], 2)
