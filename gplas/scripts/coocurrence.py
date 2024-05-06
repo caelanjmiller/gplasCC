@@ -200,11 +200,12 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     else:
         index = clean_pred.loc[:,'Prob_Plasmid'] > pred_threshold
         pl_unbinned = clean_pred.loc[index,:].copy()
-        pl_unbinned.loc[:,'Component'] = 'Unbinned'
-        pl_unbinned = pl_unbinned.drop(columns='Contig_length')
-        pl_unbinned.loc[:,'Prob_Chromosome'] = round(pl_unbinned.loc[:,'Prob_Chromosome'], 2)
-        pl_unbinned.loc[:,'Prob_Plasmid'] = round(pl_unbinned.loc[:,'Prob_Plasmid'], 2)
-        pl_unbinned.loc[:,'coverage'] = round(pl_unbinned.loc[:,'coverage'], 2)
+        if pl_unbinned.shape[0] > 0:
+            pl_unbinned.loc[:,'Component'] = 'Unbinned'
+            pl_unbinned = pl_unbinned.drop(columns='Contig_length')
+            pl_unbinned.loc[:,'Prob_Chromosome'] = round(pl_unbinned.loc[:,'Prob_Chromosome'], 2)
+            pl_unbinned.loc[:,'Prob_Plasmid'] = round(pl_unbinned.loc[:,'Prob_Plasmid'], 2)
+            pl_unbinned.loc[:,'coverage'] = round(pl_unbinned.loc[:,'coverage'], 2)
 
         with open(path_nodes) as file:
             raw_nodes = [[str(values[0]), str(values[1])] for values in SimpleFastaParser(file)]
