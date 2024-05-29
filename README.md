@@ -9,18 +9,15 @@ GplasCC is a new version of [gplas](https://gitlab.com/sirarredondo/gplas) that 
 plasmid contigs into several discrete plasmid components by also attempting to place unbinned and repeat contigs into plasmid bins.
 
 # Table of Contents
-- [gplasCC: binning plasmid-predicted contigs](#gplasCC-binning-plasmid-predicted-contigs)
+- [gplasCC: binning plasmid-predicted contigs](#gplascc-binning-plasmid-predicted-contigs)
 - [Table of Contents](#table-of-contents)
 - [Installation](#installation)
-  - [Requirements](#Requirements)
+  - [Requirements](#requirements)
   - [Installation using pip](#installation-using-pip)
 - [Usage](#usage)
-    - [Input files](#input-files)
-    - [Preprocessing - Binary classification of nodes](#binary-classification-of-nodes-using-an-external-tool)
-        - [Using plasmidEC](#using-plasmidec)
-        - [Using a different binary classifier](#using-a-different-tool)
-    - [Predict plasmids](#predict-plasmids)
-- [Output files](#main-output-files)
+    - [Using gplasCC with plasmidCC](#using-gplascc-with-plasmidcc)
+    - [Using gplasCC with an external classification tool](#using-gplascc-with-an-external-classification-tool)
+- [Output files](#output-files)
     - [Intermediary results files](#intermediary-results-files)
 - [Complete usage](#complete-usage)
 - [Issues and Bugs](#issues-and-bugs)
