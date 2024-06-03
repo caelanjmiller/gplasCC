@@ -188,7 +188,10 @@ def calculate_coocurrence_repeats(sample):
 
         particular_node = pd.DataFrame(particular_node, columns=['Starting_node', 'Connecting_node', 'weight'])
         particular_node.loc[:,'scaled_weight'] = scalar1(particular_node.loc[:,'weight']) # add a column with scaled weights using scalar1()
-        complete_node_info = pd.concat([complete_node_info, particular_node], ignore_index=True)
+        if complete_node_info.shape[0] == 0:  # if statement to prevent "FutureWarning: concatenation with empty DataFrame"
+            complete_node_info = particular_node
+        else:
+            complete_node_info = pd.concat([complete_node_info, particular_node], ignore_index=True)
 
     total_pairs = complete_node_info
 
@@ -273,7 +276,10 @@ def calculate_coocurrence_repeats(sample):
             repeat_bin = df_node.loc[index,:]
             if repeat_bin.loc[:,'coverage'].values[0] + accumulated_cov >= repeat_bin.loc[:,'bin_coverage'].values[0]:
                 accumulated_cov += repeat_bin.loc[:,'bin_coverage'].values[0]
-                repeat_assignments = pd.concat([repeat_assignments, repeat_bin], ignore_index=True)
+                if repeat_assignments.shape[0] == 0: # if statement to prevent "FutureWarning: concatenation with empty DataFrame"
+                    repeat_assignments = repeat_bin
+                else:
+                    repeat_assignments = pd.concat([repeat_assignments, repeat_bin], ignore_index=True)
             rank += 1
             
     repeat_assignments = repeat_assignments.loc[:,['To_from','From_to']].rename(columns={'To_from':'Bin',
