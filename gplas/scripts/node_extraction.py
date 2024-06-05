@@ -18,6 +18,7 @@ def extract_nodes(sample, infile, minlen):
                 elif 'KC' in str(cols[3]): # Spades assembly
                     information = cols[3]
                 else: # Empty sequence field (0 length), or other error in gfa format
+                      # TODO exit the tool if the assembly is not from Unicycler or Spades? right now it would just skip all nodes and probably run into an error later in the workflow
                     continue # Skip node and continue to the next
                 nodes.write(f">{number}_{information}\n{sequence}\n")
                 if len(sequence) >= minlen:
