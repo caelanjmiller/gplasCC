@@ -49,7 +49,7 @@ parser.register('action', 'printing', PriorityPrinting)
 
 inputgroup = parser.add_argument_group('General')
 inputgroup.add_argument('-i', dest='input', type=utils.is_valid_file, required=True, help="Path to the graph file in GFA (.gfa) format, used to extract nodes and links")
-#inputgroup.add_argument('-o', dest='outdir', type=utils.is_valid_dir, default=".", help="Output directory")  # TODO go through all code and append outdir where needed
+#inputgroup.add_argument('-o', dest='outdir', type=utils.is_valid_dir, default=".", help="Output directory")  # TODO go through all scripts and add outdir where needed
 inputgroup.add_argument('-n', dest='name', type=str, help="Name prefix for output files (default: input file name)")
 
 classifiergroup = inputgroup.add_mutually_exclusive_group(required=True)

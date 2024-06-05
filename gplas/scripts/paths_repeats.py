@@ -9,7 +9,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
     path_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
     path_init_nodes = f"coverage/{sample}_repeat_nodes.tab"
     #Params
-    # TODO make these into parameters?
+    # TODO make these into user-tunable parameters?
     number_nodes = 100
     prob_small_repeats = 0.5
     #Outputs
@@ -28,7 +28,6 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
 
     graph_contigs = pd.read_csv(path_graph_contigs, sep='\t', header=0)
 
-    #TODO find a way to check both signed and unsigned nodes without making a copy of small/repeat nodes df
     small_contigs = graph_contigs[graph_contigs['length'] < 500].copy()
     small_contigs_signed_nodes = small_contigs.copy()
     small_contigs_signed_nodes = [node for node in small_contigs_signed_nodes['number']]
@@ -75,7 +74,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
 
                 list_connections = sorted(list(set(current_links[2]))) # All the possible unique connections 
 
-                #TODO ASK why is classificatioin != 'Plasmid' also here?; why run this if not plasmid but len = 1??; change OR to AND?
+                #TODO ASK Julian: why is classification != 'Plasmid' also checked here?; why run this code if not plasmid but len = 1??; should the OR be changed to AND?
                 # We do not allow that a node which is not a repeat appears more than 1 time in any solution but we exclude the initial seed from this consideration 
                 if((len(path) > 1) | (classification != 'Plasmid')): # If the path has more than one element        
                     remove_nodes = path[1:]
@@ -125,7 +124,6 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                 prob_df.loc[:,'number'] = [number.replace('+','') for number in prob_df['number']]
                 prob_df.loc[:,'number'] = [number.replace('-','') for number in prob_df['number']]
 
-                #TODO ASK base probs is now 0.5 check if this is 'allowed' or if something needs to change
                 if(((classification != 'Plasmid') & (classification != 'Chromosome')) | ((unitig_seed_classification != 'Plasmid') & (unitig_seed_classification != 'Chromosome'))):
                     final_probs = pd.Series([float(0.5)]*total_connections)
                 else:
@@ -149,7 +147,6 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                 index = prob_df.loc[:,'number'].isin(repeats.loc[:,'number'])
                 final_probs.loc[index] = float(prob_small_repeats)
 
-                #TODO fix this mess for record_connections
                 record_connections = []
                 for i in range(len(final_probs)):
                     record_connections.append([1.0, number_iterations, iteration, elongation, initial_seed, seed, list_connections[i], final_probs[i]])
@@ -191,9 +188,9 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
                 random_connection = np.random.choice(filter_connections.loc[:,'outgoing_node'], size=1, p=filter_connections.loc[:,'Probability_freq'])[0] # Choose one connection 
                 path.append(str(random_connection))
 
-                #TODO ASK why do we check for plasmid here?
+                #TODO ASK Julian: why do we check for plasmid here?
                 if((random_connection == path[0]) & (classification == 'Plasmid')):
-                    output = ','.join(path) # We join path with ',' for later step in coocurrence_repeats script
+                    output = ','.join(path) # We join path with ',' for a later step in coocurrence_repeats script
                     output = '\t'.join([output, classification, unitig_seed_classification, str(path_mean)])
                     paths_list.append(output)
                     path = [initial_seed]

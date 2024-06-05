@@ -12,7 +12,7 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
     path_init_nodes = f"coverage/{sample}_initialize_nodes.tab"
     path_cov_variation = f"coverage/{sample}_estimation.txt"
     #Params
-    # TODO make these into parameters?
+    # TODO make these into user-tunable parameters?
     number_nodes = 100
     prob_small_repeats = 0.5
     #Outputs Normal Mode
@@ -35,7 +35,6 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
 
     graph_contigs = pd.read_csv(path_graph_contigs, sep='\t', header=0)
 
-    #TODO find a way to check both signed and unsigned nodes without making a copy of small/repeat nodes df
     small_contigs = graph_contigs[graph_contigs['length'] < 500].copy()
     small_contigs_signed_nodes = small_contigs.copy()
     small_contigs_signed_nodes = [node for node in small_contigs_signed_nodes['number']]
@@ -146,7 +145,6 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
 
                 final_probs = list(prob_df.loc[:,'Prob_Plasmid'])
 
-                #TODO fix this mess for record_connections
                 record_connections = []
                 for i in range(len(final_probs)):
                     record_connections.append([1.0, number_iterations, iteration, elongation, initial_seed, seed, list_connections[i], final_probs[i]])

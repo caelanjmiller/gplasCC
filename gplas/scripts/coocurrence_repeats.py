@@ -3,14 +3,14 @@ import numpy as np
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 
-def scalar1(x):  # TODO can we do something like: from coocurrence import scalar1; it is the same identical function
+def scalar1(x):  # TODO can we do something like "from coocurrence.py import scalar1"? it is the same identical function
     denominator = (sum([value*value for value in x]))**0.5
     scaled_x = [value/denominator for value in x]
     return scaled_x
 
 
-#TODO we have a lot of loops with "for row in range(solutions.shape[0]):"
-##    can we possibly merge some of them?
+#TODO we have multiple loops with "for row in range(solutions.shape[0]):" can we possibly merge some of them?
+
 def calculate_coocurrence_repeats(sample):
     #Inputs
     path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
@@ -74,7 +74,7 @@ def calculate_coocurrence_repeats(sample):
     solutions = solutions.merge(bins_data.loc[:,['number','Bin']], how='left', left_on='last_nodes_signless', right_on='number')
     solutions = solutions.drop(columns='number')
     #assign 'C' to the chromosome and -1 to repeats
-    #TODO ASK repeats are not assigned -1 in R? (i.e. comment above is lying?)
+    #TODO ASK Julian: repeats are not assigned -1 in the original R-script? (i.e. comment above is lying) does it matter?
     index = solutions.loc[:,'Bin'].isna()
     solutions.loc[index,'Bin'] = 'C'
 
@@ -169,7 +169,7 @@ def calculate_coocurrence_repeats(sample):
     total_pairs.loc[:,'Connecting_node'] = [node.replace('-','') for node in total_pairs.loc[:,'Connecting_node']]
 
     #Filter-out cases of no-coocurrence
-    #TODO ASK filter is on weight > 1 why not weight > 0??
+    #TODO ASK Julian: filter is on weight > 1 why not weight > 0?
     index = [weight > 1 for weight in total_pairs.loc[:,'weight']]
     total_pairs = total_pairs.loc[index,:]
 
@@ -344,8 +344,8 @@ def calculate_coocurrence_repeats(sample):
     results_summary.to_csv(output_components, sep='\t', index=False, header=True, mode='w')
 
     #format chromosome repeats and print
-    chromosome_repeats = chromosome_repeats.loc[:,['number', 'Bin']] #TODO change col order from the start instead of changing it at the end
-    chromosome_repeats.loc[:,'Bin'] = 'Chromosome' #TODO call it 'Chromosome' from the start instead of 'C'
+    chromosome_repeats = chromosome_repeats.loc[:,['number', 'Bin']] #TODO if possible change column order from the start instead of changing it at the end
+    chromosome_repeats.loc[:,'Bin'] = 'Chromosome' #TODO if possible call the column name 'Chromosome' from the start instead of 'C' and renaming it at the end
     chromosome_repeats.to_csv(output_chromosomes, sep='\t', index=False, header=True, mode='w')
 
     return True

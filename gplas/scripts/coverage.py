@@ -129,7 +129,7 @@ def coverage(sample, path_prediction, pred_threshold):
     repeats_final.to_csv(output_clean_repeats, sep='\t', index=False, mode='w')
 
     pl_nodes = final_prediction[final_prediction['Prob_Plasmid'] >= pred_threshold]
-    pl_nodes = pl_nodes[pl_nodes['Contig_length'] > 500]  # TODO ASK is this threshold needed? if yes, use minlen param instead of hardcoded 500?
+    pl_nodes = pl_nodes[pl_nodes['Contig_length'] > 500]  # TODO ASK Julian: is this threshold needed?
     index = [number not in list(repeats['number']) for number in pl_nodes['number']]
     pl_nodes = pl_nodes.loc[index,:]
 

@@ -19,7 +19,7 @@ def partitioning_components(graph):
     modularity_walktrap = clusters_walktrap.modularity
 
     # Leading eigen values
-    # TODO find a better way to fix non-converging eigenvalue errors
+    # TODO find a better way to fix non-converging eigenvalue error
     # For some samples there is a ~10% chance for the eigenvalue to not converge and raise an error message
     # We use this code to catch this error and/or a runtime warning and simply try the algorithm again up to 5 times
     # It is not a pretty fix but it seems to work for now
@@ -42,8 +42,7 @@ def partitioning_components(graph):
     return partition_info
 
 
-#TODO we have a lot of loops with "for row in range(solutions.shape[0]):"
-##    can we possibly merge some of them?
+#TODO we have multiple loops with "for row in range(solutions.shape[0]):" can we possibly merge some of them?
 def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_threshold, mode='normal'):
     if mode == 'normal':
         subdir = 'normal_mode/'
@@ -80,7 +79,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         max_nodes = max([line.count('\t')+1 for line in file])
 
     solutions = pd.read_csv(input_solutions, sep='\t', header=None, names=range(max_nodes), engine='python')
-    #TODO if the line above does not define engine='python', it produces a pandas ParserError for only 2 of the 214 ecoli test samples?????
+    #TODO if the line above does not define engine='python', it produces a pandas ParserError. but only for 2 of the 214 ecoli test samples?????
     #this is not a problem anywhere else in the gplas scripts or for any other test samples
     #GCA_013602835.1_ASM1360283v1
     #GCA_013802065.1_ASM1380206v1
@@ -95,8 +94,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     #get unique set of nodes
     unique_nodes = sorted(list(set(all_nodes)))
 
-    #TODO turn co-ocurrence matrix creation into a seperate function?
-    ##    moving code to functions might be useful for reusing/importing code in coocurrence_repeats
+    #TODO turn co-ocurrence matrix creation into a seperate function? moving code to functions might be useful for reusing/importing code in coocurrence_repeats
     #CREATE A CO-OCURRENCE MATRIX
     ##Column names are the nodes included in plasmid walks.
     ##Each row is a new walk
@@ -152,7 +150,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     total_pairs.loc[:,'Connecting_node'] = [node.replace('-','') for node in total_pairs.loc[:,'Connecting_node']]
 
     #Filter-out cases of no-coocurrence
-    #TODO ASK filter is on weight > 1 why not weight > 0??
+    #TODO ASK Julian: we filter on weight > 1 why not weight > 0?
     index = [weight > 1 for weight in total_pairs.loc[:,'weight']]
     total_pairs = total_pairs.loc[index,:]
 
@@ -284,7 +282,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     #Analyze if each component needs to be sub-divided
     #Create a data-frame to hold the results from the different clusters
     complete_partition_info = pd.DataFrame()
-    #TODO this statement is always true?? when is len(components_graph) ever 0?
+    #TODO this statement is always true?? when is len(components_graph) ever 0? can we remove this statement?
     if len(components_graph) >= 1:
         #Loop through each component and run the different community detection algorithms.
         #As output we get a table with the different modularity values of each community detection algorithm for each sub-graph.
@@ -319,9 +317,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     #When suitable, get the results from the network partitioning algorithm.
     contigs_membership = []
-    #TODO can we replace internal_component with just 'component' from the for loop?
-    #TODO internal_component is iterated with +=1 (only if not singleton??) but it is never reset to 0?
-    #TODO test this with a sample that gets subdivided
+
     internal_component = 0
 
     #For determining partition, get the algorithm that provides the biggest modularity value.
@@ -383,11 +379,10 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
         cluster_name = unique_clusters[number]
         contigs_membership.loc[:,'Final_cluster'] = [cluster.replace(cluster_name, str(number)) for cluster in contigs_membership.loc[:,'Final_cluster']]
 
-    #TODO does this mean the program will fail if there are more than 31 clusters and it runs out of hardcoded colors?
+    #TODO what happens if there are more than 31 clusters and it runs out of hardcoded colors?
     set_colors = ['#add8e6','#d49f36','#507f2d','#84b67c','#a06fda','#df462a','#5a51dc','#5b83db','#c76c2d','#4f49a3','#552095','#82702d','#dd6bbb','#334c22','#d83979','#55baad','#dc4555','#62aad3','#8c3025','#417d61','#862977','#bba672','#403367','#da8a6d','#a79cd4','#71482c','#c689d0','#6b2940','#d593a7','#895c8b','#bd5975']
     contigs_membership.loc[:,'Color'] = [set_colors[int(cluster)] for cluster in contigs_membership.loc[:,'Final_cluster']]
     order_contigs = pd.DataFrame(data=no_loops_graph.vs['name'], columns=['Contig'])
-    #TODO we do this merge to rearrange contigs_membership. replace with np.match?
     contigs_membership = order_contigs.merge(contigs_membership, on='Contig')
     no_loops_graph.vs['color'] = contigs_membership.loc[:,'Color']
 
@@ -418,10 +413,11 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
     index = ~pl_notassigned.loc[:,'number'].isin(repeats.loc[:,'number'])
     pl_unbinned = pl_notassigned.loc[index,:]
 
-    #TODO test with data containing isolated nodes
     #If there are isolated nodes, remove them from the unbinned and create a new category
     isolated_nodes = pd.read_csv(path_isolated_nodes, sep='\t', header=0)
-    #TODO ASK mistake in original R-script?? pl_isolated is pl_unbinned, filtered with the index of pl_notassigned; probem is copied and present in this python script
+    #TODO ASK Julian: this looks like a mistake in original R-script?
+    #pl_isolated is pl_unbinned, filtered with the index of pl_notassigned?
+    #this mistake is copied from the R-script and still present in this python script
     index = pl_notassigned.loc[:,'number'].isin(isolated_nodes.loc[:,'number'])
     pl_isolated = pl_unbinned.loc[index,:]
     index = ~pl_unbinned.loc[:,'number'].isin(isolated_nodes.loc[:,'number'])
@@ -479,7 +475,7 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
             for contig in range(nodes_component.shape[0]):
                 file.write('>' + nodes_component.iloc[contig,0] + '\n' + nodes_component.iloc[contig,1] + '\n')
 
-    #TODO start the column as 'Bin' instead of renaming it at the end; like in coocurrence_repeats.py
+    #TODO if possible start the column name as 'Bin' instead of renaming it at the end; like in coocurrence_repeats.py
     full_info_assigned = full_info_assigned.rename(columns={'Component':'Bin'})
     results_subgraph = results_subgraph.rename(columns={'Component':'Bin'})
 
