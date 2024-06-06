@@ -1,0 +1,7 @@
+biopython>=1.83
+cairocffi>=1.6.1
+numpy>=1.26.4
+pandas>=2.2.0
+python-igraph>=0.11.3
+scipy>=1.12.0
+plasmidCC>=1.0.0

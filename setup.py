@@ -1,7 +1,10 @@
 from setuptools import setup, find_packages
 
-with open('envs/requirements.txt') as file_open:
+with open("requirements.txt") as file_open:
      requirements = file_open.read().splitlines()
+
+with open("README.md") as file_open:
+     README = file_open.read()
 
 setup(
     name="gplas",
@@ -10,21 +13,16 @@ setup(
         "setuptools_scm",
         "setuptools_scm_git_archive",
     ],
-    use_scm_version={"write_to":"gplas/version.py"},
+    use_scm_version={"version_file":"gplas/version.py"},
     #version="1.1.2-beta",
-    scripts=["gplas/snakefiles/mlplasmidssnake.smk"],
+    description="Binning plasmid-predicted contigs using short-read graphs",
+    long_description=README,
+    long_description_content_type='text/markdown',
     packages=find_packages(),
     install_requires=requirements,
     include_package_data=True,
-    package_data={'': ['gplas/*']},
     entry_points={
-        'console_scripts': [
-            'gplas = gplas.gplas:main',
-            #'start = gplas.__main__:start',
-            #'dostart = gplas:start'
-            ],
+        'console_scripts': ["gplas = gplas.gplas:main"],
     }
 
 )
-
-
