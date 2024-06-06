@@ -38,13 +38,13 @@ class PriorityPrinting(argparse.Action):
             print(read_logo + '\n')
             parser.print_help()
         elif option_string == '-v' or option_string == '--version':
-            print(f"gplas version {VERSION}")
+            print(f"gplasCC version {VERSION}")
         elif option_string == '--speciesopts':
             print_speciesopts()
         parser.exit()
 
 #create a function to pass float ranges
-parser = argparse.ArgumentParser(description="gplas: A tool for binning plasmid-predicted contigs into individual predictions", add_help=False)
+parser = argparse.ArgumentParser(description="gplasCC: A tool for binning plasmid-predicted contigs into individual predictions", add_help=False)
 parser.register('action', 'printing', PriorityPrinting)
 
 inputgroup = parser.add_argument_group('General')
