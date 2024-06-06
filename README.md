@@ -257,7 +257,7 @@ usage: gplas -i INPUT [-n NAME]
              [-q MODULARITY_THRESHOLD] [-l LENGTH_FILTER] [-k]
              [--speciesopts] [-v] [-h]
 
-gplas: A tool for binning plasmid-predicted contigs into individual
+gplasCC: A tool for binning plasmid-predicted contigs into individual
 predictions
 
 General:
