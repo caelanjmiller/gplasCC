@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-import glob
 
 with open("requirements.txt") as file_open:
      requirements = file_open.read().splitlines()
@@ -19,7 +18,6 @@ setup(
     description="Binning plasmid-predicted contigs using short-read graphs",
     long_description=README,
     long_description_content_type='text/markdown',
-    scripts=[script for script in glob.glob("gplas/scripts/*.py")],
     packages=find_packages(),
     install_requires=requirements,
     include_package_data=True,
