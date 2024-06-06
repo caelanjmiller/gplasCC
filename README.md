@@ -1,8 +1,6 @@
 gplasCC: binning plasmid-predicted contigs
 ================
 
-<div align="center"><img src="https://gitlab.com/oscarjordan/gplas-2-python/-/raw/dev/logo.png?ref_type=heads" alt="gplas" width="600"/></div>
-
 GplasCC is a tool to bin plasmid-predicted contigs based on sequence
 composition, coverage and assembly graph information. 
 GplasCC is a new version of [gplas](https://gitlab.com/sirarredondo/gplas) that allows for plasmid classification of any binary plasmid classifier and extends the possibility of accurately binning predicted
@@ -21,6 +19,8 @@ plasmid contigs into several discrete plasmid components by also attempting to p
     - [Intermediary results files](#intermediary-results-files)
 - [Complete usage](#complete-usage)
 - [Issues and Bugs](#issues-and-bugs)
+- [Contributions](#contributions)
+- [Citation](#citation)
 
 # Installation
 
@@ -305,6 +305,12 @@ Info:
 ```
 
 # Issues and Bugs
-
 You can report any issues or bugs that you find while installing/running
 gplasCC using the [issue tracker](https://gitlab.com/mmb-umcu/gplas2/-/issues).
+
+# Contributions
+GplasCC has been developed with contributions from Oscar Jordan, Julian Paganini, Jesse Kerkvliet, Anita Schürch and Sergio Arredondo.
+
+# Citation
+If you use gplasCC in your study, please cite:
+https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
