@@ -1,3 +1,5 @@
+![](figures/gplasCClogo.png)<!-- -->
+
 gplasCC: binning plasmid-predicted contigs
 ================
 
