@@ -311,7 +311,7 @@ You can report any issues or bugs that you find while installing/running
 gplasCC using the [issue tracker](https://gitlab.com/mmb-umcu/gplascc/-/issues).
 
 # Contributions
-GplasCC has been developed with contributions from Oscar Jordan, Julian Paganini, Jesse Kerkvliet, Anita Schürch and Sergio Arredondo.
+GplasCC has been developed with contributions from Oscar Jordan, Julian Paganini, Jesse Kerkvliet, Malbet Rogers, Sergio Arredondo and Anita Schürch.
 
 # Citation
 If you use gplasCC in your study, please cite:
