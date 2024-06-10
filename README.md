@@ -314,5 +314,7 @@ gplasCC using the [issue tracker](https://gitlab.com/mmb-umcu/gplascc/-/issues).
 GplasCC has been developed with contributions from Oscar Jordan, Julian Paganini, Jesse Kerkvliet, Malbet Rogers, Sergio Arredondo and Anita Schürch.
 
 # Citation
-If you use gplasCC in your study, please cite:
-https://academic.oup.com/bioinformatics/article/36/12/3874/5818483
+A publication is in preparation. If you used an earlier version of gplas in your study, please cite:
+https://doi.org/10.1093/bioinformatics/btaa233
+https://doi.org/10.1099/mgen.0.001193
+
