@@ -1,4 +1,4 @@
-![](figures/gplasCClogo.png)<!-- -->
+<div align="center"><img src="https://gitlab.com/mmb-umcu/gplascc/-/raw/master/figures/gplasCClogo.png?ref_type=heads" alt="gplasCC" width="600"/></div>
 
 gplasCC: binning plasmid-predicted contigs
 ================
