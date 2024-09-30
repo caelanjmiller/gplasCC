@@ -43,23 +43,23 @@ def partitioning_components(graph):
 
 
 #TODO we have multiple loops with "for row in range(solutions.shape[0]):" can we possibly merge some of them?
-def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_threshold, mode='normal'):
+def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_threshold, outdir, mode='normal'):
     if mode == 'normal':
         subdir = 'normal_mode/'
     elif mode == 'unbinned':
         subdir = ''
     #Inputs
-    path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
-    path_prediction = f"coverage/{sample}_clean_prediction.tab"
-    path_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
-    path_isolated_nodes = f"coverage/{sample}_isolated_nodes.tab"
-    input_solutions = f"walks/{subdir}{sample}_solutions.tab"
+    path_nodes = f"{outdir}/gplas_input/{sample}_raw_nodes.fasta"
+    path_prediction = f"{outdir}/coverage/{sample}_clean_prediction.tab"
+    path_graph_repeats = f"{outdir}/coverage/{sample}_repeats_graph.tab"
+    path_isolated_nodes = f"{outdir}/coverage/{sample}_isolated_nodes.tab"
+    input_solutions = f"{outdir}/walks/{subdir}{sample}_solutions.tab"
 
     #Outputs
-    output_dir = f"results/{subdir}"
-    output_results = f"results/{subdir}{sample}_results_no_repeats.tab"
-    output_components = f"results/{subdir}{sample}_bins_no_repeats.tab"
-    output_png = f"results/{subdir}{sample}_plasmidome_network.png"
+    output_dir = f"{outdir}/results/{subdir}"
+    output_results = f"{outdir}/results/{subdir}{sample}_results_no_repeats.tab"
+    output_components = f"{outdir}/results/{subdir}{sample}_bins_no_repeats.tab"
+    output_png = f"{outdir}/results/{subdir}{sample}_plasmidome_network.png"
 
     clean_pred = pd.read_csv(path_prediction, sep='\t', header=0)
     clean_pred = clean_pred.astype({'Prob_Chromosome':float,
@@ -401,25 +401,31 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     #Get all the plasmid nodes
     index = clean_pred.loc[:,'Prob_Plasmid'] >= pred_threshold
-    pl_nodes = clean_pred.loc[index,:] # Selecting only contigs predicted as plasmid-derived
+    pl_nodes = clean_pred.loc[index,:].copy() # Selecting only contigs predicted as plasmid-derived
 
     #Get all the not-assigned nodes (Unbinned and repeats)
     index = ~pl_nodes.loc[:,'number'].isin(results_subgraph.loc[:,'number'])
-    pl_notassigned = pl_nodes.loc[index,:]
+    pl_notassigned = pl_nodes.loc[index,:].copy()
     #Get the repeats
     index = pl_notassigned.loc[:,'number'].isin(repeats.loc[:,'number'])
-    pl_repeats = pl_notassigned.loc[index,:]
+    pl_repeats = pl_notassigned.loc[index,:].copy()
     #Get the Unbinned nodes
     index = ~pl_notassigned.loc[:,'number'].isin(repeats.loc[:,'number'])
-    pl_unbinned = pl_notassigned.loc[index,:]
+    pl_unbinned = pl_notassigned.loc[index,:].copy()
 
     #If there are isolated nodes, remove them from the unbinned and create a new category
     isolated_nodes = pd.read_csv(path_isolated_nodes, sep='\t', header=0)
-    #TODO ASK Julian: this looks like a mistake in original R-script?
-    #pl_isolated is pl_unbinned, filtered with the index of pl_notassigned?
-    #this mistake is copied from the R-script and still present in this python script
-    index = pl_notassigned.loc[:,'number'].isin(isolated_nodes.loc[:,'number'])
-    pl_isolated = pl_unbinned.loc[index,:]
+    isolated_nodes = isolated_nodes.astype({'Prob_Chromosome':float,
+                                            'Prob_Plasmid':float,
+                                            'Prediction':str,
+                                            'Contig_name':str,
+                                            'Contig_length':int,
+                                            'number':str,
+                                            'length':int,
+                                            'coverage':float})
+    
+    index = pl_unbinned.loc[:,'number'].isin(isolated_nodes.loc[:,'number'])
+    pl_isolated = pl_unbinned.loc[index,:].copy()
     index = ~pl_unbinned.loc[:,'number'].isin(isolated_nodes.loc[:,'number'])
     pl_unbinned = pl_unbinned.loc[index,:]
 
@@ -437,12 +443,11 @@ def calculate_coocurrence(sample, number_iterations, pred_threshold, modularity_
 
     #Add isolated nodes category
     if pl_isolated.shape[0] >= 1:
-        isolated_nr = 0
-
-        while isolated_nr <= pl_isolated.shape[0]:
-            isolated_identification = f"Isolated_{isolated_nr}"
-            pl_isolated.loc['Component'][isolated_nr] = isolated_identification
-            isolated_nr += 1
+        isolated_components = []
+        for isolated_nr in range(pl_isolated.shape[0]):
+            isolated_components.append(f"Isolated_{isolated_nr}")
+        
+        pl_isolated['Component'] = isolated_components
 
         full_info_assigned = pd.concat([full_info_assigned, pl_isolated], ignore_index=True)
 

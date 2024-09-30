@@ -11,20 +11,20 @@ def scalar1(x):  # TODO can we do something like "from coocurrence.py import sca
 
 #TODO we have multiple loops with "for row in range(solutions.shape[0]):" can we possibly merge some of them?
 
-def calculate_coocurrence_repeats(sample, sd_coverage=2):
+def calculate_coocurrence_repeats(sample, outdir, sd_coverage=2):
     #Inputs
-    path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
-    path_prediction = f"coverage/{sample}_clean_prediction.tab"
-    input_solutions = f"walks/repeats/{sample}_solutions.tab"
-    path_bins = f"results/{sample}_results_no_repeats.tab"
-    clean_repeats_path = f"coverage/{sample}_clean_repeats.tab"
-    path_cov_variation = f"coverage/{sample}_estimation.txt"
+    path_nodes = f"{outdir}/gplas_input/{sample}_raw_nodes.fasta"
+    path_prediction = f"{outdir}/coverage/{sample}_clean_prediction.tab"
+    input_solutions = f"{outdir}/walks/repeats/{sample}_solutions.tab"
+    path_bins = f"{outdir}/results/{sample}_results_no_repeats.tab"
+    clean_repeats_path = f"{outdir}/coverage/{sample}_clean_repeats.tab"
+    path_cov_variation = f"{outdir}/coverage/{sample}_estimation.txt"
 
     #Outputs
-    output_dir = "results/"
-    output_results = f"results/{sample}_results.tab"
-    output_components = f"results/{sample}_bins.tab"
-    output_chromosomes = f"results/{sample}_chromosome_repeats.tab"
+    output_dir = f"{outdir}/results/"
+    output_results = f"{outdir}/results/{sample}_results.tab"
+    output_components = f"{outdir}/results/{sample}_bins.tab"
+    output_chromosomes = f"{outdir}/results/{sample}_chromosome_repeats.tab"
 
     clean_pred = pd.read_csv(path_prediction, sep='\t', header=0)
     clean_pred = clean_pred.astype({'Prob_Chromosome':float,

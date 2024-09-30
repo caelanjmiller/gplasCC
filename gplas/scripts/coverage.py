@@ -2,21 +2,21 @@ import pandas as pd
 import statistics
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
-def coverage(sample, path_prediction, pred_threshold):
+def coverage(sample, path_prediction, pred_threshold,outdir):
     #Inputs    
-    path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
-    path_links = f"gplas_input/{sample}_raw_links.txt"
+    path_nodes = f"{outdir}/gplas_input/{sample}_raw_nodes.fasta"
+    path_links = f"{outdir}/gplas_input/{sample}_raw_links.txt"
     
     #Outputs
-    output_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
-    output_clean_links = f"coverage/{sample}_clean_links.tab"
-    output_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
-    output_clean_prediction = f"coverage/{sample}_clean_prediction.tab"
-    output_isolated_nodes = f"coverage/{sample}_isolated_nodes.tab"
-    output_clean_repeats = f"coverage/{sample}_clean_repeats.tab"
-    output_initialize_nodes = f"coverage/{sample}_initialize_nodes.tab"
-    output_repeat_nodes = f"coverage/{sample}_repeat_nodes.tab"
-    output_cov_estimate = f"coverage/{sample}_estimation.txt"
+    output_graph_contigs = f"{outdir}/coverage/{sample}_graph_contigs.tab"
+    output_clean_links = f"{outdir}/coverage/{sample}_clean_links.tab"
+    output_graph_repeats = f"{outdir}/coverage/{sample}_repeats_graph.tab"
+    output_clean_prediction = f"{outdir}/coverage/{sample}_clean_prediction.tab"
+    output_isolated_nodes = f"{outdir}/coverage/{sample}_isolated_nodes.tab"
+    output_clean_repeats = f"{outdir}/coverage/{sample}_clean_repeats.tab"
+    output_initialize_nodes = f"{outdir}/coverage/{sample}_initialize_nodes.tab"
+    output_repeat_nodes = f"{outdir}/coverage/{sample}_repeat_nodes.tab"
+    output_cov_estimate = f"{outdir}/coverage/{sample}_estimation.txt"
         
     with open(path_nodes) as file:
         raw_nodes = [[str(values[0]), str(values[1])] for values in SimpleFastaParser(file)]

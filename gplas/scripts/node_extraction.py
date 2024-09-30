@@ -1,10 +1,10 @@
 import shutil
 
 
-def extract_nodes(sample, infile, minlen):
-    output_links = f"gplas_input/{sample}_raw_links.txt"
-    output_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
-    output_contigs = f"gplas_input/{sample}_contigs.fasta"
+def extract_nodes(sample, infile, minlen,outdir):
+    output_links = f"{outdir}/gplas_input/{sample}_raw_links.txt"
+    output_nodes = f"{outdir}/gplas_input/{sample}_raw_nodes.fasta"
+    output_contigs = f"{outdir}/gplas_input/{sample}_contigs.fasta"
 
     with open(infile,'r') as graph, open(output_links,'w') as links, open(output_nodes,'w') as nodes, open(output_contigs,'w') as contigs:
         for line in graph:
@@ -27,10 +27,10 @@ def extract_nodes(sample, infile, minlen):
                 links.write(f"{line}\n")
 
 
-def extract_unbinned_solutions(sample):
-    normal_results = f"results/normal_mode/{sample}_results_no_repeats.tab"
-    bold_walks = f"walks/bold_mode/{sample}_solutions_bold.tab"
-    unbinned_walks = f"walks/unbinned_nodes/{sample}_solutions_unbinned.tab"   
+def extract_unbinned_solutions(sample,outdir):
+    normal_results = f"{outdir}/results/normal_mode/{sample}_results_no_repeats.tab"
+    bold_walks = f"{outdir}/walks/bold_mode/{sample}_solutions_bold.tab"
+    unbinned_walks = f"{outdir}/walks/unbinned_nodes/{sample}_solutions_unbinned.tab"   
     #Get unbinned nodes
     unbinned_nodes = []
     with open(normal_results,'r') as file:
@@ -50,8 +50,8 @@ def extract_unbinned_solutions(sample):
             if first_node_unsigned in unbinned_nodes:
                 outfile.write(line)
     #Combine solutions from bold and normal mode
-    normal_walks = f"walks/normal_mode/{sample}_solutions.tab"
-    combined_walks = f"walks/{sample}_solutions.tab"
+    normal_walks = f"{outdir}/walks/normal_mode/{sample}_solutions.tab"
+    combined_walks = f"{outdir}/walks/{sample}_solutions.tab"
     shutil.copyfile(normal_walks, combined_walks)
     with open(unbinned_walks,'r') as infile, open(combined_walks,'a') as outfile:
         for line in infile:

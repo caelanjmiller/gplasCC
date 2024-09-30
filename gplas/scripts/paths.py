@@ -3,24 +3,24 @@ import numpy as np
 import scipy.stats
 
 
-def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1, mode='normal'):
+def generate_paths(sample, number_iterations, filtering_threshold, outdir, sd_coverage=1, mode='normal'):
     #Inputs
-    path_links = f"coverage/{sample}_clean_links.tab"
-    path_prediction = f"coverage/{sample}_clean_prediction.tab"
-    path_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
-    path_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
-    path_init_nodes = f"coverage/{sample}_initialize_nodes.tab"
-    path_cov_variation = f"coverage/{sample}_estimation.txt"
+    path_links = f"{outdir}/coverage/{sample}_clean_links.tab"
+    path_prediction = f"{outdir}/coverage/{sample}_clean_prediction.tab"
+    path_graph_contigs = f"{outdir}/coverage/{sample}_graph_contigs.tab"
+    path_graph_repeats = f"{outdir}/coverage/{sample}_repeats_graph.tab"
+    path_init_nodes = f"{outdir}/coverage/{sample}_initialize_nodes.tab"
+    path_cov_variation = f"{outdir}/coverage/{sample}_estimation.txt"
     #Params
     # TODO make these into user-tunable parameters?
     number_nodes = 20
     prob_small_repeats = 0.5
     #Outputs Normal Mode
     if mode == 'normal':
-        output_path = f"walks/normal_mode/{sample}_solutions.tab"
+        output_path = f"{outdir}/walks/normal_mode/{sample}_solutions.tab"
     #Outputs Bold Mode
     elif mode == 'bold':
-        output_path = f"walks/bold_mode/{sample}_solutions_bold.tab"
+        output_path = f"{outdir}/walks/bold_mode/{sample}_solutions_bold.tab"
 
     links = pd.read_csv(path_links, sep='\t', header=None)
     clean_pred = pd.read_csv(path_prediction, sep='\t', header=0)
