@@ -20,19 +20,6 @@ def calculate_coocurrence_repeats(sample, sd_coverage=2):
     clean_repeats_path = f"coverage/{sample}_clean_repeats.tab"
     path_cov_variation = f"coverage/{sample}_estimation.txt"
 
-    # #TMP START===========
-    # path_nodes = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/gplas_input/{sample}_raw_nodes.fasta"
-    # path_prediction = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/coverage/{sample}_clean_prediction.tab"
-    # input_solutions = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/walks/repeats/{sample}_solutions.tab"
-    # path_bins = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/results/{sample}_results_no_repeats.tab"
-    # clean_repeats_path = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/coverage/{sample}_clean_repeats.tab"
-    # path_cov_variation = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/coverage/{sample}_estimation.txt"
-    # #out
-    # output_results = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/results/test_{sample}_results.tab"
-    # output_components = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/results/test_{sample}_2_bins.tab"
-    # output_chromosomes = f"/home/jpaganini/PhD_related/tools/gplascc_repeat_test/gplascc/results/test_{sample}_chromosome_repeats.tab"
-    # #TMP END=================
-
     #Outputs
     output_dir = "results/"
     output_results = f"results/{sample}_results.tab"
