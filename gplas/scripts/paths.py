@@ -13,7 +13,7 @@ def generate_paths(sample, number_iterations, filtering_threshold, sd_coverage=1
     path_cov_variation = f"coverage/{sample}_estimation.txt"
     #Params
     # TODO make these into user-tunable parameters?
-    number_nodes = 100
+    number_nodes = 20
     prob_small_repeats = 0.5
     #Outputs Normal Mode
     if mode == 'normal':

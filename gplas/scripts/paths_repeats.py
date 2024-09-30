@@ -10,7 +10,7 @@ def generate_repeat_paths(sample, number_iterations, filtering_threshold):
     path_init_nodes = f"coverage/{sample}_repeat_nodes.tab"
     #Params
     # TODO make these into user-tunable parameters?
-    number_nodes = 100
+    number_nodes = 20
     prob_small_repeats = 0.5
     #Outputs
     output_path = f"walks/repeats/{sample}_solutions.tab"
