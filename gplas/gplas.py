@@ -233,7 +233,7 @@ if os.path.exists(unbinned_path):
     print("Generating random walks in bold mode...", end='\r')
     os.makedirs(f"{outdirname}/walks/bold_mode", exist_ok=True)
 
-    generate_paths(sample, args.number_iterations, args.filt_gplas, args.bold_coverage_sd, outdirname, mode='bold')
+    generate_paths(sample, args.number_iterations, args.filt_gplas, outdirname,args.bold_coverage_sd, mode='bold')
     print("Generating random walks in bold mode.................. completed!")
 
     #_4.1.1.2 Extract unbinned solutions
