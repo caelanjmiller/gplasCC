@@ -11,19 +11,20 @@ def scalar1(x):  # TODO can we do something like "from coocurrence.py import sca
 
 #TODO we have multiple loops with "for row in range(solutions.shape[0]):" can we possibly merge some of them?
 
-def calculate_coocurrence_repeats(sample):
+def calculate_coocurrence_repeats(sample, outdir, sd_coverage=2):
     #Inputs
-    path_nodes = f"gplas_input/{sample}_raw_nodes.fasta"
-    path_prediction = f"coverage/{sample}_clean_prediction.tab"
-    input_solutions = f"walks/repeats/{sample}_solutions.tab"
-    path_bins = f"results/{sample}_results_no_repeats.tab"
-    clean_repeats_path = f"coverage/{sample}_clean_repeats.tab"
+    path_nodes = f"{outdir}/gplas_input/{sample}_raw_nodes.fasta"
+    path_prediction = f"{outdir}/coverage/{sample}_clean_prediction.tab"
+    input_solutions = f"{outdir}/walks/repeats/{sample}_solutions.tab"
+    path_bins = f"{outdir}/results/{sample}_results_no_repeats.tab"
+    clean_repeats_path = f"{outdir}/coverage/{sample}_clean_repeats.tab"
+    path_cov_variation = f"{outdir}/coverage/{sample}_estimation.txt"
 
     #Outputs
-    output_dir = "results/"
-    output_results = f"results/{sample}_results.tab"
-    output_components = f"results/{sample}_bins.tab"
-    output_chromosomes = f"results/{sample}_chromosome_repeats.tab"
+    output_dir = f"{outdir}/results/"
+    output_results = f"{outdir}/results/{sample}_results.tab"
+    output_components = f"{outdir}/results/{sample}_bins.tab"
+    output_chromosomes = f"{outdir}/results/{sample}_chromosome_repeats.tab"
 
     clean_pred = pd.read_csv(path_prediction, sep='\t', header=0)
     clean_pred = clean_pred.astype({'Prob_Chromosome':float,
@@ -169,8 +170,8 @@ def calculate_coocurrence_repeats(sample):
     total_pairs.loc[:,'Connecting_node'] = [node.replace('-','') for node in total_pairs.loc[:,'Connecting_node']]
 
     #Filter-out cases of no-coocurrence
-    #TODO ASK Julian: filter is on weight > 1 why not weight > 0?
-    index = [weight > 1 for weight in total_pairs.loc[:,'weight']]
+    #TODO ASK Julian: filter is on weight > 1 why not weight > 0? - Julian answer: it should be 0
+    index = [weight > 0 for weight in total_pairs.loc[:,'weight']]
     total_pairs = total_pairs.loc[index,:]
 
     #Scale weights
@@ -260,6 +261,10 @@ def calculate_coocurrence_repeats(sample):
     weight_graph.loc[index,'bin_coverage'] = float(1)
 
     #Explore if the combination of bins proposed by the algorithm is plausible based on coverage
+    #1. Add the maximum variation allowd
+    with open(path_cov_variation, mode='r') as file:
+        max_variation = float(file.readline()) * sd_coverage
+
     repeat_assignments = pd.DataFrame(columns=['From_to', 'To_from', 'weight', 'coverage', 'bin_coverage', 'rank'])
     #loop through each of the repeats
     for node in sorted(list(set(weight_graph.loc[:,'From_to']))):
@@ -274,7 +279,7 @@ def calculate_coocurrence_repeats(sample):
         while rank <= max(df_node.loc[:,'rank']):
             index = df_node.loc[:,'rank'] == rank
             repeat_bin = df_node.loc[index,:]
-            if repeat_bin.loc[:,'coverage'].values[0] + accumulated_cov >= repeat_bin.loc[:,'bin_coverage'].values[0]:
+            if repeat_bin.loc[:,'coverage'].values[0] + max_variation -  accumulated_cov >= repeat_bin.loc[:,'bin_coverage'].values[0]:
                 accumulated_cov += repeat_bin.loc[:,'bin_coverage'].values[0]
                 if repeat_assignments.shape[0] == 0: # if statement to prevent "FutureWarning: concatenation with empty DataFrame"
                     repeat_assignments = repeat_bin

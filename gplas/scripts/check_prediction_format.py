@@ -7,7 +7,7 @@ class PredictionFileFormatError(Exception):
     pass
 
 
-def check_prediction(sample, path_prediction):
+def check_prediction(sample, path_prediction,outdir):
     #0. Load prediction file.
     prediction_file = pd.read_csv(path_prediction, sep='\t', header=0)
 
@@ -77,7 +77,7 @@ def check_prediction(sample, path_prediction):
 
     #5. Check if the contig names in the prediction match the names in the FASTA file
     ##5.0 Get a path for fasta file.
-    raw_nodes_path = f"gplas_input/{sample}_raw_nodes.fasta" 
+    raw_nodes_path = f"{outdir}/gplas_input/{sample}_raw_nodes.fasta" 
 
     ##5.1 Get headers from fastafile.
     with open(raw_nodes_path) as file:

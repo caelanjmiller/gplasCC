@@ -58,41 +58,41 @@ def delete_empty_dir(dir_path):
             os.rmdir(dir_path)
 
 
-def cleanup_centrifuge(sample):
-    delete_file(f"plasmidCC/{sample}/{sample}_plasmids.fasta")
-    delete_file(f"plasmidCC/{sample}/{sample}_centrifuge_classified.txt")
+def cleanup_centrifuge(sample,outdir):
+    delete_file(f"{outdir}/plasmidCC/{sample}/{sample}_plasmids.fasta")
+    delete_file(f"{outdir}/plasmidCC/{sample}/{sample}_centrifuge_classified.txt")
 
 
-def cleanup_intermediary_files(sample):
+def cleanup_intermediary_files(sample,outdir):
     #Coverage files
-    delete_file(f"coverage/{sample}_clean_links.tab")
-    delete_file(f"coverage/{sample}_clean_prediction.tab")
-    delete_file(f"coverage/{sample}_clean_repeats.tab")
-    delete_file(f"coverage/{sample}_estimation.txt")
-    delete_file(f"coverage/{sample}_graph_contigs.tab")
-    delete_file(f"coverage/{sample}_initialize_nodes.tab")
-    delete_file(f"coverage/{sample}_isolated_nodes.tab")
-    delete_file(f"coverage/{sample}_repeat_nodes.tab")
-    delete_file(f"coverage/{sample}_repeats_graph.tab")
+    delete_file(f"{outdir}/coverage/{sample}_clean_links.tab")
+    delete_file(f"{outdir}/coverage/{sample}_clean_prediction.tab")
+    delete_file(f"{outdir}/coverage/{sample}_clean_repeats.tab")
+    delete_file(f"{outdir}/coverage/{sample}_estimation.txt")
+    delete_file(f"{outdir}/coverage/{sample}_graph_contigs.tab")
+    delete_file(f"{outdir}/coverage/{sample}_initialize_nodes.tab")
+    delete_file(f"{outdir}/coverage/{sample}_isolated_nodes.tab")
+    delete_file(f"{outdir}/coverage/{sample}_repeat_nodes.tab")
+    delete_file(f"{outdir}/coverage/{sample}_repeats_graph.tab")
     #Walks normal mode
-    delete_file(f"walks/normal_mode/{sample}_solutions.tab")
+    delete_file(f"{outdir}/walks/normal_mode/{sample}_solutions.tab")
     #Walks bold mode + unbinned solutions
-    delete_file(f"walks/bold_mode/{sample}_solutions_bold.tab")
-    delete_file(f"walks/unbinned_nodes/{sample}_solutions_unbinned.tab")
-    delete_file(f"walks/{sample}_solutions.tab")
+    delete_file(f"{outdir}/walks/bold_mode/{sample}_solutions_bold.tab")
+    delete_file(f"{outdir}/walks/unbinned_nodes/{sample}_solutions_unbinned.tab")
+    delete_file(f"{outdir}/walks/{sample}_solutions.tab")
     #Walks repeats
-    delete_file(f"walks/repeats/{sample}_solutions.tab")
+    delete_file(f"{outdir}/walks/repeats/{sample}_solutions.tab")
     #Results no_repeats
-    delete_file(f"results/{sample}_results_no_repeats.tab")
-    delete_file(f"results/{sample}_bins_no_repeats.tab")
+    delete_file(f"{outdir}/results/{sample}_results_no_repeats.tab")
+    delete_file(f"{outdir}/results/{sample}_bins_no_repeats.tab")
     #Centrifuge classification
-    delete_file(f"plasmidCC/{sample}/{sample}_gplas.tab")
+    delete_file(f"{outdir}/plasmidCC/{sample}/{sample}_gplas.tab")
     #Delete directories if they exist and are empty
-    delete_empty_dir("coverage/")
-    delete_empty_dir("walks/normal_mode/")
-    delete_empty_dir("walks/bold_mode/")
-    delete_empty_dir("walks/unbinned_nodes/")
-    delete_empty_dir("walks/repeats/")
-    delete_empty_dir("walks/")
-    delete_empty_dir(f"plasmidCC/{sample}/")
-    delete_empty_dir("plasmidCC/")
+    delete_empty_dir(f"{outdir}/coverage/")
+    delete_empty_dir(f"{outdir}/walks/normal_mode/")
+    delete_empty_dir(f"{outdir}/walks/bold_mode/")
+    delete_empty_dir(f"{outdir}/walks/unbinned_nodes/")
+    delete_empty_dir(f"{outdir}/walks/repeats/")
+    delete_empty_dir(f"{outdir}/walks/")
+    delete_empty_dir(f"{outdir}/plasmidCC/{sample}/")
+    delete_empty_dir(f"{outdir}/plasmidCC/")

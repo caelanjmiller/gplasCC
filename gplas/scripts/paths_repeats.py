@@ -1,19 +1,19 @@
 import pandas as pd
 import numpy as np
 
-def generate_repeat_paths(sample, number_iterations, filtering_threshold):
+def generate_repeat_paths(sample, number_iterations, filtering_threshold,outdir):
     #Inputs
-    path_links = f"coverage/{sample}_clean_links.tab"
-    path_prediction = f"coverage/{sample}_clean_prediction.tab"
-    path_graph_contigs = f"coverage/{sample}_graph_contigs.tab"
-    path_graph_repeats = f"coverage/{sample}_repeats_graph.tab"
-    path_init_nodes = f"coverage/{sample}_repeat_nodes.tab"
+    path_links = f"{outdir}/coverage/{sample}_clean_links.tab"
+    path_prediction = f"{outdir}/coverage/{sample}_clean_prediction.tab"
+    path_graph_contigs = f"{outdir}/coverage/{sample}_graph_contigs.tab"
+    path_graph_repeats = f"{outdir}/coverage/{sample}_repeats_graph.tab"
+    path_init_nodes = f"{outdir}/coverage/{sample}_repeat_nodes.tab"
     #Params
     # TODO make these into user-tunable parameters?
-    number_nodes = 100
+    number_nodes = 20
     prob_small_repeats = 0.5
     #Outputs
-    output_path = f"walks/repeats/{sample}_solutions.tab"
+    output_path = f"{outdir}/walks/repeats/{sample}_solutions.tab"
 
     links = pd.read_csv(path_links, sep='\t', header=None)
     clean_pred = pd.read_csv(path_prediction, sep='\t', header=0)
