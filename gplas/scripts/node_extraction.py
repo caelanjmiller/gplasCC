@@ -15,8 +15,9 @@ def extract_nodes(sample, infile, minlen,outdir):
                 sequence = cols[2]
                 if 'LN' in str(cols[3]): # Unicycler assembly
                     information = '_'.join(cols[3:])
-                elif 'KC' in str(cols[3]): # Spades assembly
-                    information = cols[3]
+                elif 'KC' in str(cols[3]) or 'KC' in str(cols[4]): # Spades assembly
+                    information = cols[3] if 'KC' in str(cols[3]) else str(cols[4])
+                    #information = cols[3]
                 else: # Empty sequence field (0 length), or other error in gfa format
                       # TODO exit the tool if the assembly is not from Unicycler or Spades? right now it would just skip all nodes and probably run into an error later in the workflow
                     continue # Skip node and continue to the next
