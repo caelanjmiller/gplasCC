@@ -14,7 +14,7 @@ setup(
         "setuptools_scm_git_archive",
     ],
     use_scm_version={"version_file":"gplas/version.py"},
-    #version="1.0.0",
+    #version="1.0.1",
     description="Binning plasmid-predicted contigs using short-read graphs",
     long_description=README,
     long_description_content_type='text/markdown',
