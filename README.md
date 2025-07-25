@@ -30,7 +30,7 @@ plasmid contigs into several discrete plasmid components by also attempting to p
 An installation of [Centrifuge](https://ccb.jhu.edu/software/centrifuge/) is required if you are using [plasmidCC](https://gitlab.com/mmb-umcu/plasmidCC) as binary classifier (default). We reccomend using a conda environment with the [centrifuge-core](https://bioconda.github.io/recipes/centrifuge-core/README.html) package installed.
 
 ``` bash
-conda create --name gplasCC -c conda-forge -c bioconda centrifuge-core=1.0.4.1 pip
+conda create --name gplasCC -c conda-forge -c bioconda centrifuge-core=1.0.4.1 python=3.11 pip 
 conda activate gplasCC
 ```
 If you prefer to use a different binary classifier, you can use gplasCC without installing Centrifuge.
