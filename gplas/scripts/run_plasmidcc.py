@@ -1,23 +1,24 @@
 import subprocess
 from gplas.scripts.utils import quit_tool
 
-def run_plasmidCC(infile, sample, minlen, threads, species, custom_db_path,outdir):
-        if species:
-            cmd = f"plasmidCC -i {infile} -o {outdir}/plasmidCC -n {sample} -s {species} -l {minlen} -t {threads} -D -g -f"
-        elif custom_db_path:
-            cmd = f"plasmidCC -i {infile} -o {outdir}/plasmidCC -n {sample} -p {custom_db_path} -l {minlen} -t {threads} -D -g -f"
 
-        try:
-            subprocess.run(cmd, shell=True, check=True)
-        except subprocess.CalledProcessError as err:
-            print(f"plasmidCC returned non-zero exit status: {err.returncode}")
-            quit_tool(err.returncode)
+def run_plasmidCC(infile, sample, minlen, threads, species, custom_db_path, outdir):
+    if species:
+        cmd = f"plasmidCC -i {infile} -o {outdir}/plasmidCC -n {sample} -s {species} -l {minlen} -t {threads} -D -g -f"
+    elif custom_db_path:
+        cmd = f"plasmidCC -i {infile} -o {outdir}/plasmidCC -n {sample} -p {custom_db_path} -l {minlen} -t {threads} -D -g -f"
+
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError as err:
+        print(f"plasmidCC returned non-zero exit status: {err.returncode}")
+        quit_tool(err.returncode)
 
 
 def print_speciesopts():
-        cmd = "plasmidCC --speciesopts"
-        try:
-            subprocess.run(cmd, shell=True, check=True)
-        except subprocess.CalledProcessError as err:
-            print(f"plasmidCC returned non-zero exit status: {err.returncode}")
-            quit_tool(err.returncode)
+    cmd = "plasmidCC --speciesopts"
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError as err:
+        print(f"plasmidCC returned non-zero exit status: {err.returncode}")
+        quit_tool(err.returncode)

@@ -6,8 +6,10 @@ from plasmidCC.scripts.utils import speciesopts
 
 def quit_tool(exitcode=0):
     if exitcode != 0:
-        print('\n', end='')
-        print("This run of gplas has ended unexpectedly. Please check above for any error messages")
+        print("\n", end="")
+        print(
+            "This run of gplas has ended unexpectedly. Please check above for any error messages"
+        )
         sys.exit(-1)
     else:
         sys.exit(0)
@@ -15,34 +17,47 @@ def quit_tool(exitcode=0):
 
 def file_exists(arg):
     if not os.path.isfile(arg):
-        raise argparse.ArgumentTypeError(f"'{arg}' is not an existing file" + "\nPlease make sure the file exists and is spelled correctly")
+        raise argparse.ArgumentTypeError(
+            f"'{arg}' is not an existing file"
+            + "\nPlease make sure the file exists and is spelled correctly"
+        )
     return str(arg)
 
 
-def is_valid_file(arg, extensions=['gfa']):
+def is_valid_file(arg, extensions=["gfa"]):
     if not os.path.isfile(arg):
-        raise argparse.ArgumentTypeError(f"'{arg}' is not an existing file" + "\nPlease make sure the file exists and is spelled correctly")
+        raise argparse.ArgumentTypeError(
+            f"'{arg}' is not an existing file"
+            + "\nPlease make sure the file exists and is spelled correctly"
+        )
     _, file_extension = os.path.splitext(arg)
     if not file_extension[1:].lower() in extensions:
-        raise argparse.ArgumentTypeError(f"'{arg}' is not a file of type {' or '.join(extensions)}")
+        raise argparse.ArgumentTypeError(
+            f"'{arg}' is not a file of type {' or '.join(extensions)}"
+        )
     return arg
 
 
 def is_valid_dir(arg):
     if not os.path.isdir(arg):
-        raise argparse.ArgumentTypeError(f"'{arg}' is not an existing directory, and I am afraid to create it")
+        raise argparse.ArgumentTypeError(
+            f"'{arg}' is not an existing directory, and I am afraid to create it"
+        )
     return arg
 
 
 def check_species(arg):
     if not arg in speciesopts:
-        raise argparse.ArgumentTypeError(f"'{arg}' is not a recognised species" + "\nUse gplas with the --speciesopts flag for a list of all supported species")
+        raise argparse.ArgumentTypeError(
+            f"'{arg}' is not a recognised species"
+            + "\nUse gplas with the --speciesopts flag for a list of all supported species"
+        )
     return arg
 
 
 def check_output(path):
     if not os.path.exists(path):
-        print('\n')
+        print("\n")
         print(f"Failed to create the following output: {path}")
         quit_tool(-1)
 
@@ -58,13 +73,13 @@ def delete_empty_dir(dir_path):
             os.rmdir(dir_path)
 
 
-def cleanup_centrifuge(sample,outdir):
+def cleanup_centrifuge(sample, outdir):
     delete_file(f"{outdir}/plasmidCC/{sample}/{sample}_plasmids.fasta")
     delete_file(f"{outdir}/plasmidCC/{sample}/{sample}_centrifuge_classified.txt")
 
 
-def cleanup_intermediary_files(sample,outdir):
-    #Coverage files
+def cleanup_intermediary_files(sample, outdir):
+    # Coverage files
     delete_file(f"{outdir}/coverage/{sample}_clean_links.tab")
     delete_file(f"{outdir}/coverage/{sample}_clean_prediction.tab")
     delete_file(f"{outdir}/coverage/{sample}_clean_repeats.tab")
@@ -74,20 +89,20 @@ def cleanup_intermediary_files(sample,outdir):
     delete_file(f"{outdir}/coverage/{sample}_isolated_nodes.tab")
     delete_file(f"{outdir}/coverage/{sample}_repeat_nodes.tab")
     delete_file(f"{outdir}/coverage/{sample}_repeats_graph.tab")
-    #Walks normal mode
+    # Walks normal mode
     delete_file(f"{outdir}/walks/normal_mode/{sample}_solutions.tab")
-    #Walks bold mode + unbinned solutions
+    # Walks bold mode + unbinned solutions
     delete_file(f"{outdir}/walks/bold_mode/{sample}_solutions_bold.tab")
     delete_file(f"{outdir}/walks/unbinned_nodes/{sample}_solutions_unbinned.tab")
     delete_file(f"{outdir}/walks/{sample}_solutions.tab")
-    #Walks repeats
+    # Walks repeats
     delete_file(f"{outdir}/walks/repeats/{sample}_solutions.tab")
-    #Results no_repeats
+    # Results no_repeats
     delete_file(f"{outdir}/results/{sample}_results_no_repeats.tab")
     delete_file(f"{outdir}/results/{sample}_bins_no_repeats.tab")
-    #Centrifuge classification
+    # Centrifuge classification
     delete_file(f"{outdir}/plasmidCC/{sample}/{sample}_gplas.tab")
-    #Delete directories if they exist and are empty
+    # Delete directories if they exist and are empty
     delete_empty_dir(f"{outdir}/coverage/")
     delete_empty_dir(f"{outdir}/walks/normal_mode/")
     delete_empty_dir(f"{outdir}/walks/bold_mode/")
