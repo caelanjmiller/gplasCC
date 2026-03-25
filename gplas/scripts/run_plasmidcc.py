@@ -1,11 +1,11 @@
 import subprocess
 from gplas.scripts.utils import quit_tool
 
-def run_plasmidCC(infile, sample, minlen, species, custom_db_path,outdir):
+def run_plasmidCC(infile, sample, minlen, threads, species, custom_db_path,outdir):
         if species:
-            cmd = f"plasmidCC -i {infile} -o {outdir}/plasmidCC -n {sample} -s {species} -l {minlen} -D -g -f"
+            cmd = f"plasmidCC -i {infile} -o {outdir}/plasmidCC -n {sample} -s {species} -l {minlen} -t {threads} -D -g -f"
         elif custom_db_path:
-            cmd = f"plasmidCC -i {infile} -o {outdir}/plasmidCC -n {sample} -p {custom_db_path} -l {minlen} -D -g -f"
+            cmd = f"plasmidCC -i {infile} -o {outdir}/plasmidCC -n {sample} -p {custom_db_path} -l {minlen} -t {threads} -D -g -f"
 
         try:
             subprocess.run(cmd, shell=True, check=True)

@@ -281,6 +281,7 @@ Parameters:
   -t THRESHOLD_PREDICTION
                         Prediction threshold for plasmid-derived sequences
                         (default: 0.5)
+  --threads THREADS     Number of CPUs (default: 1)
   -b BOLD_COVERAGE_SD   Coverage variance allowed for bold walks to
                         recover unbinned plasmid-predicted nodes (default:
                         5)

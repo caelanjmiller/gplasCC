@@ -70,7 +70,7 @@ paramgroup.add_argument('-l', dest='length_filter', type=int, default=1000, help
 
 othergroup = parser.add_argument_group('Other')
 othergroup.add_argument('-k', '--keep', action='store_true', help="Keep intermediary files")
-#othergroup.add_argument('--threads', type=int, default=1, help="Max number of threads to ")  #TODO add multi processing for paths scripts
+othergroup.add_argument('--threads', type=int, default=1, help="Number of CPUs")  
 
 infogroup = parser.add_argument_group('Info')
 infogroup.add_argument('--speciesopts', action='printing', nargs=0, help="Prints a list of all supported species for the -s flag")
@@ -165,7 +165,7 @@ if args.species or args.custom_db_path:
     os.makedirs(f'{outdirname}/plasmidCC', exist_ok=True)
     inputFASTA = f"{outdirname}/gplas_input/{sample}_contigs.fasta"
 
-    run_plasmidCC(inputFASTA, sample, args.length_filter, args.species, args.custom_db_path,outdirname)
+    run_plasmidCC(inputFASTA, sample, args.length_filter, args.threads, args.species, args.custom_db_path,outdirname)
     utils.cleanup_centrifuge(sample,outdirname)
 
     print('\n', end='')
