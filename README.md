@@ -1,7 +1,21 @@
-<div align="center"><img src="https://gitlab.com/mmb-umcu/gplascc/-/raw/master/figures/gplasCClogo.png?ref_type=heads" alt="gplasCC" width="600"/></div>
+<div align="center"><img src="https://gitlab.com/mmb-umcu/gplascc/-/raw/master/figures/gplasCClogo.png?ref_type=heads" alt="gplasCC" width="600"/>
+  <img src="https://img.shields.io/badge/Fork-Mirror-blue?style=flat-square&logo=git&logoColor=white" alt="Fork/Mirror"/>
+</div>
 
 gplasCC: binning plasmid-predicted contigs
 ================
+
+⚠️ This repository is a fork/mirror of the original project: [gplasCC on GitLab](https://gitlab.com/mmb-umcu/gplascc)
+
+- **Original authors:** Oscar Jordan, Julian Paganini, Jesse Kerkvliet, Malbet Rogers, Sergio Arredondo, Anita Schürch  
+  [Publication](https://doi.org/10.1093/bioinformatics/btaa233)  
+
+- **My contributions:** multithreaded operations, additional functionality, updated documentation  
+- **Upstream development:** occurs on GitLab  
+
+- This mirror exists to showcase my contributions and development history.
+
+---
 
 GplasCC is a tool to bin plasmid-predicted contigs based on sequence
 composition, coverage and assembly graph information. 
@@ -317,4 +331,3 @@ GplasCC has been developed with contributions from Oscar Jordan, Julian Paganini
 A publication is in preparation. If you used an earlier version of gplas in your study, please cite:
 https://doi.org/10.1093/bioinformatics/btaa233
 https://doi.org/10.1099/mgen.0.001193
-
